@@ -5,21 +5,21 @@ using UnityEngine;
 /// 행동을 나타내는 객체의 클래스입니다.
 /// 행동 종류, 행동 주체, 행동 대상 등을 포함합니다.
 /// </summary>
-public class Behavior : MonoBehaviour {
+public class Behavior{
 
     private BasicBehavior behavior;             // 행동 종류
-    private GameObject subjectPlayer;           // 행동 주체
-    private List<GameObject> objectPlayers;     // 행동 대상
-    private List<GameObject> thirdPartyPlayers; // 행동이 통찰인 경우에, 행동 대상의 추정 목표 대상 두 명을 지정
+    private GameObject SubjectPlayer;           // 행동 주체
+    private List<GameObject> ObjectPlayers;     // 행동 대상
+    private List<GameObject> ThirdPartyPlayers; // 행동이 통찰인 경우에, 행동 대상의 추정 목표 대상 두 명을 지정
 
     // 행동 객체의 생성자입니다.
     public Behavior(BasicBehavior behavior, GameObject subjectPlayer,
         List<GameObject> objectPlayers = null, List<GameObject> thirdPartyPlayers = null)
     {
         this.behavior = behavior;
-        this.subjectPlayer = subjectPlayer;
-        this.objectPlayers = objectPlayers;
-        this.thirdPartyPlayers = thirdPartyPlayers;
+        SubjectPlayer = subjectPlayer;
+        ObjectPlayers = objectPlayers;
+        ThirdPartyPlayers = thirdPartyPlayers;
     }
 
     public BasicBehavior GetBehavior()
@@ -29,17 +29,17 @@ public class Behavior : MonoBehaviour {
 
     public GameObject GetSubjectPlayer()
     {
-        return subjectPlayer;
+        return SubjectPlayer;
     }
 
     public List<GameObject> GetObjectPlayers()
     {
-        return objectPlayers;
+        return ObjectPlayers;
     }
 
     public List<GameObject> GetThirdPartyPlayers()
     {
-        return thirdPartyPlayers;
+        return ThirdPartyPlayers;
     }
 }
 

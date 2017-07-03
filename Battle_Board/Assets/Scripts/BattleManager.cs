@@ -8,7 +8,7 @@ using UnityEngine;
 public class BattleManager : MonoBehaviour {
 
     public GameObject player;
-    public List<GameObject> Players = new List<GameObject>();              // 대전에 참여하는 플레이어들
+    public List<PlayerController> Players = new List<PlayerController>();   // 대전에 참여하는 플레이어들
     private List<TargetGraph> PlayerPermutation = new List<TargetGraph>();  // 목표 그래프, 플레이어는 랜덤 순서로 배치
     private List<Behavior> Behaviors = new List<Behavior>();                // 행동 결정 단계에서 결정이 완료된 행동들
     private List<bool> isWin = new List<bool>();                            // 플레이어 순서는 PlayerPermutation의 인덱스를 따르며, 그 플레이어가 대전에서 승리하면 true
@@ -29,29 +29,29 @@ public class BattleManager : MonoBehaviour {
     private void Awake()
     {
         turn = 0;
-        List<GameObject> tempPlayers = new List<GameObject>();
+        List<PlayerController> tempPlayers = new List<PlayerController>();
 
         // 플레이어 5명의 캐릭터를 Instanciate하여 Players에 넣는다.
         // TODO 최종 버전에서는 각 플레이어의 캐릭터를 관리하는 매니저에서 정보를 받아와야 한다.
-        Players.Add((GameObject)Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity));
-        Players[0].GetComponentInChildren<Camera>().targetDisplay = 1;
-        Players[0].GetComponent<PlayerController>().SetPlayerName("Player1");
+        Players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
+        Players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 1;
+        Players[0].SetPlayerName("Player1");
         tempPlayers.Add(Players[0]);
-        Players.Add((GameObject)Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)));
-        Players[1].GetComponentInChildren<Camera>().targetDisplay = 2;
-        Players[1].GetComponent<PlayerController>().SetPlayerName("Player2");
+        Players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
+        Players[1].gameObject.GetComponentInChildren<Camera>().targetDisplay = 2;
+        Players[1].SetPlayerName("Player2");
         tempPlayers.Add(Players[1]);
-        Players.Add((GameObject)Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)));
-        Players[2].GetComponentInChildren<Camera>().targetDisplay = 3;
-        Players[2].GetComponent<PlayerController>().SetPlayerName("Player3");
+        Players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
+        Players[2].gameObject.GetComponentInChildren<Camera>().targetDisplay = 3;
+        Players[2].SetPlayerName("Player3");
         tempPlayers.Add(Players[2]);
-        Players.Add((GameObject)Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)));
-        Players[3].GetComponentInChildren<Camera>().targetDisplay = 4;
-        Players[3].GetComponent<PlayerController>().SetPlayerName("Player4");
+        Players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
+        Players[3].gameObject.GetComponentInChildren<Camera>().targetDisplay = 4;
+        Players[3].SetPlayerName("Player4");
         tempPlayers.Add(Players[3]);
-        Players.Add((GameObject)Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)));
-        Players[4].GetComponentInChildren<Camera>().targetDisplay = 5;
-        Players[4].GetComponent<PlayerController>().SetPlayerName("Player5");
+        Players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
+        Players[4].gameObject.GetComponentInChildren<Camera>().targetDisplay = 5;
+        Players[4].SetPlayerName("Player5");
         tempPlayers.Add(Players[4]);
 
         // 목표 그래프에 5명의 플레이어를 랜덤한 순서로 배치한다.
@@ -78,10 +78,10 @@ public class BattleManager : MonoBehaviour {
         {
             // 턴이 시작되면
             Debug.Log("Turn starts.");
-            foreach (GameObject p in Players)
+            foreach (PlayerController p in Players)
             {
                 // 모든 생존자 마나 2씩 회복
-                p.GetComponent<PlayerController>().ManaRecovery();
+                p.ManaRecovery();
             }
             // 행동 결정 단계로 넘어감
             turn = 2;
@@ -91,11 +91,11 @@ public class BattleManager : MonoBehaviour {
             // 행동 결정 단계에서
             Debug.Log("Decide your behavior.");
             bool isCompleted = true;
-            foreach (GameObject p in Players)
+            foreach (PlayerController p in Players)
             {
                 // 사망한 플레이어는 행동을 결정하지 않음
-                if (p.GetComponent<PlayerController>().GetDead()) continue;
-                else if (!p.GetComponent<PlayerController>().GetHasDecided())
+                if (p.GetDead()) continue;
+                else if (!p.GetHasDecided())
                 {
                     isCompleted = false;
                     break;
@@ -109,25 +109,27 @@ public class BattleManager : MonoBehaviour {
         else if (turn == 3)
         {
             Debug.Log("Performming behaviors...");
-            // 모든 플레이어의 상태이상을 해제함
-            foreach (GameObject p in Players)
+            // 모든 플레이어의 상태이상을 해제하고 행동을 결정하지 않은 상태로 초기화함
+            foreach (PlayerController p in Players)
             {
-                p.GetComponent<PlayerController>().Purify();
+                p.Purify();
+                p.SetNotDecided();
             }
             // 전 단계에서 결정된 행동들을 수행함
             foreach (Behavior b in Behaviors)
             {
                 // TODO 피해 무시, 상대 행동 무효화 등의 행동은 가장 먼저 이루어져야 함
-                StartCoroutine("PerformBehavior", b);
+                //StartCoroutine("PerformBehavior", b);
+                BehaviorManager.Perform(b);
             }
             turn = 4;
         }
         else if (turn == 4)
         {
             Debug.Log("Processing the dead...");
-            foreach (GameObject p in Players)
+            foreach (PlayerController p in Players)
             {
-                p.GetComponent<PlayerController>().Death();
+                p.Death();
             }
             turn = 5;
         }
@@ -136,13 +138,13 @@ public class BattleManager : MonoBehaviour {
             bool isEnd = false;
             for (int i = 0; i < 5; i++)
             {
-                if (!PlayerPermutation[i].player.GetComponent<PlayerController>().GetDead() 
-                    && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetComponent<PlayerController>().GetDead()
-                    && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetComponent<PlayerController>().GetDead())
+                if (!PlayerPermutation[i].player.GetDead() 
+                    && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetDead()
+                    && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetDead())
                 {
                     isWin[i] = true;
                     isEnd = true;
-                    Debug.Log(PlayerPermutation[i].player.GetComponent<PlayerController>().GetPlayerName() + " is win!");
+                    Debug.Log(PlayerPermutation[i].player.GetPlayerName() + " is win!");
                 }
             }
             if (isEnd)
@@ -157,10 +159,20 @@ public class BattleManager : MonoBehaviour {
         }
 	}
 
+    public void AddBehavior(Behavior b)
+    {
+        if (BehaviorManager.Verificate(b))
+        {
+            Behaviors.Add(b);
+        }
+    }
+
+    /*
     // 이 함수는 Coroutine 함수입니다.
     IEnumerator PerformBehavior(Behavior behavior)
     {
         // TODO 인자로 받은 행동을 수행하도록 하기
         yield return null;
     }
+    */
 }

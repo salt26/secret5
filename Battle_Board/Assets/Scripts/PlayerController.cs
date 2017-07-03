@@ -14,16 +14,18 @@ public class PlayerController : MonoBehaviour {
     [SerializeField] private int doubleAttack = 3;  // 두 명 대상 일반 공격력
     [SerializeField] private int heal = 4;          // 회복량
     [SerializeField] private int characterType = 0; // 캐릭터 종류(이것에 따라 캐릭터 능력이 정해짐)
-    //[SerializeField] private Skill skill1;        // 스킬1
-    //[SerializeField] private Skill skill2;        // 스킬2
+    [SerializeField] private Skill skill1;          // 스킬1
+    [SerializeField] private Skill skill2;          // 스킬2
     [SerializeField] private bool isDead = false;   // 사망 여부(사망하면 true)
     [SerializeField] private string playerName;     // 플레이어 이름
 
+    private Behavior behavior;
     private bool isTargetable = true;               // 자신이 행동의 대상으로 지정될 수 있는지 여부(가능하면 true)
     private bool isInvincible = false;              // 자신이 피해 무시 상태인지 여부(이번 턴에 받은 피해를 모두 무시하는 상태이면 true)
     private bool isFreezed = false;                 // 빙결 여부(이번 턴에 빙결되어 행동을 할 수 없는 상태이면 true)
     private bool isSilenced = false;                // 침묵 여부(이번 턴에 침묵되어 스킬을 사용할 수 없는 상태이면 true)
     private bool hasDecided = false;                // 행동 결정 완료 여부(행동을 결정한 상태이면 true)
+    private bool isDecideClicked = false;
 
     // Awake() 함수는 Start() 함수보다 항상 먼저 호출되며, 한 번만 호출됩니다.
     void Awake() {
@@ -172,6 +174,58 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public void MakeBehavior(string behaviorName)
+    {
+        if (isDead || isFreezed)
+        {
+            Debug.Log("You cannot make behavior.");
+            return;
+        }
+        BasicBehavior bb = new BasicBehavior(behaviorName);
+        int skillType = BehaviorManager.GetSkillType(bb);
+        if (skillType == -1)
+        {
+            Debug.LogWarning("Bad behavior.");
+            return;
+        }
+        else if ((skillType == 1 || skillType == 2) && isSilenced)
+        {
+            Debug.Log("You cannot invoke skill.");
+            return;
+        }
+        if (!BehaviorManager.EnoughMana(bb, mana))
+        {
+            Debug.Log("Not enough mana.");
+            return;
+        }
+        behavior = new Behavior(bb, this);
+        StartCoroutine("SelectTarget", behavior);
+    }
+
+    IEnumerator SelectTarget(Behavior behavior)
+    {
+        while (true)
+        {
+            yield return new WaitUntil(() => isDecideClicked);
+            isDecideClicked = false;
+            if (BehaviorManager.VerificateTarget(behavior))
+            {
+                GameObject.Find("BattleManager").GetComponent<BattleManager>().AddBehavior(behavior);
+                hasDecided = true;
+                break;
+            }
+            else Debug.Log("Invalid target.");
+            // TODO 통찰의 경우 두 번 선택하도록 만들기
+            // TODO 선택 취소 기능 만들기
+        }
+    }
+
+    public void DecideClick()
+    {
+        // TODO 선택한 플레이어들을 behavior.SetObjectPlayers(List<PlayerController>)로 저장해야 한다.
+        isDecideClicked = true;
+    }
+
     /// <summary>
     /// 행동 결정 완료 여부를 반환합니다.
     /// </summary>
@@ -190,13 +244,38 @@ public class PlayerController : MonoBehaviour {
         return isDead;
     }
 
-    public void SetPlayerName(string name)
+    public bool GetTargetable()
     {
-        playerName = name;
+        return isTargetable;
     }
 
     public string GetPlayerName()
     {
         return playerName;
+    }
+
+    public int GetSingleAttack()
+    {
+        return singleAttack;
+    }
+
+    public int GetDoubleAttack()
+    {
+        return doubleAttack;
+    }
+
+    public int GetHeal()
+    {
+        return heal;
+    }
+
+    public void SetPlayerName(string name)
+    {
+        playerName = name;
+    }
+
+    public void SetNotDecided()
+    {
+        hasDecided = false;
     }
 }

@@ -6,7 +6,7 @@ using UnityEngine;
 /// </summary>
 public class TargetGraph
 {
-    public GameObject player;
+    public PlayerController player;
     private int index;
     private List<int> TargetIndex = new List<int>();
 

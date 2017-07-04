@@ -13,9 +13,12 @@ public class BehaviorManager : MonoBehaviour
     // 기본 행동과 스킬의 목록을 가지고 있는 데이터베이스입니다.
     private static List<BehaviorInfo> behaviorInfo = new List<BehaviorInfo>();
 
+    private static BattleManager bm;
+
     // 여기에 기본 행동과 스킬을 추가할 수 있습니다.
     private void Awake()
     {
+        bm = gameObject.GetComponent<BattleManager>();
         BehaviorInfo bi;
 
         #region 기본 행동 목록
@@ -92,6 +95,7 @@ public class BehaviorManager : MonoBehaviour
         // TODO 새 스킬을 추가할 때는 위와 같은 형식으로 여기에 추가하고, 아래에 스킬이 수행하는 스킬 구현 함수를 만들어주세요.
 
         #endregion
+        
     }
 
     #region 기본 행동 구현 함수
@@ -222,6 +226,20 @@ public class BehaviorManager : MonoBehaviour
         {
             return false;
         }
+        // 지정할 수 없는 대상을 지정했는지, 같은 대상을 여러 번 지정했는지 확인합니다.
+        List<PlayerController> pc = new List<PlayerController>();
+        foreach (PlayerController p in b.GetObjectPlayers())
+        {
+            if (!p.GetTargetable() || p.GetDead())
+            {
+                return false;
+            }
+            if (pc.IndexOf(p) != -1)
+            {
+                return false;
+            }
+            pc.Add(p);
+        }
         return true;
     }
 
@@ -241,7 +259,7 @@ public class BehaviorManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 인자로 주어진 행동 종류에 따른 스킬 종류를 반환합니다. 올바른 이름이 아니면 -1을 반환합니다.
+    /// 인자로 주어진 행동 종류에 따른 스킬 종류를 반환합니다. 올바른 행동 종류가 아니면 -1을 반환합니다.
     /// </summary>
     /// <param name="bb">행동 종류</param>
     /// <returns>기본 행동이면 0, 캐릭터 고유 스킬이면 1, 공용 스킬이면 2를 반환합니다.</returns>
@@ -250,7 +268,7 @@ public class BehaviorManager : MonoBehaviour
         if (bb == null) return -1;
         foreach (BehaviorInfo bi in behaviorInfo)
         {
-            if (bi.GetBehaviorName() == bb.Name)
+            if (bi.GetBehaviorName().Equals(bb.Name))
             {
                 return bi.GetSkillType();
             }
@@ -258,6 +276,12 @@ public class BehaviorManager : MonoBehaviour
         return -1;
     }
 
+    /// <summary>
+    /// 인자로 주어진 행동 종류를 수행하는 데 필요한 마나보다 인자로 주어진 마나가 적지 않은지 확인합니다. 올바른 행동 종류가 아니면 false를 반환합니다.
+    /// </summary>
+    /// <param name="bb">행동 종류</param>
+    /// <param name="mana">행동 주체의 현재 마나</param>
+    /// <returns>행동에 필요한 마나가 충분하면 true, 마나가 부족하면 false를 반환합니다.</returns>
     public static bool EnoughMana(BasicBehavior bb, int mana)
     {
         if (bb == null) return false;
@@ -270,6 +294,34 @@ public class BehaviorManager : MonoBehaviour
                     return true;
                 }
                 else return false;
+            }
+        }
+        return false;
+    }
+
+    public static bool TargetsExist(BasicBehavior bb, PlayerController subject)
+    {
+        if (bb == null) return false;
+        foreach (BehaviorInfo bi in behaviorInfo)
+        {
+            if (bi.GetBehaviorName() == bb.Name)
+            {
+                if (bi.GetTargetMyself())
+                {
+                    if (bi.GetTargetNumber() <= bm.TargetableNumber())
+                    {
+                        return true;
+                    }
+                    else return false;
+                }
+                else
+                {
+                    if (bi.GetTargetNumber() <= bm.TargetableNumberExceptOneself(subject))
+                    {
+                        return true;
+                    }
+                    else return false;
+                }
             }
         }
         return false;
@@ -296,7 +348,7 @@ public class BehaviorManager : MonoBehaviour
             return false;
         }
         // 행동 정보에서 요구하는 대상 수와 행동의 대상 수가 일치하는지 확인합니다.
-        if (bi.GetTargetNumber() != b.GetObjectPlayers().Count)
+        if (b.GetObjectPlayers() == null || bi.GetTargetNumber() != b.GetObjectPlayers().Count)
         {
             return false;
         }
@@ -305,15 +357,34 @@ public class BehaviorManager : MonoBehaviour
         {
             return false;
         }
-        // 지정할 수 없는 대상을 지정했는지 확인합니다.
+        // 지정할 수 없는 대상을 지정했는지, 같은 대상을 여러 번 지정했는지 확인합니다.
+        List<PlayerController> pc = new List<PlayerController>();
         foreach (PlayerController p in b.GetObjectPlayers())
         {
-            if(!p.GetTargetable())
+            if (!p.GetTargetable() || p.GetDead())
             {
                 return false;
             }
+            if (pc.IndexOf(p) != -1)
+            {
+                return false;
+            }
+            pc.Add(p);
         }
         return true;
+    }
+
+    public static int GetTargetNumber(Behavior b)
+    {
+        if (b == null) return -1;
+        foreach (BehaviorInfo bi in behaviorInfo)
+        {
+            if (bi.GetBehaviorName().Equals(b.GetBehavior().Name))
+            {
+                return bi.GetTargetNumber();
+            }
+        }
+        return -1;
     }
 }
 

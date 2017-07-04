@@ -35,23 +35,38 @@ public class BattleManager : MonoBehaviour {
         // TODO 최종 버전에서는 각 플레이어의 캐릭터를 관리하는 매니저에서 정보를 받아와야 한다.
         Players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
         Players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 1;
+        //Players[0].gameObject.GetComponentInChildren<Canvas>().targetDisplay = 1;
         Players[0].SetPlayerName("Player1");
+        Players[0].playerNum = 1;
+        Players[0].SetAuto(false);
         tempPlayers.Add(Players[0]);
+
         Players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
         Players[1].gameObject.GetComponentInChildren<Camera>().targetDisplay = 2;
+        //Players[1].gameObject.GetComponentInChildren<Canvas>().targetDisplay = 2;
         Players[1].SetPlayerName("Player2");
+        Players[1].playerNum = 2;
         tempPlayers.Add(Players[1]);
+
         Players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
         Players[2].gameObject.GetComponentInChildren<Camera>().targetDisplay = 3;
+        //Players[2].gameObject.GetComponentInChildren<Canvas>().targetDisplay = 3;
         Players[2].SetPlayerName("Player3");
+        Players[2].playerNum = 3;
         tempPlayers.Add(Players[2]);
+
         Players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
         Players[3].gameObject.GetComponentInChildren<Camera>().targetDisplay = 4;
+        //Players[3].gameObject.GetComponentInChildren<Canvas>().targetDisplay = 4;
         Players[3].SetPlayerName("Player4");
+        Players[3].playerNum = 4;
         tempPlayers.Add(Players[3]);
+
         Players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
         Players[4].gameObject.GetComponentInChildren<Camera>().targetDisplay = 5;
+        //Players[4].gameObject.GetComponentInChildren<Canvas>().targetDisplay = 5;
         Players[4].SetPlayerName("Player5");
+        Players[4].playerNum = 5;
         tempPlayers.Add(Players[4]);
 
         // 목표 그래프에 5명의 플레이어를 랜덤한 순서로 배치한다.
@@ -73,11 +88,12 @@ public class BattleManager : MonoBehaviour {
 	}
 
     // FixedUpdate() 함수는 고정된 프레임 수(1초에 60번)에 따라 매 프레임마다 호출됩니다.
+    // 여기서의 FixedUpdate() 함수는 턴의 각 단계를 진행시키는 함수입니다.
     void FixedUpdate () {
 		if (turn == 1)
         {
             // 턴이 시작되면
-            Debug.Log("Turn starts.");
+            //Debug.Log("Turn starts.");
             foreach (PlayerController p in Players)
             {
                 // 모든 생존자 마나 2씩 회복
@@ -89,7 +105,7 @@ public class BattleManager : MonoBehaviour {
         else if (turn == 2)
         {
             // 행동 결정 단계에서
-            Debug.Log("Decide your behavior.");
+            //Debug.Log("Decide your behavior.");
             bool isCompleted = true;
             foreach (PlayerController p in Players)
             {
@@ -108,7 +124,7 @@ public class BattleManager : MonoBehaviour {
         }
         else if (turn == 3)
         {
-            Debug.Log("Performming behaviors...");
+            //Debug.Log("Performming behaviors...");
             // 모든 플레이어의 상태이상을 해제하고 행동을 결정하지 않은 상태로 초기화함
             foreach (PlayerController p in Players)
             {
@@ -122,11 +138,12 @@ public class BattleManager : MonoBehaviour {
                 //StartCoroutine("PerformBehavior", b);
                 BehaviorManager.Perform(b);
             }
+            Behaviors = new List<Behavior>();
             turn = 4;
         }
         else if (turn == 4)
         {
-            Debug.Log("Processing the dead...");
+            //Debug.Log("Processing the dead...");
             foreach (PlayerController p in Players)
             {
                 p.Death();
@@ -136,34 +153,99 @@ public class BattleManager : MonoBehaviour {
         else if (turn == 5)
         {
             bool isEnd = false;
+            bool allDead = true;
             for (int i = 0; i < 5; i++)
             {
-                if (!PlayerPermutation[i].player.GetDead() 
-                    && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetDead()
-                    && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetDead())
-                {
-                    isWin[i] = true;
-                    isEnd = true;
-                    Debug.Log(PlayerPermutation[i].player.GetPlayerName() + " is win!");
+                //Debug.Log(PlayerPermutation[i].player.GetPlayerName() + "'s target is " + PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetPlayerName() + " and "+ PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[1]].player.GetPlayerName() + ".");
+                if (!PlayerPermutation[i].player.GetDead()) {
+                    allDead = false;
+                    if (PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetDead()
+                        && PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[1]].player.GetDead())
+                    {
+                        isWin[i] = true;
+                        isEnd = true;
+                        Debug.Log(PlayerPermutation[i].player.GetPlayerName() + " wins!");
+                    }
                 }
+            }
+            if (allDead)
+            {
+                Debug.Log("No one wins.");
+                isEnd = true;
             }
             if (isEnd)
             {
                 Debug.Log("Battle ends.");
+                turn = 6;
             }
             else
             {
                 Debug.Log("Turn ends.");
-                turn = 1;
+                turn = 1;   // 7로 놓으면 수동으로(버튼을 눌러서) 턴 진행, 1로 놓으면 자동으로 턴 진행
             }
         }
 	}
 
+    /// <summary>
+    /// 각 플레이어가 행동 결정을 완료하면 이 함수를 호출하여 행동을 확정합니다. 행동 수행 단계에서 이 행동들을 수행하게 됩니다.
+    /// </summary>
+    /// <param name="b">결정 완료된 행동</param>
     public void AddBehavior(Behavior b)
     {
         if (BehaviorManager.Verificate(b))
         {
             Behaviors.Add(b);
+        }
+    }
+    
+    /// <summary>
+    /// 특정 플레이어에게 행동을 결정하도록 하는 함수입니다. UI상에서 행동 버튼을 클릭했을 때 실행합니다.
+    /// </summary>
+    /// <param name="playerNum">1 ~ 5 사이의 플레이어 번호</param>
+    /// <param name="behaviorName">행동 이름</param>
+    public void PlayerToMakeBehavior(string behaviorName)
+    {
+        // playerNum은 1 ~ 5 사이의 수입니다.
+        int playerNum = 1;
+        if (playerNum < 1 || playerNum > Players.Count)
+        {
+            Debug.LogWarning("Player" + playerNum + "does not exist!");
+            return;
+        }
+        Players[playerNum-1].MakeBehavior(behaviorName);
+    }
+
+    public int TargetableNumberExceptOneself(PlayerController subject)
+    {
+        int count = 0;
+        foreach (PlayerController p in Players)
+        {
+            if (p.Equals(subject)) continue;
+            if (!p.GetDead() && p.GetTargetable()) count++;
+        }
+        return count;
+    }
+
+    public int TargetableNumber()
+    {
+        int count = 0;
+        foreach (PlayerController p in Players)
+        {
+            if (!p.GetDead() && p.GetTargetable()) count++;
+        }
+        return count;
+    }
+
+    public int GetTurn()
+    {
+        return turn;
+    }
+
+    public void SetTurnStart()
+    {
+        if (turn == 7)
+        {
+            turn = 1;
         }
     }
 

@@ -24,12 +24,12 @@ public class TargetGraph
                 TargetIndex.Add(4);
                 break;
             case 2:
-                TargetIndex.Add(1);
                 TargetIndex.Add(3);
+                TargetIndex.Add(1);
                 break;
             case 3:
-                TargetIndex.Add(0);
                 TargetIndex.Add(4);
+                TargetIndex.Add(0);
                 break;
             case 4:
                 TargetIndex.Add(0);

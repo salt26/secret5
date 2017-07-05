@@ -46,11 +46,11 @@ public class PlayerController : MonoBehaviour {
     // 여기서의 FixedUpdate() 함수는 인공지능이 행동을 자동으로 결정하도록 하는 함수입니다.
     void FixedUpdate() {
         // 인공지능 플레이어가 아니면 행동을 자동으로 결정하지 않습니다.
-        //if (!isAuto) return;
+        if (!isAuto) return;
         if (bm.GetTurn() == 2 && !hasDecided)
         {
             //Debug.Log("Auto making decision...");
-            if (!isMakingDecision && isAuto)
+            if (!isMakingDecision)
             {
                 int r = Random.Range(0, 4);
                 if (r <= 1)
@@ -71,7 +71,7 @@ public class PlayerController : MonoBehaviour {
             }
             isMakingDecision = true;
             if (isTargetDecide && !isDecideClicked)
-                DecideClick();
+                DecideClick(new List<PlayerController>());
         }
         if (bm.GetTurn() == 3)
         {
@@ -225,9 +225,9 @@ public class PlayerController : MonoBehaviour {
     public void MakeBehavior(string behaviorName)
     {
         // 자신이 사망했거나 빙결되어 행동할 수 없는 경우
-        if (isDead || isFreezed)
+        if (isDead || isFreezed || bm.GetEnd())
         {
-            Debug.Log("You cannot make behavior.");
+            if (playerNum == 1) Debug.Log("You cannot make behavior.");
             return;
         }
         BasicBehavior bb = new BasicBehavior(behaviorName);
@@ -281,18 +281,14 @@ public class PlayerController : MonoBehaviour {
             {
                 // 행동 결정을 확정하고 완료한다.
                 bm.AddBehavior(behavior);
-                //Debug.Log("Player" + playerNum + " has decided.");
-                if (behavior.GetObjectPlayers().Count == 2)
-                    Debug.Log(playerName + " -> " + behavior.GetObjectPlayers()[0].playerName + ", " + behavior.GetObjectPlayers()[1].playerName + " (" + behavior.GetBehavior().Name + ")");
-                else if (behavior.GetObjectPlayers().Count == 1)
-                    Debug.Log(playerName + " -> " + behavior.GetObjectPlayers()[0].playerName + " (" + behavior.GetBehavior().Name + ")");
+                //if (playerNum == 1) Debug.Log("Player" + playerNum + " has decided.");
                 hasDecided = true;
                 isTargetDecide = false;
                 break;
             }
             else
             {
-                ;//Debug.Log("Invalid target.");
+                if (playerNum == 1) Debug.Log("Invalid target. Please select targets again. (" + behavior.GetBehavior().Name + ")");
             }
             // TODO 통찰의 경우 두 번 선택하도록 만들기
             // TODO 선택 취소 기능 만들기
@@ -302,10 +298,11 @@ public class PlayerController : MonoBehaviour {
     /// <summary>
     /// 행동의 대상 결정 단계에서 결정 버튼을 클릭했을 때 실행되는 함수입니다.
     /// </summary>
-    public void DecideClick()
+    public void DecideClick(List<PlayerController> objects)
     {
         if (!isTargetDecide)
         {
+            Debug.Log("You didn't make behavior.");
             return;
         }
         else if (behavior == null)
@@ -314,17 +311,16 @@ public class PlayerController : MonoBehaviour {
             return;
         }
         // TODO 선택한 플레이어들을 behavior.SetObjectPlayers(List<PlayerController>)로 저장해야 한다.
-        List<PlayerController> pc = new List<PlayerController>();
-        //if (isAuto) {
-        for (int i = 0; i < BehaviorManager.GetTargetNumber(behavior); i++)
-        {
-            pc.Add(bm.Players[Random.Range(0, 5)]);
-            //Debug.Log("Player" + playerNum + " selects Player" + pc[i].playerNum + " as a target.");
+        if (isAuto) {
+            for (int i = 0; i < BehaviorManager.GetTargetNumber(behavior); i++)
+            {
+                objects.Add(bm.Players[Random.Range(0, 5)]);
+                //Debug.Log("Player" + playerNum + " selects Player" + pc[i].playerNum + " as a target.");
+            }
         }
-        //}
         
         //Debug.Log("pc's count is " + pc.Count);
-        behavior.SetObjectPlayers(pc);
+        behavior.SetObjectPlayers(objects);
         //Debug.Log("behavior.ObjectPlayers' count is " + behavior.GetObjectPlayers().Count);
         isDecideClicked = true;
     }
@@ -370,6 +366,11 @@ public class PlayerController : MonoBehaviour {
     public int GetHeal()
     {
         return heal;
+    }
+
+    public bool GetTargetDecide()
+    {
+        return isTargetDecide;
     }
 
     public void SetPlayerName(string name)

@@ -8,10 +8,12 @@ using UnityEngine;
 public class BattleManager : MonoBehaviour {
 
     public GameObject player;
+    public GameObject decideButton;
     public List<PlayerController> Players = new List<PlayerController>();   // 대전에 참여하는 플레이어들
     private List<TargetGraph> PlayerPermutation = new List<TargetGraph>();  // 목표 그래프, 플레이어는 랜덤 순서로 배치
     private List<Behavior> Behaviors = new List<Behavior>();                // 행동 결정 단계에서 결정이 완료된 행동들
     private List<bool> isWin = new List<bool>();                            // 플레이어 순서는 PlayerPermutation의 인덱스를 따르며, 그 플레이어가 대전에서 승리하면 true
+    private List<PlayerController> Player1sTarget = new List<PlayerController>();
 
     private int turn = 0;   // 0: 대전 시작, 1: 턴 시작, 2: 행동 결정, 3: 행동 수행, 4: 사망자 처리, 5: 대전 종료 확인
 
@@ -84,6 +86,16 @@ public class BattleManager : MonoBehaviour {
     void Start () {
         // 대전을 시작함
         Debug.Log("Battle starts.");
+        for (int i = 0; i < PlayerPermutation.Count; i++)
+        {
+            if (PlayerPermutation[i].player.Equals(Players[0])) {
+                Debug.Log(Players[0].GetPlayerName() + "'s objective is to eliminate "
+                    + PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[0]].player.GetPlayerName() + " and "
+                    + PlayerPermutation[PlayerPermutation[i].GetTargetIndex()[1]].player.GetPlayerName());
+                break;
+            }
+        }
+        
         turn = 1;
 	}
 
@@ -106,6 +118,19 @@ public class BattleManager : MonoBehaviour {
         {
             // 행동 결정 단계에서
             //Debug.Log("Decide your behavior.");
+
+            if (Players[0].GetTargetDecide())       // 대상 결정 중이면
+            {
+                if (!decideButton.activeInHierarchy)
+                    decideButton.SetActive(true);   // 결정 버튼이 나타나게 한다.
+                if (Input.GetMouseButtonDown(0))
+                    PlayerToSelectTarget();         // 플레이어1이 선택한 대상들을 저장하여 기억한다.
+            }
+            else
+            {
+                if (decideButton.activeInHierarchy)
+                    decideButton.SetActive(false);  // 결정 버튼이 보이지 않게 한다.
+            }
             bool isCompleted = true;
             foreach (PlayerController p in Players)
             {
@@ -124,6 +149,15 @@ public class BattleManager : MonoBehaviour {
         }
         else if (turn == 3)
         {
+            foreach (Behavior behavior in Behaviors)
+            {
+                if (behavior.GetObjectPlayers().Count == 2)
+                    Debug.Log(behavior.GetSubjectPlayer().GetPlayerName() + " -> " 
+                        + behavior.GetObjectPlayers()[0].GetPlayerName() + ", " + behavior.GetObjectPlayers()[1].GetPlayerName() + " (" + behavior.GetBehavior().Name + ")");
+                else if (behavior.GetObjectPlayers().Count == 1)
+                    Debug.Log(behavior.GetSubjectPlayer().GetPlayerName() + " -> "
+                        + behavior.GetObjectPlayers()[0].GetPlayerName() + " (" + behavior.GetBehavior().Name + ")");
+            }
             //Debug.Log("Performming behaviors...");
             // 모든 플레이어의 상태이상을 해제하고 행동을 결정하지 않은 상태로 초기화함
             foreach (PlayerController p in Players)
@@ -212,7 +246,51 @@ public class BattleManager : MonoBehaviour {
             Debug.LogWarning("Player" + playerNum + "does not exist!");
             return;
         }
+        Debug.Log("MakeBehavior " + behaviorName + " clicked.");
         Players[playerNum-1].MakeBehavior(behaviorName);
+    }
+
+    public void PlayerToDecide()
+    {
+        int playerNum = 1;
+        if (playerNum < 1 || playerNum > Players.Count)
+        {
+            Debug.LogWarning("Player" + playerNum + "does not exist!");
+            return;
+        }
+        //Debug.Log("Decide clicked.");
+        Players[playerNum - 1].DecideClick(Player1sTarget);
+        Player1sTarget = new List<PlayerController>();
+    }
+
+    public void PlayerToSelectTarget()
+    {
+        int playerNum = 1;
+        if (playerNum < 1 || playerNum > Players.Count)
+        {
+            Debug.LogWarning("Player" + playerNum + "does not exist!");
+            return;
+        }
+        Ray ray = Players[playerNum - 1].gameObject.GetComponentInChildren<Camera>().ScreenPointToRay(Input.mousePosition);
+        RaycastHit hit;
+        if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
+        {
+            //Debug.Log("Click " + hit.collider.name + ".");
+            Debug.DrawLine(ray.origin, hit.point, Color.blue, 3f);
+            if (hit.collider.gameObject.GetComponentInParent<PlayerController>() != null)
+            {
+                if (Player1sTarget.IndexOf(hit.collider.gameObject.GetComponentInParent<PlayerController>()) == -1)
+                {
+                    Player1sTarget.Add(hit.collider.gameObject.GetComponentInParent<PlayerController>());
+                    Debug.Log("Add " + hit.collider.gameObject.GetComponentInParent<PlayerController>().GetPlayerName() + " to targets.");
+                }
+                else
+                {
+                    Player1sTarget.Remove(hit.collider.gameObject.GetComponentInParent<PlayerController>());
+                    Debug.Log("Remove " + hit.collider.gameObject.GetComponentInParent<PlayerController>().GetPlayerName() + " from targets.");
+                }
+            }
+        }
     }
 
     public int TargetableNumberExceptOneself(PlayerController subject)
@@ -239,6 +317,11 @@ public class BattleManager : MonoBehaviour {
     public int GetTurn()
     {
         return turn;
+    }
+
+    public bool GetEnd()
+    {
+        return (turn == 6);
     }
 
     public void SetTurnStart()

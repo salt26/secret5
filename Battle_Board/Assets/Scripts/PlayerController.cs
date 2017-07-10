@@ -329,6 +329,16 @@ public class PlayerController : MonoBehaviour {
     /// 행동 결정 완료 여부를 반환합니다.
     /// </summary>
     /// <returns></returns>
+    /// 
+    public int GetHealth()
+    {
+        return health;
+    }
+
+    public int GetMaxHealth()
+    {
+        return maxHealth;
+    }
     public bool GetHasDecided()
     {
         return hasDecided;

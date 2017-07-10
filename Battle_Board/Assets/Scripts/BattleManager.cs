@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 대전을 전체적으로 관리하는 클래스입니다.
@@ -14,6 +15,15 @@ public class BattleManager : MonoBehaviour {
     private List<Behavior> Behaviors = new List<Behavior>();                // 행동 결정 단계에서 결정이 완료된 행동들
     private List<bool> isWin = new List<bool>();                            // 플레이어 순서는 PlayerPermutation의 인덱스를 따르며, 그 플레이어가 대전에서 승리하면 true
     private List<PlayerController> Player1sTarget = new List<PlayerController>();
+
+    public Text CharacterUI1;
+    public Text CharacterUI2;
+    public Text CharacterUI3;
+    public Text CharacterUI4;
+    public Text CharacterUI5;
+
+    ParticleSystem PointerParticle;
+    LineRenderer PointerLine;
 
     private int turn = 0;   // 0: 대전 시작, 1: 턴 시작, 2: 행동 결정, 3: 행동 수행, 4: 사망자 처리, 5: 대전 종료 확인
 
@@ -95,6 +105,8 @@ public class BattleManager : MonoBehaviour {
                 break;
             }
         }
+
+        UIchanger();
         
         turn = 1;
 	}
@@ -104,6 +116,7 @@ public class BattleManager : MonoBehaviour {
     void FixedUpdate () {
 		if (turn == 1)
         {
+
             // 턴이 시작되면
             //Debug.Log("Turn starts.");
             foreach (PlayerController p in Players)
@@ -173,6 +186,7 @@ public class BattleManager : MonoBehaviour {
                 BehaviorManager.Perform(b);
             }
             Behaviors = new List<Behavior>();
+            UIchanger();
             turn = 4;
         }
         else if (turn == 4)
@@ -218,6 +232,7 @@ public class BattleManager : MonoBehaviour {
                 turn = 1;   // 7로 놓으면 수동으로(버튼을 눌러서) 턴 진행, 1로 놓으면 자동으로 턴 진행
             }
         }
+
 	}
 
     /// <summary>
@@ -312,6 +327,51 @@ public class BattleManager : MonoBehaviour {
             if (!p.GetDead() && p.GetTargetable()) count++;
         }
         return count;
+    }
+    //목표에게 파티클라인을 만드는 함수
+    public void TargetPointer(PlayerController target)
+    {
+        PointerParticle.Stop();
+        PointerParticle.Play();
+        
+        PointerLine.enabled = true;
+        PointerLine.SetPosition(0, Players[0].gameObject.transform.position);
+        PointerLine.SetPosition(1, Players[target.playerNum - 1].gameObject.transform.position);
+    }
+
+    //파티클라인을 지우는 함수
+    public void TargetPointerRemover()
+    {
+        PointerLine.enabled = false;
+    }
+
+    //UI를 변경하는 함수
+    public void UIchanger()
+    {
+        if (Players[0].GetHealth() < 0)
+            CharacterUI1.text = "0/" + Players[0].GetMaxHealth();
+        else
+            CharacterUI1.text = Players[0].GetHealth() + "/" + Players[0].GetMaxHealth();
+
+        if (Players[1].GetHealth() < 0)
+            CharacterUI2.text = "0/" + Players[1].GetMaxHealth();
+        else
+            CharacterUI2.text = Players[1].GetHealth() + "/" + Players[1].GetMaxHealth();
+
+        if (Players[2].GetHealth() < 0)
+            CharacterUI3.text = "0/" + Players[2].GetMaxHealth();
+        else
+            CharacterUI3.text = Players[2].GetHealth() + "/" + Players[2].GetMaxHealth();
+
+        if (Players[3].GetHealth() < 0)
+            CharacterUI4.text = "0/" + Players[3].GetMaxHealth();
+        else
+            CharacterUI4.text = Players[3].GetHealth() + "/" + Players[3].GetMaxHealth();
+
+        if (Players[4].GetHealth() < 0)
+            CharacterUI5.text = "0/" + Players[4].GetMaxHealth();
+        else
+            CharacterUI5.text = Players[4].GetHealth() + "/" + Players[4].GetMaxHealth();
     }
 
     public int GetTurn()

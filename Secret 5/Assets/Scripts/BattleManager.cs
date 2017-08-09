@@ -18,6 +18,8 @@ public class BattleManager : MonoBehaviour {
                             //           3: 교환할 카드 선택, 4: 교환 중(카드를 낼 때와 받을 때 효과 발동),
                             //           5: 빙결 발동, 6: 턴이 끝날 때 효과 발동, 7: 턴 종료)
 
+    private CardDatabase cd = CardDatabase.cardDatabase;
+
     private void Awake()
     {
         turnStep = 0;
@@ -58,7 +60,7 @@ public class BattleManager : MonoBehaviour {
             tempPlayers.RemoveAt(r);
         }
     }
-    // Use this for initialization
+
     void Start ()
     {
         turnPlayer = Random.Range(0, 5);
@@ -66,10 +68,10 @@ public class BattleManager : MonoBehaviour {
         Debug.Log("Battle starts.");
 	}
 	
-	// Update is called once per frame
 	void FixedUpdate () {
         if (turnStep == 1)
         {
+            // 빙결된 상태이면 교환을 할 수 없다.
             if (players[turnPlayer].HasFreezed())
             {
                 turnStep = 5;
@@ -81,23 +83,37 @@ public class BattleManager : MonoBehaviour {
         }
 		else if (turnStep == 2)
         {
-
+            // TODO 플레이어의 응답을 기다리고 제한 시간 측정하기
+            // TODO 교환 상대가 결정되면 저장해놓고 넘어가기
+            turnStep = 3;
         }
         else if (turnStep == 3)
         {
-
+            // TODO 플레이어의 응답을 기다리고 제한 시간 측정하기
+            // TODO 교환할 카드가 결정되면 저장해놓기
+            turnStep = 4;
         }
         else if (turnStep == 4)
         {
-
+            // TODO Exchange 생성(효과는 얘가 알아서 처리해줌)
+            // TODO 카드 이동 애니메이션
+            turnStep = 6;
         }
         else if (turnStep == 5)
         {
-
+            // TODO 빙결된 이펙트 보여주고 잠시 딜레이
+            turnStep = 6;
         }
         else if (turnStep == 6)
         {
-            // TODO players[turnPlayer]가 폭탄 카드를 가지고 있으면 Damaged() 호출
+            List<Card> hand = GetPlayerHand(players[turnPlayer]);
+            // 턴을 진행한 플레이어가 폭탄 카드를 들고 있으면 펑!
+            if (hand[0].GetCardName() == "Bomb" || hand[1].GetCardName() == "Bomb")
+            {
+                players[turnPlayer].Damaged();
+            }
+            // 턴을 진행한 플레이어가 빙결된 상태였으면 해동된다.
+            players[turnPlayer].Thawed();
         }
         else if (turnStep == 7)
         {

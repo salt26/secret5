@@ -27,13 +27,14 @@ public class Exchange{
     private static int count = 1;           // 턴 수를 세기 위한 변수
     private bool isTurnPComplete;
     private bool isObjectPComplete;
-    private CardDatabase cd = CardDatabase.cardDatabase;
+    private static CardDatabase cd;
 
     public Exchange(PlayerController turnP, PlayerController objectP, Card turnPCard, Card objectPCard)
     {
         isComplete = false;
         turnPlayerCard = turnPCard;
         objectPlayerCard = objectPCard;
+        cd = GameObject.Find("BattleManager").GetComponent<CardDatabase>();
         if (!cd.VerifyCard(turnPlayerCard) || !cd.VerifyCard(objectPlayerCard))
         {
             Debug.LogError("Exchanging card is invalid");
@@ -89,7 +90,7 @@ public class Exchange{
         {
             return;
         }
-        else if (objectPlayerCard.GetCardName() == "Avoid")
+        if (objectPlayerCard.GetCardName() == "Avoid")
         {
             return;
         }
@@ -99,7 +100,7 @@ public class Exchange{
         {
             objectPlayer.Damaged();
         }
-        else if (objectPlayerCard.GetCardName() == "Attack")
+        if (objectPlayerCard.GetCardName() == "Attack")
         {
             turnPlayer.Damaged();
         }
@@ -109,7 +110,7 @@ public class Exchange{
         {
             objectPlayer.Restored();
         }
-        else if (objectPlayerCard.GetCardName() == "Heal")
+        if (objectPlayerCard.GetCardName() == "Heal")
         {
             turnPlayer.Restored();
         }
@@ -119,7 +120,7 @@ public class Exchange{
         {
             objectPlayer.Freezed();
         }
-        else if (objectPlayerCard.GetCardName() == "Freeze")
+        if (objectPlayerCard.GetCardName() == "Freeze")
         {
             turnPlayer.Freezed();
         }

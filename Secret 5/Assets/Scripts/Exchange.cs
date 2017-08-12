@@ -27,13 +27,19 @@ public class Exchange{
     private static int count = 1;           // 턴 수를 세기 위한 변수
     private bool isTurnPComplete;
     private bool isObjectPComplete;
+    private CardDatabase cd = CardDatabase.cardDatabase;
 
     public Exchange(PlayerController turnP, PlayerController objectP, Card turnPCard, Card objectPCard)
     {
         isComplete = false;
         turnPlayerCard = turnPCard;
         objectPlayerCard = objectPCard;
-        // TODO 속임 카드의 효과를 위해 교환 전 손패 상황을 BattleManager에서 받아와 저장할 것.
+        if (!cd.VerifyCard(turnPlayerCard) || !cd.VerifyCard(objectPlayerCard))
+        {
+            Debug.LogError("Exchanging card is invalid");
+            turnNum = 0;
+            return;
+        }
         turnPlayer = turnP;
         objectPlayer = objectP;
         if (turnPlayer != null)

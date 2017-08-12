@@ -35,23 +35,19 @@ public class PlayerController : MonoBehaviour {
     {
         if (currentHealth > 0)
         {
-            currentHealth -= 5;
-        }
-        if (currentHealth <= 0)
-        {
-            isDead = true;
+            currentHealth -= 1;
         }
     }
 
     public void Restored()
     {
-        if (currentHealth > 0 && currentHealth <= 25)
+        if (currentHealth > 0 && currentHealth <= 5)
         {
-            currentHealth += 5;
+            currentHealth += 1;
         }
-        else if (currentHealth <= 30)
+        else if (currentHealth <= 6)
         {
-            currentHealth = 30;
+            currentHealth = 6;
         }
     }
 
@@ -63,11 +59,20 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    public void Thawed()
+    {
+        if (!isDead && isFreezed)
+        {
+            isFreezed = false;
+        }
+    }
+
     public void UpdateHealth()
     {
-        if (currentHealth < 0)
+        if (currentHealth <= 0)
         {
             currentHealth = 0;
+            isDead = true;
         }
         displayedHealth = currentHealth;
     }

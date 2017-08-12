@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BattleManager : MonoBehaviour {
 
@@ -9,6 +10,8 @@ public class BattleManager : MonoBehaviour {
     // cards의 인덱스는 어떤 플레이어의 손패에 카드가 있는지를 나타낸다.
     // 0 ~ 1: players[0]의 손패, 2 ~ 3: players[1]의 손패, 4 ~ 5: players[2]의 손패,
     // 6 ~ 7: players[3]의 손패, 8 ~ 9: players[4]의 손패
+
+    public Slider[] slider = new Slider[5];
 
     private List<PlayerController> players = new List<PlayerController>();
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
@@ -70,12 +73,17 @@ public class BattleManager : MonoBehaviour {
             playerPermutation[i].player = tempPlayers[r];
             tempPlayers.RemoveAt(r);
         }
+        
     }
 
     void Start ()
     {
         //turnPlayer = Random.Range(0, 5);
         turnStep = 1;
+        for(int i = 0 ; i < 5 ;i++)
+        {
+            //slider[i].value = players[i].GetHealth(); // null reference가 나서 주석처리했으니 나중에 필요할 때 주석 해제하세요.
+        }
         Debug.Log("Battle starts.");
         Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
         SetCameraVisible(cameraPlayer);
@@ -183,6 +191,7 @@ public class BattleManager : MonoBehaviour {
             for (int i = 0; i < 5; i++)
             {
                 players[i].UpdateHealth();
+                //slider[i].value = players[i].GetHealth(); // 여기도 일단 주석처리했으니 나중에 필요할 때 주석 해제하세요.
             }
             // TODO 이번 턴에 일어난 교환에 대해 체력 변화량 반영
             for (int i = 0; i < 5; i++)

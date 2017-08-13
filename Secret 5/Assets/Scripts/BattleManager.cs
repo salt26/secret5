@@ -296,4 +296,9 @@ public class BattleManager : MonoBehaviour {
             p.DecideClicked();
         }
     }
+
+    public List<GameObject> GetCardsInHand()
+    {
+        return cards;
+    }
 }

@@ -16,7 +16,7 @@ public class BattleManager : MonoBehaviour {
     private List<PlayerController> players = new List<PlayerController>();
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
     private List<bool> isWin = new List<bool>();
-    private int turnPlayer = 2; // 현재 자신의 턴을 진행하는 플레이어 번호
+    private int turnPlayer = 0; // 현재 자신의 턴을 진행하는 플레이어 번호
     private int turnStep;   // 턴의 단계 (0: 대전 시작, 1: 턴 시작, 2: 교환 상대 선택,
                             //           3: 교환할 카드 선택, 4: 교환 중(카드를 낼 때와 받을 때 효과 발동),
                             //           5: 빙결 발동, 6: 턴이 끝날 때 효과 발동, 7: 턴 종료)
@@ -24,7 +24,8 @@ public class BattleManager : MonoBehaviour {
     private Card turnPlayerCard;            // 턴을 진행한 플레이어가 낸 카드
     private Card objectPlayerCard;          // 교환당하는 플레이어가 낸 카드
     private Exchange exchange;
-    private int cameraPlayer = 2;
+    private int cameraPlayer = 0;
+    private bool isStart = false;   // TODO 임시 코드
 
     private static CardDatabase cd;
 
@@ -122,6 +123,14 @@ public class BattleManager : MonoBehaviour {
         }
 		else if (turnStep == 2)
         {
+            if (!isStart) // TODO 임시 코드
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    cards[i].GetComponent<Animator>().SetInteger("Destination", i);
+                    cards[i].GetComponent<Animator>().SetTrigger("Start");
+                }
+            }
             // TODO 플레이어의 응답을 기다리고 제한 시간 측정하기
         }
         else if (turnStep == 3)
@@ -144,8 +153,33 @@ public class BattleManager : MonoBehaviour {
             }
             int tpcIndex = cards.IndexOf(exchange.GetTurnPlayerCard().gameObject);
             int opcIndex = cards.IndexOf(exchange.GetObjectPlayerCard().gameObject);
-            // 카드 위치 변경
-            // TODO 카드 이동 애니메이션
+            // 카드 위치 변경 및 카드 이동 애니메이션 재생
+            cards[tpcIndex].GetComponent<Animator>().SetInteger("Destination", opcIndex);
+            cards[opcIndex].GetComponent<Animator>().SetInteger("Destination", tpcIndex);
+            if (cameraPlayer == tpcIndex / 2)
+            {
+                cards[tpcIndex].GetComponent<Animator>().SetBool("Play", true);
+                cards[tpcIndex].GetComponent<Animator>().SetBool("Receive", false);
+                cards[opcIndex].GetComponent<Animator>().SetBool("Play", false);
+                cards[opcIndex].GetComponent<Animator>().SetBool("Receive", true);
+            }
+            else if (cameraPlayer == opcIndex / 2)
+            {
+                cards[tpcIndex].GetComponent<Animator>().SetBool("Play", false);
+                cards[tpcIndex].GetComponent<Animator>().SetBool("Receive", true);
+                cards[opcIndex].GetComponent<Animator>().SetBool("Play", true);
+                cards[opcIndex].GetComponent<Animator>().SetBool("Receive", false);
+            }
+            else
+            {
+                cards[tpcIndex].GetComponent<Animator>().SetBool("Play", false);
+                cards[tpcIndex].GetComponent<Animator>().SetBool("Receive", false);
+                cards[opcIndex].GetComponent<Animator>().SetBool("Play", false);
+                cards[opcIndex].GetComponent<Animator>().SetBool("Receive", false);
+            }
+            cards[tpcIndex].GetComponent<Animator>().SetTrigger("Exchange");
+            cards[opcIndex].GetComponent<Animator>().SetTrigger("Exchange");
+            /**/
             Vector3 tpcPosition = cards[tpcIndex].GetComponent<Transform>().position;
             Vector3 opcPosition = cards[opcIndex].GetComponent<Transform>().position;
             Quaternion tpcRotation = cards[tpcIndex].GetComponent<Transform>().rotation;
@@ -153,6 +187,7 @@ public class BattleManager : MonoBehaviour {
             cards[tpcIndex].GetComponent<Transform>().SetPositionAndRotation(new Vector3(0f, 0f, 3.4026f), Quaternion.identity);
             cards[opcIndex].GetComponent<Transform>().SetPositionAndRotation(tpcPosition, tpcRotation);
             cards[tpcIndex].GetComponent<Transform>().SetPositionAndRotation(opcPosition, opcRotation);
+            /**/
             // 손패 교환
             GameObject temp = cards[tpcIndex];
             cards[tpcIndex] = cards[opcIndex];
@@ -230,6 +265,7 @@ public class BattleManager : MonoBehaviour {
         objectPlayer = objectTarget;
         turnStep = 3;
         Debug.Log("turnStep 3(select a card to play)");
+        isStart = true; // TODO 임시 코드
     }
 
     public void SetCardToPlay(Card card, PlayerController player)
@@ -253,6 +289,22 @@ public class BattleManager : MonoBehaviour {
         {
             p.gameObject.GetComponentInChildren<Camera>().enabled = false;
         }
+        /* TODO 카드 회전이 올바르게 안 됩니다. */
+        foreach (GameObject c in cards)
+        {
+            Vector3 pos = c.GetComponent<Transform>().position;
+            Quaternion rot = c.GetComponent<Transform>().rotation;
+            rot = Quaternion.Euler(90, rot.eulerAngles.y, rot.eulerAngles.z);
+            c.GetComponent<Transform>().SetPositionAndRotation(pos, rot);
+        }
+        foreach (Card c in GetPlayerHand(players[cp]))
+        {
+            Vector3 pos = c.gameObject.GetComponent<Transform>().position;
+            Quaternion rot = c.gameObject.GetComponent<Transform>().rotation;
+            rot = Quaternion.Euler(270, rot.eulerAngles.y, rot.eulerAngles.z);
+            c.gameObject.GetComponent<Transform>().SetPositionAndRotation(pos, rot);
+        }
+        /* */
         players[cp].gameObject.GetComponentInChildren<Camera>().enabled = true;
     }
 

@@ -25,7 +25,13 @@ public class BattleManager : MonoBehaviour {
     private Card objectPlayerCard;          // 교환당하는 플레이어가 낸 카드
     private Exchange exchange;
     private int cameraPlayer = 0;
-    private bool isStart = false;   // TODO 임시 코드
+
+    private int tpcIndex;
+    private int opcIndex;
+    private Vector3 tpcPosition;
+    private Vector3 opcPosition;
+    private Quaternion tpcRotation;
+    private Quaternion opcRotation;
 
     private static CardDatabase cd;
 
@@ -123,14 +129,6 @@ public class BattleManager : MonoBehaviour {
         }
 		else if (turnStep == 2)
         {
-            if (!isStart) // TODO 임시 코드
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    cards[i].GetComponent<Animator>().SetInteger("Destination", i);
-                    cards[i].GetComponent<Animator>().SetTrigger("Start");
-                }
-            }
             // TODO 플레이어의 응답을 기다리고 제한 시간 측정하기
         }
         else if (turnStep == 3)
@@ -151,9 +149,10 @@ public class BattleManager : MonoBehaviour {
                 turnStep = 8;
                 return;
             }
-            int tpcIndex = cards.IndexOf(exchange.GetTurnPlayerCard().gameObject);
-            int opcIndex = cards.IndexOf(exchange.GetObjectPlayerCard().gameObject);
-            // 카드 위치 변경 및 카드 이동 애니메이션 재생
+            tpcIndex = cards.IndexOf(exchange.GetTurnPlayerCard().gameObject);
+            opcIndex = cards.IndexOf(exchange.GetObjectPlayerCard().gameObject);
+
+            /* 애니메이션
             cards[tpcIndex].GetComponent<Animator>().SetInteger("Destination", opcIndex);
             cards[opcIndex].GetComponent<Animator>().SetInteger("Destination", tpcIndex);
             if (cameraPlayer == tpcIndex / 2)
@@ -179,26 +178,34 @@ public class BattleManager : MonoBehaviour {
             }
             cards[tpcIndex].GetComponent<Animator>().SetTrigger("Exchange");
             cards[opcIndex].GetComponent<Animator>().SetTrigger("Exchange");
-            /**/
-            Vector3 tpcPosition = cards[tpcIndex].GetComponent<Transform>().position;
-            Vector3 opcPosition = cards[opcIndex].GetComponent<Transform>().position;
-            Quaternion tpcRotation = cards[tpcIndex].GetComponent<Transform>().rotation;
-            Quaternion opcRotation = cards[opcIndex].GetComponent<Transform>().rotation;
-            cards[tpcIndex].GetComponent<Transform>().SetPositionAndRotation(new Vector3(0f, 0f, 3.4026f), Quaternion.identity);
-            cards[opcIndex].GetComponent<Transform>().SetPositionAndRotation(tpcPosition, tpcRotation);
-            cards[tpcIndex].GetComponent<Transform>().SetPositionAndRotation(opcPosition, opcRotation);
-            /**/
+            */
+
+            // 카드 위치 변경 및 카드 이동 애니메이션 재생
+            if (cameraPlayer == tpcIndex / 2) {
+                cards[tpcIndex].GetComponent<Card>().FlipCard(tpcIndex, true);
+            }
+            else if (cameraPlayer == opcIndex / 2)
+            {
+                cards[opcIndex].GetComponent<Card>().FlipCard(opcIndex, true);
+            }
+
+            cards[tpcIndex].GetComponent<Card>().MoveCard(tpcIndex * 10 + opcIndex);
+            cards[opcIndex].GetComponent<Card>().MoveCard(opcIndex * 10 + tpcIndex);
+            
+            if (cameraPlayer == tpcIndex / 2)
+            {
+                cards[opcIndex].GetComponent<Card>().FlipCard(opcIndex, false);
+            }
+            else if (cameraPlayer == opcIndex / 2)
+            {
+                cards[tpcIndex].GetComponent<Card>().FlipCard(tpcIndex, false);
+            }
+
             // 손패 교환
             GameObject temp = cards[tpcIndex];
             cards[tpcIndex] = cards[opcIndex];
             cards[opcIndex] = temp;
-
-            objectPlayer = null;
-            turnPlayerCard = null;
-            objectPlayerCard = null;
-
-            turnStep = 6;
-            Debug.Log("turnStep 6(postprocessing)");
+            turnStep = 9;
         }
         else if (turnStep == 5)
         {
@@ -257,6 +264,10 @@ public class BattleManager : MonoBehaviour {
                 Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
             }
         }
+        else if (turnStep == 9)
+        {
+            // 애니메이션이 끝나면 카드의 위치가 바뀌고 turnStep = 6 이 됩니다.
+        }
 	}
 
     public void SetObjectPlayer(PlayerController objectTarget)
@@ -265,7 +276,6 @@ public class BattleManager : MonoBehaviour {
         objectPlayer = objectTarget;
         turnStep = 3;
         Debug.Log("turnStep 3(select a card to play)");
-        isStart = true; // TODO 임시 코드
     }
 
     public void SetCardToPlay(Card card, PlayerController player)
@@ -289,7 +299,7 @@ public class BattleManager : MonoBehaviour {
         {
             p.gameObject.GetComponentInChildren<Camera>().enabled = false;
         }
-        /* TODO 카드 회전이 올바르게 안 됩니다. */
+        /* TODO 카드 회전이 올바르게 안 됩니다. 
         foreach (GameObject c in cards)
         {
             Vector3 pos = c.GetComponent<Transform>().position;
@@ -304,8 +314,26 @@ public class BattleManager : MonoBehaviour {
             rot = Quaternion.Euler(270, rot.eulerAngles.y, rot.eulerAngles.z);
             c.gameObject.GetComponent<Transform>().SetPositionAndRotation(pos, rot);
         }
-        /* */
+        /**/
+
+        for (int i = 0; i < 10; i++)
+        {
+            cards[i].GetComponent<Card>().FlipCardImmediate(i, true);
+        }
+        cards[cp * 2].GetComponent<Card>().FlipCardImmediate(cp * 2, false);
+        cards[cp * 2 + 1].GetComponent<Card>().FlipCardImmediate(cp * 2 + 1, false);
+
         players[cp].gameObject.GetComponentInChildren<Camera>().enabled = true;
+        for (int i = 0; i < playerPermutation.Count; i++)
+        {
+            if (playerPermutation[i].player.Equals(players[cp]))
+            {
+                Debug.Log(players[cp].GetName() + "'s objective is to eliminate "
+                    + playerPermutation[playerPermutation[i].GetTargetIndex()[0]].player.GetName() + " and "
+                    + playerPermutation[playerPermutation[i].GetTargetIndex()[1]].player.GetName());
+                break;
+            }
+        }
     }
 
     public List<Card> GetPlayerHand(PlayerController player)
@@ -352,5 +380,20 @@ public class BattleManager : MonoBehaviour {
     public List<GameObject> GetCardsInHand()
     {
         return cards;
+    }
+
+    /// <summary>
+    /// 교환 처리 이후의 단계로 넘어가기 위해 호출되는 함수입니다.
+    /// </summary>
+    public void AfterExchange()
+    {
+        if (turnStep != 9) return;
+
+        objectPlayer = null;
+        turnPlayerCard = null;
+        objectPlayerCard = null;
+
+        turnStep = 6;
+        Debug.Log("turnStep 6(postprocessing)");
     }
 }

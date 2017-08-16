@@ -10,10 +10,7 @@ public class BattleManager : MonoBehaviour {
     // cards의 인덱스는 어떤 플레이어의 손패에 카드가 있는지를 나타낸다.
     // 0 ~ 1: players[0]의 손패, 2 ~ 3: players[1]의 손패, 4 ~ 5: players[2]의 손패,
     // 6 ~ 7: players[3]의 손패, 8 ~ 9: players[4]의 손패
-
-    //public Slider[] slider = new Slider[5];
-    // 0: players[0]의 체력, 1: players[1]의 체력, 2: player[2]의 체력,
-    // 3: players[3]의 체력, 4: players[4]의 체력 (안 쓸 가능성이 높아짐;;)
+    
     private PushingCard[] pushingcard = new PushingCard[2];
 
     private List<PlayerController> players = new List<PlayerController>();
@@ -113,13 +110,15 @@ public class BattleManager : MonoBehaviour {
 
     void Start ()
     {
+        CardPermutation();
+        for (int i = 0; i < 10; i++)
+        {
+            cards[i].GetComponent<Card>().MoveCard(100 + i);
+        }
         turnPlayer = Random.Range(0, 5);
         cameraPlayer = turnPlayer;
+
         turnStep = 1;
-        for(int i = 0 ; i < 5 ;i++)
-        {
-            //slider[i].value = players[i].GetHealth(); // null reference가 나서 주석처리했으니 나중에 필요할 때 주석 해제하세요.
-        }
         Debug.Log("Battle starts.");
         Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
         SetCameraVisible(cameraPlayer);
@@ -263,25 +262,40 @@ public class BattleManager : MonoBehaviour {
             for (int i = 0; i < 5; i++)
             {
                 players[i].UpdateHealth();
-                //slider[i].value = players[i].GetHealth(); // 여기도 일단 주석처리했으니 나중에 필요할 때 주석 해제하세요.
             }
-            // TODO 이번 턴에 일어난 교환에 대해 체력 변화량 반영
+
+            // 대전 규칙: 한 명이라도 사망하면 게임이 끝나고, 게임이 끝나는 시점에 "자신의 목표 중 사망자의 수"가 가장 많은 플레이어들이 승리한다.
             for (int i = 0; i < 5; i++)
             {
                 if (!playerPermutation[i].player.HasDead())
                 {
+                    // 두 명이 동시에 사망하였는데 그 두 명을 모두 목표로 하는 플레이어가 있다면 그 플레이어의 단독 승리!
                     if (playerPermutation[playerPermutation[i].GetTargetIndex()[0]].player.HasDead()
+                        && playerPermutation[playerPermutation[i].GetTargetIndex()[1]].player.HasDead())
+                    {
+                        for (int j = 0; j < 5; j++)
+                        {
+                            isWin[j] = false;
+                        }
+                        isWin[i] = true;
+                        isEnd = true;
+                        break;
+                    }
+                    // 한 명만 사망하였거나, 두 명이 동시에 사망하더라도 그 두 명을 모두 목표로 하는 플레이어가 없으면, 사망자들 중 한 명을 목표로 하는 모든 플레이어들의 공동 승리!
+                    else if (playerPermutation[playerPermutation[i].GetTargetIndex()[0]].player.HasDead()
                         || playerPermutation[playerPermutation[i].GetTargetIndex()[1]].player.HasDead())
                     {
                         isWin[i] = true;
                         isEnd = true;
-                        Debug.Log("Player" + playerPermutation[i].player.GetPlayerNum() + " wins!");
                     }
                 }
-                // TODO 두 명이 동시에 사망한 경우의 승리처리에 예외를 두어야 함.
             }
             if (isEnd)
             {
+                for (int i = 0; i < 5; i++)
+                {
+                    if (isWin[i]) Debug.Log("Player" + playerPermutation[i].player.GetPlayerNum() + " wins!");
+                }
                 Debug.Log("Battle ends.");
                 turnStep = 8;
             }
@@ -455,5 +469,18 @@ public class BattleManager : MonoBehaviour {
             }
         }
         return rand;
+    }
+
+    private void CardPermutation()
+    {
+        List<int> rand1 = RandomListGenerator(5);
+        List<int> rand2 = RandomListGenerator(5);
+        List<GameObject> c = new List<GameObject>();
+        for (int i = 0; i < 5; i++)
+        {
+            c.Add(cards[2 * rand1[i]]);
+            c.Add(cards[2 * rand2[i] + 1]);
+        }
+        cards = c;
     }
 }

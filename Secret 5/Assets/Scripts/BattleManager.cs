@@ -35,6 +35,7 @@ public class BattleManager : MonoBehaviour {
     private Vector3 opcPosition;
     private Quaternion tpcRotation;
     private Quaternion opcRotation;
+    private int count;
 
     private static CardDatabase cd;
 
@@ -192,31 +193,25 @@ public class BattleManager : MonoBehaviour {
             {
                 cards[opcIndex].GetComponent<Card>().FlipCard(opcIndex, true);
             }
-
+            
             cards[tpcIndex].GetComponent<Card>().MoveCard(tpcIndex * 10 + opcIndex);
             cards[opcIndex].GetComponent<Card>().MoveCard(opcIndex * 10 + tpcIndex);
-            
+
             if (cameraPlayer == tpcIndex / 2)
             {
-                cards[opcIndex].GetComponent<Card>().FlipCard(opcIndex, false);
+                cards[opcIndex].GetComponent<Card>().FlipCard(tpcIndex, false);
             }
             else if (cameraPlayer == opcIndex / 2)
             {
-                cards[tpcIndex].GetComponent<Card>().FlipCard(tpcIndex, false);
+                cards[tpcIndex].GetComponent<Card>().FlipCard(opcIndex, false);
             }
 
             // 손패 교환
             GameObject temp = cards[tpcIndex];
             cards[tpcIndex] = cards[opcIndex];
             cards[opcIndex] = temp;
-
-            for (int i = 0; i < 2; i++)
-            {
-                pushingcard[i].SetExchangeComplete();
-            }
-
-
             turnStep = 9;
+
         }
         else if (turnStep == 5)
         {
@@ -417,6 +412,10 @@ public class BattleManager : MonoBehaviour {
     {
         if (turnStep != 9) return;
 
+        for (int i = 0; i < 2; i++)
+        {
+            pushingcard[i].SetExchangeComplete();
+        }
         objectPlayer = null;
         turnPlayerCard = null;
         objectPlayerCard = null;

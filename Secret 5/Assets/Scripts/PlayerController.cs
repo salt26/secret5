@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour {
 
@@ -20,6 +21,8 @@ public class PlayerController : MonoBehaviour {
     private PlayerController objectTarget;          // 내가 선택한 교환 대상
     private Card playCard;                          // 내가 낼 카드
 
+    private RectTransform HealthBar;                // HP UI
+
     private static BattleManager bm;
     
 	void Awake () {
@@ -33,6 +36,8 @@ public class PlayerController : MonoBehaviour {
 
     private void Start()
     {
+        HealthBar = GetComponentInChildren<ASDF>().GetComponent<Image>().rectTransform;
+        Debug.Log(HealthBar.name);
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         if (bm == null) Debug.Log("BM is null.");
     }
@@ -45,6 +50,8 @@ public class PlayerController : MonoBehaviour {
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectTarget();
         }
+
+        HealthBar.sizeDelta = new Vector2(currentHealth*100/6, HealthBar.sizeDelta.y); //HealthBar 변경
 	}
 
     public void Damaged()

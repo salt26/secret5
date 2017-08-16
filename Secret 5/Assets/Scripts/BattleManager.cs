@@ -11,7 +11,10 @@ public class BattleManager : MonoBehaviour {
     // 0 ~ 1: players[0]의 손패, 2 ~ 3: players[1]의 손패, 4 ~ 5: players[2]의 손패,
     // 6 ~ 7: players[3]의 손패, 8 ~ 9: players[4]의 손패
 
-    public Slider[] slider = new Slider[5];
+    //public Slider[] slider = new Slider[5];
+    // 0: players[0]의 체력, 1: players[1]의 체력, 2: player[2]의 체력,
+    // 3: players[3]의 체력, 4: players[4]의 체력 안 쓸 가능성이 높아짐
+    private PushingCard[] pushingcard = new PushingCard[2];
 
     private List<PlayerController> players = new List<PlayerController>();
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
@@ -32,8 +35,9 @@ public class BattleManager : MonoBehaviour {
     {
         turnStep = 0;
         cd = GetComponent<CardDatabase>();
-        List<PlayerController> tempPlayers = new List<PlayerController>();
+        pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
 
+        List<PlayerController> tempPlayers = new List<PlayerController>();
         players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
         players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[0].SetPlayerNum(1);
@@ -157,6 +161,10 @@ public class BattleManager : MonoBehaviour {
             GameObject temp = cards[tpcIndex];
             cards[tpcIndex] = cards[opcIndex];
             cards[opcIndex] = temp;
+            for(int i = 0; i<2; i++)
+            {
+                pushingcard[i].SetExchangeComplete();
+            }
 
             objectPlayer = null;
             turnPlayerCard = null;
@@ -300,5 +308,22 @@ public class BattleManager : MonoBehaviour {
     public List<GameObject> GetCardsInHand()
     {
         return cards;
+    }
+
+    public Card GetPlayerSelectedCard(PlayerController player)
+    {
+        if (turnStep != 3 || player == null) return null;
+        else if (player.Equals(players[turnPlayer]))
+        {
+            return turnPlayerCard;
+        }
+        else if (player.Equals(objectPlayer))
+        {
+            return objectPlayerCard;
+        }
+        else
+        {
+            return null;
+        }
     }
 }

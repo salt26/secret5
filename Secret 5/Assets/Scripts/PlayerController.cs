@@ -36,8 +36,7 @@ public class PlayerController : MonoBehaviour {
 
     private void Start()
     {
-        HealthBar = GetComponentInChildren<ASDF>().GetComponent<Image>().rectTransform;
-        Debug.Log(HealthBar.name);
+        HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         if (bm == null) Debug.Log("BM is null.");
     }

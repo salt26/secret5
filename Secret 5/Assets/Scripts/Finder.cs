@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ASDF : MonoBehaviour {
+public class Finder : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {

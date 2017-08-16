@@ -37,33 +37,34 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         switch (bm.GetCameraPlayer().GetPlayerNum())
         {
             case 1:
-                cardR = bm.GetCardsInHand()[0].GetComponent<Card>();
-                cardL = bm.GetCardsInHand()[1].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[0].GetComponent<Card>();
+                cardR = bm.GetCardsInHand()[1].GetComponent<Card>();
                 break;
             case 2:
-                cardR = bm.GetCardsInHand()[2].GetComponent<Card>();
-                cardL = bm.GetCardsInHand()[3].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[2].GetComponent<Card>();
+                cardR = bm.GetCardsInHand()[3].GetComponent<Card>();
                 break;
             case 3:
-                cardR = bm.GetCardsInHand()[4].GetComponent<Card>();
-                cardL = bm.GetCardsInHand()[5].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[4].GetComponent<Card>();
+                cardR = bm.GetCardsInHand()[5].GetComponent<Card>();
                 break;
             case 4:
-                cardR = bm.GetCardsInHand()[6].GetComponent<Card>();
-                cardL = bm.GetCardsInHand()[7].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[6].GetComponent<Card>();
+                cardR = bm.GetCardsInHand()[7].GetComponent<Card>();
                 break;
             case 5:
-                cardR = bm.GetCardsInHand()[8].GetComponent<Card>();
-                cardL = bm.GetCardsInHand()[9].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[8].GetComponent<Card>();
+                cardR = bm.GetCardsInHand()[9].GetComponent<Card>();
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
-        if (this.CompareTag("Left"))
-            CardAvailability(cardL);
-        else if (this.CompareTag("Right"))
-            CardAvailability(cardR);
-        else
-            Debug.Log("Wrong Tag At CardPanel");
+            if (this.CompareTag("Left"))
+                CardAvailability(cardL);
+            else if (this.CompareTag("Right"))
+                CardAvailability(cardR);
+            else
+                Debug.Log("Wrong Tag At CardPanel");
+      
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -87,6 +88,8 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
         }
     }
+    
+    
 
     public void OnEndDrag(PointerEventData eventData)
     {
@@ -127,27 +130,47 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             if(!isDrag)
             {
                 this.transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
-                ExchangeComplete = false;
-
             }
         }
 
         if (card.GetCardAvaliable() == false)
         {
             this.transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 1000, 0), this.transform.rotation);
-            {
-                if (ExchangeComplete == true)
-                {
-                    this.transform.SetPositionAndRotation(cardOriginal , this.transform.rotation);
-                    SelectComplete = false;
-                    selectedCard = null;
-                    for(int i = 0; i<10; i++)
-                    {
-                        bm.GetCardsInHand()[i].GetComponent<Card>().SetCardAvaliable(true);
-                    }
-                }
-            }
         }
+
+        Exchanged();
+    }
+
+    private void Exchanged()
+    {
+        if (ExchangeComplete == true)
+        {
+            SelectComplete = false;
+            selectedCard = null;
+            for (int i = 0; i < 10; i++)
+            {
+                bm.GetCardsInHand()[i].GetComponent<Card>().SetCardAvaliable(true);
+            }
+            ExchangeComplete = false;
+        }
+        
+    }
+
+    private Card Deceive(PlayerController DeceivingPlayer, PlayerController DeceivedPlayer)
+    {
+        if (ExchangeComplete == true) return null;
+        if (DeceivingPlayer == null || DeceivedPlayer == null) return null;
+        else if (bm.GetPlayerSelectedCard(DeceivingPlayer) == null) return null;
+        else if (bm.GetPlayerSelectedCard(DeceivingPlayer).GetCardName() == "Deceive")
+        {
+            List<Card> DeceivedHand = bm.GetPlayerHand(DeceivedPlayer);
+            bm.GetPlayerSelectedCard(DeceivedPlayer).SetCardAvaliable(true);
+            if (DeceivedHand == null || DeceivedHand.Count != 2) return null;
+            else if (DeceivedHand[0].Equals(bm.GetPlayerSelectedCard(DeceivedPlayer))) return DeceivedHand[1];
+            else if (DeceivedHand[1].Equals(bm.GetPlayerSelectedCard(DeceivedPlayer))) return DeceivedHand[0];
+            else return null;
+        }
+        else return null;
     }
 
     public Card GetSelectedCard()

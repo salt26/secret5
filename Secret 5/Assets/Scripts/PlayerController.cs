@@ -141,9 +141,9 @@ public class PlayerController : MonoBehaviour {
         {
             Debug.Log("Click " + hit.collider.name + ".");
             Debug.DrawLine(ray.origin, hit.point, Color.red, 3f);
-            if (hit.collider.gameObject.GetComponent<Card>() != null
-                && (hit.collider.gameObject.GetComponent<Card>().Equals(hand[0])
-                || hit.collider.gameObject.GetComponent<Card>().Equals(hand[1])))
+            if (hit.collider.gameObject.GetComponentInParent<Card>() != null
+                && (hit.collider.gameObject.GetComponentInParent<Card>().Equals(hand[0])
+                || hit.collider.gameObject.GetComponentInParent<Card>().Equals(hand[1])))
             {
                 /*
                 if (!playCard.Equals(hit.collider.gameObject.GetComponent<Card>()))
@@ -153,7 +153,7 @@ public class PlayerController : MonoBehaviour {
                 }
                 */
                 //Debug.Log("Set " + hit.collider.gameObject.GetComponent<Card>().GetCardName() + " card to play.");
-                bm.SetCardToPlay(hit.collider.gameObject.GetComponent<Card>(), this);
+                bm.SetCardToPlay(hit.collider.gameObject.GetComponentInParent<Card>(), this);
             }
         }
     }

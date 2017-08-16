@@ -6,6 +6,9 @@ using UnityEngine.EventSystems;
 
 public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    public Image cardLHighlight;
+    public Image cardRHighlight;
+
     private static BattleManager bm;
 
     private Vector3 cardx;
@@ -64,6 +67,9 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 CardAvailability(cardR);
             else
                 Debug.Log("Wrong Tag At CardPanel");
+
+        cardLHighlight.gameObject.SetActive(!cardL.GetCardAvaliable());
+        cardRHighlight.gameObject.SetActive(!cardR.GetCardAvaliable());
       
     }
 
@@ -84,7 +90,6 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 {
                     this.transform.SetPositionAndRotation(cardx, this.transform.rotation);
                 }
-
             }
         }
     }
@@ -135,7 +140,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         if (card.GetCardAvaliable() == false)
         {
-            this.transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 1000, 0), this.transform.rotation);
+            this.transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 10000, 0), this.transform.rotation);
         }
 
         Exchanged();
@@ -153,9 +158,8 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
             ExchangeComplete = false;
         }
-        
     }
-
+    
     private Card Deceive(PlayerController DeceivingPlayer, PlayerController DeceivedPlayer)
     {
         if (ExchangeComplete == true) return null;
@@ -184,6 +188,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             return null;
         }
     }
+
     
     public void SetExchangeComplete()
     {

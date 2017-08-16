@@ -46,31 +46,54 @@ public class BattleManager : MonoBehaviour {
         pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
 
         List<PlayerController> tempPlayers = new List<PlayerController>();
+
+        /*
+        List<int> rand = RandomListGenerator(5);
+        List<Vector3> pos = new List<Vector3>();
+        List<Quaternion> rot = new List<Quaternion>();
+        for (int i = 0; i < 5; i++)
+        {
+            Debug.Log("rand[" + i + "] = " + rand[i]);
+        }
+
+        pos.Add(new Vector3(0f, 0f, 0f));
+        pos.Add(new Vector3(3.236f, 0f, 2.351f));
+        pos.Add(new Vector3(2f, 0f, 6.155f));
+        pos.Add(new Vector3(-2f, 0f, 6.155f));
+        pos.Add(new Vector3(-3.236f, 0f, 2.351f));
+
+        rot.Add(Quaternion.identity);
+        rot.Add(Quaternion.Euler(0f, -72f, 0f));
+        rot.Add(Quaternion.Euler(0f, -144f, 0f));
+        rot.Add(Quaternion.Euler(0f, 144f, 0f));
+        rot.Add(Quaternion.Euler(0f, 72f, 0f));
+        */
+
         players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
         players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[0].SetPlayerNum(1);
         players[0].SetName("Player 1");
         tempPlayers.Add(players[0]);
 
-        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
         players[1].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[1].SetPlayerNum(2);
         players[1].SetName("Player 2");
         tempPlayers.Add(players[1]);
 
-        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
         players[2].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[2].SetPlayerNum(3);
         players[2].SetName("Player 3");
         tempPlayers.Add(players[2]);
 
-        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
         players[3].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[3].SetPlayerNum(4);
         players[3].SetName("Player 4");
         tempPlayers.Add(players[3]);
 
-        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
         players[4].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[4].SetPlayerNum(5);
         players[4].SetName("Player 5");
@@ -90,7 +113,8 @@ public class BattleManager : MonoBehaviour {
 
     void Start ()
     {
-        //turnPlayer = Random.Range(0, 5);
+        turnPlayer = Random.Range(0, 5);
+        cameraPlayer = turnPlayer;
         turnStep = 1;
         for(int i = 0 ; i < 5 ;i++)
         {
@@ -305,22 +329,6 @@ public class BattleManager : MonoBehaviour {
         {
             p.gameObject.GetComponentInChildren<Camera>().enabled = false;
         }
-        /* TODO 카드 회전이 올바르게 안 됩니다. 
-        foreach (GameObject c in cards)
-        {
-            Vector3 pos = c.GetComponent<Transform>().position;
-            Quaternion rot = c.GetComponent<Transform>().rotation;
-            rot = Quaternion.Euler(90, rot.eulerAngles.y, rot.eulerAngles.z);
-            c.GetComponent<Transform>().SetPositionAndRotation(pos, rot);
-        }
-        foreach (Card c in GetPlayerHand(players[cp]))
-        {
-            Vector3 pos = c.gameObject.GetComponent<Transform>().position;
-            Quaternion rot = c.gameObject.GetComponent<Transform>().rotation;
-            rot = Quaternion.Euler(270, rot.eulerAngles.y, rot.eulerAngles.z);
-            c.gameObject.GetComponent<Transform>().SetPositionAndRotation(pos, rot);
-        }
-        /**/
 
         for (int i = 0; i < 10; i++)
         {
@@ -423,5 +431,30 @@ public class BattleManager : MonoBehaviour {
 
         turnStep = 6;
         Debug.Log("turnStep 6(postprocessing)");
+    }
+
+    private List<int> RandomListGenerator(int n)
+    {
+        List<int> rand = new List<int>();
+        bool[] check = new bool[n];
+        int r;
+        for (int i = n; i > 0; i--)
+        {
+            r = Random.Range(0, i);
+            for (int j = 0; j < n; j++)
+            {
+                if (!check[j])
+                {
+                    if (r == 0)
+                    {
+                        rand.Add(j);
+                        check[j] = true;
+                        break;
+                    }
+                    r--;
+                }
+            }
+        }
+        return rand;
     }
 }

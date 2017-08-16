@@ -17,7 +17,6 @@ public class PlayerUI : MonoBehaviour {
     private void FixedUpdate()
     {
         t.text = p.GetName();
-        t.text += "\n" + p.GetHealth();
     }
 
 }

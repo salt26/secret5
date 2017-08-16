@@ -8,17 +8,18 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 {
     private static BattleManager bm;
 
-    Vector3 cardx;
-    Vector3 cardOriginal;
+    private Vector3 cardx;
+    private Vector3 cardOriginal;
 
-    Card cardL;
-    Card cardR;
+    private Card cardL;
+    private Card cardR;
 
-    Card selectedCard;
+    private Card selectedCard;
 
-    bool CardAvailable;
-    bool SelectComplete;
-    bool ExchangeComplete;
+    private bool isDrag = false;
+
+    [SerializeField] bool SelectComplete;
+    [SerializeField] bool ExchangeComplete;
 
 
     public void Start()
@@ -26,55 +27,70 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         SelectComplete = false;
         ExchangeComplete = false;
-        CardAvailable = true;
+        cardOriginal = this.transform.position;
 
-        cardL = bm.GetCardsInHand()[0].GetComponent<Card>();
-        cardR = bm.GetCardsInHand()[1].GetComponent<Card>();
-        //이렇게 하면 안될거같긴한데...일단은 이렇게 둔다
     }
 
-    public void Update()
-    {
-        if (CardAvailable == true)
-        {
-            this.gameObject.SetActive(true);
-        }
 
-        if(CardAvailable == false)
+    public void FixedUpdate()
+    {
+        switch (bm.GetCameraPlayer().GetPlayerNum())
         {
-            this.gameObject.SetActive(false);
-            {
-                if (ExchangeComplete == true)
-                {
-                    cardL = bm.GetCardsInHand()[0].GetComponent<Card>();
-                    cardR = bm.GetCardsInHand()[1].GetComponent<Card>();
-                    CardAvailable = true;
-                    ExchangeComplete = false;
-                    SelectComplete = false;
-                }
-            }
-        }
+            case 1:
+                cardR = bm.GetCardsInHand()[0].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[1].GetComponent<Card>();
+                break;
+            case 2:
+                cardR = bm.GetCardsInHand()[2].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[3].GetComponent<Card>();
+                break;
+            case 3:
+                cardR = bm.GetCardsInHand()[4].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[5].GetComponent<Card>();
+                break;
+            case 4:
+                cardR = bm.GetCardsInHand()[6].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[7].GetComponent<Card>();
+                break;
+            case 5:
+                cardR = bm.GetCardsInHand()[8].GetComponent<Card>();
+                cardL = bm.GetCardsInHand()[9].GetComponent<Card>();
+                break;
+        }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
+
+        if (this.CompareTag("Left"))
+            CardAvailability(cardL);
+        else if (this.CompareTag("Right"))
+            CardAvailability(cardR);
+        else
+            Debug.Log("Wrong Tag At CardPanel");
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-
+        isDrag = true;
         cardx.x = this.transform.position.x;
-        cardOriginal = this.transform.position;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        cardx.y = eventData.position.y;
-        if (cardx.y > cardOriginal.y)
+        if((bm.GetCameraPlayer()==bm.GetTurnPlayer() || bm.GetCameraPlayer() == bm.GetObjectPlayer())&& bm.GetTurnStep() == 3)
         {
-            this.transform.SetPositionAndRotation(cardx, this.transform.rotation);
+            if (bm.GetPlayerSelectedCard(bm.GetCameraPlayer()) == null)
+            {
+                cardx.y = eventData.position.y;
+                if (cardx.y > cardOriginal.y)
+                {
+                    this.transform.SetPositionAndRotation(cardx, this.transform.rotation);
+                }
+
+            }
         }
-        // TODO 교환을 할 수 있을 때만 이 동작을 수행하도록 할 것
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        isDrag = false;
         if (this.transform.position.y >= 550)
         {
             if (this.CompareTag("Left"))
@@ -82,22 +98,56 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 selectedCard = cardL;
                 Debug.Log("selected Card is " + selectedCard.name + "= Left");
                 SelectComplete = true;
-                CardAvailable = false;
+                cardL.SetCardAvaliable(false);
             }
             else if (this.CompareTag("Right"))
             {
                 selectedCard = cardR;
                 Debug.Log("selected Card is " + selectedCard.name + "= Right");
                 SelectComplete = true;
-                CardAvailable = false;
+                cardR.SetCardAvaliable(false);
             }
             else
             {
+                selectedCard = null;
                 Debug.Log("Card is not appropriate");
+            }
+
+            if(selectedCard != null)
+            {
+                bm.SetCardToPlay(selectedCard, bm.GetCameraPlayer());
+            }
+        }
+    }
+
+    private void CardAvailability(Card card)
+    {
+        if (card.GetCardAvaliable() == true)
+        {
+            if(!isDrag)
+            {
+                this.transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
+                ExchangeComplete = false;
+
             }
         }
 
-        this.transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
+        if (card.GetCardAvaliable() == false)
+        {
+            this.transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 1000, 0), this.transform.rotation);
+            {
+                if (ExchangeComplete == true)
+                {
+                    this.transform.SetPositionAndRotation(cardOriginal , this.transform.rotation);
+                    SelectComplete = false;
+                    selectedCard = null;
+                    for(int i = 0; i<10; i++)
+                    {
+                        bm.GetCardsInHand()[i].GetComponent<Card>().SetCardAvaliable(true);
+                    }
+                }
+            }
+        }
     }
 
     public Card GetSelectedCard()
@@ -116,10 +166,4 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         ExchangeComplete = true;
     }
-
-    /* 쓰는 법
-     * 먼저 GetSelectedCard()로 어떤 카드를 선택했는지 가져온다
-     * -> 두 플레이어 모두 선택한 것이 확인되면 SetExchangeComplete()로 ExchangeComplete를 true로 만든다
-     * (아마도) 알아서 교환이 된 것이 UI에 나온다.
-     */
 }

@@ -7,9 +7,23 @@ public class Card : MonoBehaviour {
     [SerializeField] private string cardName;
     private bool isMoving = false;
 
+
+    [SerializeField] private bool CardAvaliable = true;
+
     public string GetCardName()
     {
         return cardName;
+    }
+    
+    public bool GetCardAvaliable()
+    {
+        return CardAvaliable;
+    }
+
+    public void SetCardAvaliable(bool TF)
+    {
+        CardAvaliable = TF;
+
     }
 
     // TODO 교환 시 Flip(낼 카드를 뒷면으로) -> Move -> Flip(받은 카드를 앞면으로) 순서대로 진행되도록 하기

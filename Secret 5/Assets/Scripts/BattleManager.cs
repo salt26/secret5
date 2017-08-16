@@ -13,7 +13,7 @@ public class BattleManager : MonoBehaviour {
 
     //public Slider[] slider = new Slider[5];
     // 0: players[0]의 체력, 1: players[1]의 체력, 2: player[2]의 체력,
-    // 3: players[3]의 체력, 4: players[4]의 체력 안 쓸 가능성이 높아짐
+    // 3: players[3]의 체력, 4: players[4]의 체력 (안 쓸 가능성이 높아짐;;)
     private PushingCard[] pushingcard = new PushingCard[2];
 
     private List<PlayerController> players = new List<PlayerController>();
@@ -424,7 +424,6 @@ public class BattleManager : MonoBehaviour {
         {
             pushingcard[i].SetExchangeComplete();
         }
-
         objectPlayer = null;
         turnPlayerCard = null;
         objectPlayerCard = null;

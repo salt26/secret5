@@ -5,10 +5,20 @@ using UnityEngine;
 public class Card : MonoBehaviour {
 
     [SerializeField] private string cardName;
-    private bool isMoving = false;
-
-
     [SerializeField] private bool CardAvaliable = true;
+
+    private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
+    private Queue<IEnumerator> process = new Queue<IEnumerator>();  // 함수를 순차적으로 실행하기 위한 Queue
+
+    private void FixedUpdate()
+    {
+        // Queue에서 줄 서있는 함수들을 하나씩 차례로 실행시킵니다.
+        if (process.Count != 0 && !isMoving)
+        {
+            isMoving = true;
+            StartCoroutine(process.Dequeue());
+        }
+    }
 
     public string GetCardName()
     {
@@ -34,10 +44,12 @@ public class Card : MonoBehaviour {
     /// <param name="startDest">10 * (출발 인덱스) + (도착 인덱스)</param>
     public void MoveCard(int startDest)
     {
-        if (startDest >= 100 || startDest < 0) return;
+        if (startDest > 109 || startDest < 0) return;
         int start = startDest / 10;
         int dest = startDest % 10;
-        StartCoroutine(Move(start, dest));
+
+        // 함수를 Queue에 넣어 처리합니다. (Queue는 줄 세우기와 비슷한 개념입니다.)
+        process.Enqueue(Move(start, dest));
     }
 
     /// <summary>
@@ -46,26 +58,29 @@ public class Card : MonoBehaviour {
     /// <param name="pos">카드 인덱스</param>
     public void FlipCard(int pos, bool toBack)
     {
-        if (pos < 0 || pos >= 10) return;
-        StartCoroutine(Flip(pos, toBack));
+        if (pos < 0 || pos > 10) return;
+
+        // 함수를 Queue에 넣어 처리합니다.
+        process.Enqueue(Flip(pos, toBack));
     }
 
     public void FlipCardImmediate(int pos, bool toBack)
     {
-        StartCoroutine(FlipI(pos, toBack));
+        if (pos < 0 || pos > 10) return;
+
+        // 함수를 Queue에 넣어 처리합니다.
+        process.Enqueue(FlipI(pos, toBack));
     }
 
     IEnumerator Move(int start, int dest)
     {
-        yield return new WaitWhile(() => isMoving);
-        isMoving = true;
-
         Vector3 sp = GetPosition(start);
         Vector3 dp = GetPosition(dest);
         Quaternion sr = GetRotationBack(start);
         Quaternion mr = GetRotationMoving(start, dest);
         Quaternion dr = GetRotationBack(dest);
 
+        // 움직일 방향으로 회전입니다.
         float t = Time.time;
         while (Time.time < t + (25f / 60f))
         {
@@ -74,13 +89,16 @@ public class Card : MonoBehaviour {
         }
         GetComponent<Transform>().rotation = mr;
         
+        // 목적지까지 직진입니다.
         t = Time.time;
-        while (Time.time < t + (2f / 3f)) {
+        while (Time.time < t + (2f / 3f))
+        {
             GetComponent<Transform>().position = Vector3.Lerp(sp, dp, (Time.time - t) / (2f / 3f));
             yield return null;
         }
         GetComponent<Transform>().position = dp;
         
+        // 주차할 방향으로 회전입니다.
         t = Time.time;
         while (Time.time < t + (25f / 60f))
         {
@@ -89,22 +107,22 @@ public class Card : MonoBehaviour {
         }
         GetComponent<Transform>().rotation = dr;
 
-        isMoving = false;
+        // 교환을 종료합니다.
         BattleManager bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         bm.AfterExchange();
+
+        yield return null;
+        isMoving = false;
     }
 
     IEnumerator Flip(int pos, bool toBack)
     {
-        yield return new WaitWhile(() => isMoving);
-        isMoving = true;
-
         float t;
         Quaternion fr = GetRotationFront(pos);
         Quaternion br = GetRotationBack(pos);
 
-        //if (GetComponent<Transform>().rotation.eulerAngles.x < 0) // 앞면일 때 뒷면으로
-        if (toBack)
+        //if (GetComponent<Transform>().rotation.eulerAngles.x < 0)
+        if (toBack) // 앞면일 때 뒷면으로
         {
             t = Time.time;
             while (Time.time < t + 1f)
@@ -124,14 +142,12 @@ public class Card : MonoBehaviour {
             }
             GetComponent<Transform>().rotation = fr;
         }
+        yield return null;
         isMoving = false;
     }
 
     IEnumerator FlipI(int pos, bool toBack)
     {
-        yield return new WaitWhile(() => isMoving);
-        isMoving = true;
-        
         if (toBack)
         {
             GetComponent<Transform>().rotation = GetRotationBack(pos);
@@ -140,6 +156,7 @@ public class Card : MonoBehaviour {
         {
             GetComponent<Transform>().rotation = GetRotationFront(pos);
         }
+        yield return null;
         isMoving = false;
     }
 

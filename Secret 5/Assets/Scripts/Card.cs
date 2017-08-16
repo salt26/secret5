@@ -156,8 +156,8 @@ public class Card : MonoBehaviour {
         {
             GetComponent<Transform>().rotation = GetRotationFront(pos);
         }
-        yield return null;
         isMoving = false;
+        yield return null;
     }
 
     public static Vector3 GetPosition(int pos)

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour {
 
     [SerializeField] private int currentHealth;     // 현재 남은 체력(실시간으로 변화, 외부 열람 불가)
-    [SerializeField] private int maxHealth = 6;    // 최대 체력(초기 체력)
+    [SerializeField] private int maxHealth = 6;     // 최대 체력(초기 체력)
     [SerializeField] private GameObject character;  // 캐릭터 모델
     [SerializeField] private bool isDead = false;   // 사망 여부(true이면 사망)
     [SerializeField] private string playerName;     // 플레이어 이름
@@ -44,13 +44,17 @@ public class PlayerController : MonoBehaviour {
     void FixedUpdate () {
         if (Input.GetMouseButtonDown(0))
         {
-            if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && (bm.GetTurnPlayer().Equals(this) || bm.GetObjectPlayer().Equals(this)))
+            /*
+            if (bm.GetTurnStep() == 2 && objectTarget != null && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectCard();
+            if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && bm.GetObjectPlayer().Equals(this))
+                PlayerToSelectCard();
+            */
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectTarget();
         }
 
-        HealthBar.sizeDelta = new Vector2(currentHealth*100/6, HealthBar.sizeDelta.y); //HealthBar 변경
+        HealthBar.sizeDelta = new Vector2(displayedHealth * 100f / 6f, HealthBar.sizeDelta.y); // HealthBar 변경 -> displayedHealth 기준으로 계산하도록 수정
 	}
 
     public void Damaged()
@@ -152,6 +156,7 @@ public class PlayerController : MonoBehaviour {
                 }
                 */
                 //Debug.Log("Set " + hit.collider.gameObject.GetComponent<Card>().GetCardName() + " card to play.");
+                DecideClicked();
                 bm.SetCardToPlay(hit.collider.gameObject.GetComponentInParent<Card>(), this);
             }
         }
@@ -226,5 +231,10 @@ public class PlayerController : MonoBehaviour {
     public bool HasDecidedPlayCard()
     {
         return hasDecidedPlayCard;
+    }
+
+    public PlayerController GetObjectTarget()
+    {
+        return objectTarget;
     }
 }

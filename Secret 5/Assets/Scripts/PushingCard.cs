@@ -15,7 +15,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Card cardL;
     private Card cardR;
 
-    private Card selectedCard;
+    [SerializeField] private Card selectedCard;
 
     private bool isDrag;
 
@@ -29,6 +29,8 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         ExchangeComplete = false;
         cardOriginal = this.transform.position;
         isDrag = false;
+        cardOriginal = transform.position;
+
     }
 
 
@@ -64,6 +66,14 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             CardAvailability(cardR);
         else
             Debug.Log("Wrong Tag At CardPanel");
+            if (CompareTag("Left"))
+                CardAvailability(cardL);
+            else if (CompareTag("Right"))
+                CardAvailability(cardR);
+            else
+                Debug.Log("Wrong Tag At CardPanel");
+
+        Highlighting();
 
         //Deceive 처리는 Exchange쪽으로 넘김 애니메이션 짜기가 힘들어지면 >>>>>>>>>>> 표시한 부분을 지우고 어떻게든 해볼것
         
@@ -74,19 +84,20 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnBeginDrag(PointerEventData eventData)
     {
         isDrag = true;
-        cardx.x = this.transform.position.x;
+        cardx.x = transform.position.x;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if((bm.GetCameraPlayer()==bm.GetTurnPlayer() || bm.GetCameraPlayer() == bm.GetObjectPlayer())&& bm.GetTurnStep() == 3)
+        if ((bm.GetCameraPlayer().Equals(bm.GetTurnPlayer()) && bm.GetCameraPlayer().GetObjectTarget() != null && bm.GetTurnStep() == 2)
+            || (bm.GetCameraPlayer().Equals(bm.GetObjectPlayer()) && bm.GetTurnStep() == 3))
         {
             if (bm.GetPlayerSelectedCard(bm.GetCameraPlayer()) == null)
             {
                 cardx.y = eventData.position.y;
                 if (cardx.y > cardOriginal.y)
                 {
-                    this.transform.SetPositionAndRotation(cardx, this.transform.rotation);
+                    transform.SetPositionAndRotation(cardx, transform.rotation);
                 }
             }
         }
@@ -96,14 +107,15 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         isDrag = false;
         if (this.transform.position.y >= Screen.height*4/5)
+        if (transform.position.y >= 550)    // TODO 해상도 비례로 만들 것!
         {
-            if (this.CompareTag("Left"))
+            if (CompareTag("Left"))
             {
                 selectedCard = cardL;
                 Debug.Log("selected Card is " + selectedCard.name + "= Left");
                 cardL.SetCardAvaliable(false);
             }
-            else if (this.CompareTag("Right"))
+            else if (CompareTag("Right"))
             {
                 selectedCard = cardR;
                 Debug.Log("selected Card is " + selectedCard.name + "= Right");
@@ -117,6 +129,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
             if(selectedCard != null)
             {
+                bm.GetCameraPlayer().DecideClicked();
                 bm.SetCardToPlay(selectedCard, bm.GetCameraPlayer());
             }
         }
@@ -128,7 +141,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             if(!isDrag)
             {
-                this.transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
+                transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
             }
         }
 
@@ -158,7 +171,23 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         return selectedCard;
     }
 
-    
+    private void Highlighting()
+    {
+        if(bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == bm.GetCameraPlayer())
+        {
+            if (selectedCard == cardL && this.CompareTag("Left"))
+                selectedCard.SetHighLight(true);
+            else if (selectedCard == cardR && this.CompareTag("Right"))
+                selectedCard.SetHighLight(true);
+        }
+        else
+            for (int i = 0; i < 10; i++)
+            {
+                bm.GetCardsInHand()[i].GetComponent<Card>().SetHighLight(false);
+            }
+    }
+
+
     public void SetExchangeComplete()
     {
         ExchangeComplete = true;

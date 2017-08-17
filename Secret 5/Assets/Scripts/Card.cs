@@ -14,9 +14,14 @@ public class Card : NetworkBehaviour {
     private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
     private Queue<IEnumerator> process = new Queue<IEnumerator>();  // 함수를 순차적으로 실행하기 위한 Queue
 
-    public override void OnStartServer()
+    private void Start()
     {
         Border = GetComponentInChildren<Image>();
+        if (Border == null)
+        {
+            Debug.LogWarning("Border is null");
+            return;
+        }
         Border.gameObject.SetActive(false);
     }
 

@@ -31,6 +31,7 @@ public class PlayerController : NetworkBehaviour {
         currentHealth = maxHealth;
         displayedHealth = currentHealth;
 	}
+
     void Start () {
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();

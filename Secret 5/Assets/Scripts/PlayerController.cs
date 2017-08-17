@@ -44,8 +44,12 @@ public class PlayerController : MonoBehaviour {
     void FixedUpdate () {
         if (Input.GetMouseButtonDown(0))
         {
-            if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && (bm.GetTurnPlayer().Equals(this) || bm.GetObjectPlayer().Equals(this)))
+            /*
+            if (bm.GetTurnStep() == 2 && objectTarget != null && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectCard();
+            if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && bm.GetObjectPlayer().Equals(this))
+                PlayerToSelectCard();
+            */
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectTarget();
         }
@@ -152,6 +156,7 @@ public class PlayerController : MonoBehaviour {
                 }
                 */
                 //Debug.Log("Set " + hit.collider.gameObject.GetComponent<Card>().GetCardName() + " card to play.");
+                DecideClicked();
                 bm.SetCardToPlay(hit.collider.gameObject.GetComponentInParent<Card>(), this);
             }
         }
@@ -226,5 +231,10 @@ public class PlayerController : MonoBehaviour {
     public bool HasDecidedPlayCard()
     {
         return hasDecidedPlayCard;
+    }
+
+    public PlayerController GetObjectTarget()
+    {
+        return objectTarget;
     }
 }

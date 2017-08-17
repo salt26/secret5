@@ -30,7 +30,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         SelectComplete = false;
         ExchangeComplete = false;
-        cardOriginal = this.transform.position;
+        cardOriginal = transform.position;
 
     }
 
@@ -61,9 +61,9 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
-            if (this.CompareTag("Left"))
+            if (CompareTag("Left"))
                 CardAvailability(cardL);
-            else if (this.CompareTag("Right"))
+            else if (CompareTag("Right"))
                 CardAvailability(cardR);
             else
                 Debug.Log("Wrong Tag At CardPanel");
@@ -76,19 +76,20 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnBeginDrag(PointerEventData eventData)
     {
         isDrag = true;
-        cardx.x = this.transform.position.x;
+        cardx.x = transform.position.x;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if((bm.GetCameraPlayer()==bm.GetTurnPlayer() || bm.GetCameraPlayer() == bm.GetObjectPlayer())&& bm.GetTurnStep() == 3)
+        if ((bm.GetCameraPlayer().Equals(bm.GetTurnPlayer()) && bm.GetCameraPlayer().GetObjectTarget() != null && bm.GetTurnStep() == 2)
+            || (bm.GetCameraPlayer().Equals(bm.GetObjectPlayer()) && bm.GetTurnStep() == 3))
         {
             if (bm.GetPlayerSelectedCard(bm.GetCameraPlayer()) == null)
             {
                 cardx.y = eventData.position.y;
                 if (cardx.y > cardOriginal.y)
                 {
-                    this.transform.SetPositionAndRotation(cardx, this.transform.rotation);
+                    transform.SetPositionAndRotation(cardx, transform.rotation);
                 }
             }
         }
@@ -99,19 +100,19 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnEndDrag(PointerEventData eventData)
     {
         isDrag = false;
-        if (this.transform.position.y >= 550)
+        if (transform.position.y >= 550)    // TODO 해상도 비례로 만들 것!
         {
-            if (this.CompareTag("Left"))
+            if (CompareTag("Left"))
             {
                 selectedCard = cardL;
-                Debug.Log("selected Card is " + selectedCard.name + "= Left");
+                Debug.Log("selected Card is " + selectedCard.name + " = Left");
                 SelectComplete = true;
                 cardL.SetCardAvaliable(false);
             }
-            else if (this.CompareTag("Right"))
+            else if (CompareTag("Right"))
             {
                 selectedCard = cardR;
-                Debug.Log("selected Card is " + selectedCard.name + "= Right");
+                Debug.Log("selected Card is " + selectedCard.name + " = Right");
                 SelectComplete = true;
                 cardR.SetCardAvaliable(false);
             }
@@ -123,6 +124,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
             if(selectedCard != null)
             {
+                bm.GetCameraPlayer().DecideClicked();
                 bm.SetCardToPlay(selectedCard, bm.GetCameraPlayer());
             }
         }
@@ -134,13 +136,13 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         {
             if(!isDrag)
             {
-                this.transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
+                transform.SetPositionAndRotation(cardOriginal, this.transform.rotation);
             }
         }
 
         if (card.GetCardAvaliable() == false)
         {
-            this.transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 10000, 0), this.transform.rotation);
+            transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 10000, 0), this.transform.rotation);
         }
 
         Exchanged();

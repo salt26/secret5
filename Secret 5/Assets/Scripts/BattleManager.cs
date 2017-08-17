@@ -17,8 +17,8 @@ public class BattleManager : MonoBehaviour {
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
     private List<bool> isWin = new List<bool>();
     private int turnPlayer = 0; // 현재 자신의 턴을 진행하는 플레이어 번호
-    private int turnStep;   // 턴의 단계 (0: 대전 시작, 1: 턴 시작, 2: 교환 상대 선택,
-                            //           3: 교환할 카드 선택, 4: 교환 중(카드를 낼 때와 받을 때 효과 발동),
+    private int turnStep;   // 턴의 단계 (0: 대전 시작, 1: 턴 시작, 2: 턴 진행자의 교환 상대 선택과 교환할 카드 선택,
+                            //           3: 교환당하는 자의 교환할 카드 선택, 4: 교환 중(카드를 낼 때와 받을 때 효과 발동),
                             //           5: 빙결 발동, 6: 턴이 끝날 때 효과 발동, 7: 턴 종료)
     private PlayerController objectPlayer;  // 교환당하는 플레이어
     private Card turnPlayerCard;            // 턴을 진행한 플레이어가 낸 카드
@@ -152,7 +152,7 @@ public class BattleManager : MonoBehaviour {
             else
             {
                 turnStep = 2;
-                Debug.Log("turnStep 2(select a player to exchange with)");
+                Debug.Log("turnStep 2(select a player to exchange with, and select a card to play)");
             }
         }
 		else if (turnStep == 2)

@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    public Image cardLHighlight;
-    public Image cardRHighlight;
+    //public Image cardLHighlight;
+    //public Image cardRHighlight;
 
     private static BattleManager bm;
 
@@ -17,19 +15,20 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Card cardL;
     private Card cardR;
 
-    private Card selectedCard;
+    [SerializeField] private Card selectedCard;
 
-    private bool isDrag = false;
+    private bool isDrag;
 
-    [SerializeField] bool SelectComplete;
     [SerializeField] bool ExchangeComplete;
+    [SerializeField] bool Checker = false;
 
 
     public void Start()
     {
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
-        SelectComplete = false;
         ExchangeComplete = false;
+        cardOriginal = this.transform.position;
+        isDrag = false;
         cardOriginal = transform.position;
 
     }
@@ -61,6 +60,12 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
+        if (this.CompareTag("Left"))
+            CardAvailability(cardL);
+        else if (this.CompareTag("Right"))
+            CardAvailability(cardR);
+        else
+            Debug.Log("Wrong Tag At CardPanel");
             if (CompareTag("Left"))
                 CardAvailability(cardL);
             else if (CompareTag("Right"))
@@ -68,9 +73,12 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             else
                 Debug.Log("Wrong Tag At CardPanel");
 
-        cardLHighlight.gameObject.SetActive(!cardL.GetCardAvaliable());
-        cardRHighlight.gameObject.SetActive(!cardR.GetCardAvaliable());
-      
+        Highlighting();
+
+        //Deceive 처리는 Exchange쪽으로 넘김 애니메이션 짜기가 힘들어지면 >>>>>>>>>>> 표시한 부분을 지우고 어떻게든 해볼것
+        
+        //cardLHighlight.gameObject.SetActive(!cardL.GetCardAvaliable());
+        //cardRHighlight.gameObject.SetActive(!cardR.GetCardAvaliable());
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -95,25 +103,22 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
         }
     }
     
-    
-
     public void OnEndDrag(PointerEventData eventData)
     {
         isDrag = false;
+        if (this.transform.position.y >= Screen.height*4/5)
         if (transform.position.y >= 550)    // TODO 해상도 비례로 만들 것!
         {
             if (CompareTag("Left"))
             {
                 selectedCard = cardL;
-                Debug.Log("selected Card is " + selectedCard.name + " = Left");
-                SelectComplete = true;
+                Debug.Log("selected Card is " + selectedCard.name + "= Left");
                 cardL.SetCardAvaliable(false);
             }
             else if (CompareTag("Right"))
             {
                 selectedCard = cardR;
-                Debug.Log("selected Card is " + selectedCard.name + " = Right");
-                SelectComplete = true;
+                Debug.Log("selected Card is " + selectedCard.name + "= Right");
                 cardR.SetCardAvaliable(false);
             }
             else
@@ -142,7 +147,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
         if (card.GetCardAvaliable() == false)
         {
-            transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 10000, 0), this.transform.rotation);
+            this.transform.SetPositionAndRotation(new Vector3(this.transform.position.x, 10000, 0), this.transform.rotation);//수치 바꿔야 됨
         }
 
         Exchanged();
@@ -152,7 +157,6 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         if (ExchangeComplete == true)
         {
-            SelectComplete = false;
             selectedCard = null;
             for (int i = 0; i < 10; i++)
             {
@@ -161,37 +165,29 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             ExchangeComplete = false;
         }
     }
-    
-    private Card Deceive(PlayerController DeceivingPlayer, PlayerController DeceivedPlayer)
-    {
-        if (ExchangeComplete == true) return null;
-        if (DeceivingPlayer == null || DeceivedPlayer == null) return null;
-        else if (bm.GetPlayerSelectedCard(DeceivingPlayer) == null) return null;
-        else if (bm.GetPlayerSelectedCard(DeceivingPlayer).GetCardName() == "Deceive")
-        {
-            List<Card> DeceivedHand = bm.GetPlayerHand(DeceivedPlayer);
-            bm.GetPlayerSelectedCard(DeceivedPlayer).SetCardAvaliable(true);
-            if (DeceivedHand == null || DeceivedHand.Count != 2) return null;
-            else if (DeceivedHand[0].Equals(bm.GetPlayerSelectedCard(DeceivedPlayer))) return DeceivedHand[1];
-            else if (DeceivedHand[1].Equals(bm.GetPlayerSelectedCard(DeceivedPlayer))) return DeceivedHand[0];
-            else return null;
-        }
-        else return null;
-    }
 
     public Card GetSelectedCard()
     {
-        if(SelectComplete == true)
-        {
-            return selectedCard;
-        }
-        else
-        {
-            return null;
-        }
+        return selectedCard;
     }
 
-    
+    private void Highlighting()
+    {
+        if(bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == bm.GetCameraPlayer())
+        {
+            if (selectedCard == cardL && this.CompareTag("Left"))
+                selectedCard.SetHighLight(true);
+            else if (selectedCard == cardR && this.CompareTag("Right"))
+                selectedCard.SetHighLight(true);
+        }
+        else
+            for (int i = 0; i < 10; i++)
+            {
+                bm.GetCardsInHand()[i].GetComponent<Card>().SetHighLight(false);
+            }
+    }
+
+
     public void SetExchangeComplete()
     {
         ExchangeComplete = true;

@@ -1,17 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Card : MonoBehaviour {
 
     [SerializeField] private string cardName;
-    [SerializeField] private bool CardAvaliable = true;
+    private bool CardAvaliable = true;//조작UI에서 카드가 보여야 되는지 아닌지
+    private Image Border;
+    [SerializeField] bool checker;
 
     private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
     private Queue<IEnumerator> process = new Queue<IEnumerator>();  // 함수를 순차적으로 실행하기 위한 Queue
 
+    private void Awake()
+    {
+        Border = GetComponentInChildren<Image>();
+        Border.gameObject.SetActive(false);
+    }
+
     private void FixedUpdate()
     {
+        checker = Border.gameObject.activeInHierarchy;
         // Queue에서 줄 서있는 함수들을 하나씩 차례로 실행시킵니다.
         if (process.Count != 0 && !isMoving)
         {
@@ -339,5 +349,10 @@ public class Card : MonoBehaviour {
         else if (start == 10 && dest == 8) return Quaternion.Euler(90f, -9f, 90f);
         else if (start == 10 && dest == 9) return Quaternion.Euler(90f, -27f, 90f);
         else return Quaternion.identity;
+    }
+
+    public void SetHighLight(bool TF)
+    {
+        Border.gameObject.SetActive(TF);
     }
 }

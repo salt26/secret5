@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class BattleManager : MonoBehaviour {
+public class BattleManager : NetworkBehaviour {
 
     public GameObject player;
     [SerializeField] private List<GameObject> cards = new List<GameObject>();
@@ -35,36 +36,14 @@ public class BattleManager : MonoBehaviour {
     private int count;
 
     private static CardDatabase cd;
-
-    private void Awake()
+    
+    public override void OnStartServer()
     {
-        turnStep = 0;
+        base.OnStartServer(); turnStep = 0;
         cd = GetComponent<CardDatabase>();
         pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
 
         List<PlayerController> tempPlayers = new List<PlayerController>();
-
-        /*
-        List<int> rand = RandomListGenerator(5);
-        List<Vector3> pos = new List<Vector3>();
-        List<Quaternion> rot = new List<Quaternion>();
-        for (int i = 0; i < 5; i++)
-        {
-            Debug.Log("rand[" + i + "] = " + rand[i]);
-        }
-
-        pos.Add(new Vector3(0f, 0f, 0f));
-        pos.Add(new Vector3(3.236f, 0f, 2.351f));
-        pos.Add(new Vector3(2f, 0f, 6.155f));
-        pos.Add(new Vector3(-2f, 0f, 6.155f));
-        pos.Add(new Vector3(-3.236f, 0f, 2.351f));
-
-        rot.Add(Quaternion.identity);
-        rot.Add(Quaternion.Euler(0f, -72f, 0f));
-        rot.Add(Quaternion.Euler(0f, -144f, 0f));
-        rot.Add(Quaternion.Euler(0f, 144f, 0f));
-        rot.Add(Quaternion.Euler(0f, 72f, 0f));
-        */
 
         players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
         players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
@@ -104,10 +83,73 @@ public class BattleManager : MonoBehaviour {
             int r = Random.Range(0, tempPlayers.Count);
             playerPermutation[i].player = tempPlayers[r];
             tempPlayers.RemoveAt(r);
+            NetworkServer.Spawn(players[i].gameObject);
         }
-        
-    }
 
+        CardPermutation();
+        for (int i = 0; i < 10; i++)
+        {
+            cards[i].GetComponent<Card>().MoveCard(100 + i);
+        }
+        turnPlayer = Random.Range(0, 5);
+        cameraPlayer = turnPlayer;
+
+        turnStep = 1;
+        Debug.Log("Battle starts.");
+        Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
+        SetCameraVisible(cameraPlayer);
+    }
+    /*
+    private void Awake()
+    {
+        turnStep = 0;
+        cd = GetComponent<CardDatabase>();
+        pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
+
+        List<PlayerController> tempPlayers = new List<PlayerController>();
+
+        /*
+        players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
+        players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
+        players[0].SetPlayerNum(1);
+        players[0].SetName("Player 1");
+        tempPlayers.Add(players[0]);
+
+        players[1].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
+        players[1].SetPlayerNum(2);
+        players[1].SetName("Player 2");
+        tempPlayers.Add(players[1]);
+
+        players[2].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
+        players[2].SetPlayerNum(3);
+        players[2].SetName("Player 3");
+        tempPlayers.Add(players[2]);
+
+        players[3].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
+        players[3].SetPlayerNum(4);
+        players[3].SetName("Player 4");
+        tempPlayers.Add(players[3]);
+
+        players[4].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
+        players[4].SetPlayerNum(5);
+        players[4].SetName("Player 5");
+        tempPlayers.Add(players[4]);
+
+        // 목표 그래프에 5명의 플레이어를 랜덤한 순서로 배치한다.
+        for (int i = 0; i < 5; i++)
+        {
+            isWin.Add(false);
+            playerPermutation.Add(new TargetGraph(i));
+            int r = Random.Range(0, tempPlayers.Count);
+            playerPermutation[i].player = tempPlayers[r];
+            tempPlayers.RemoveAt(r);
+            //NetworkServer.Spawn(players[0].gameObject);
+        }
+    }
     void Start ()
     {
         CardPermutation();
@@ -123,6 +165,7 @@ public class BattleManager : MonoBehaviour {
         Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
         SetCameraVisible(cameraPlayer);
     }
+    */
 	
 	void FixedUpdate () {
         if (Input.GetMouseButtonDown(1))

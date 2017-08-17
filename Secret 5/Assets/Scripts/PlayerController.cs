@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class PlayerController : MonoBehaviour {
+public class PlayerController : NetworkBehaviour {
 
     [SerializeField] private int currentHealth;     // 현재 남은 체력(실시간으로 변화, 외부 열람 불가)
     [SerializeField] private int maxHealth = 6;     // 최대 체력(초기 체력)
@@ -24,24 +25,43 @@ public class PlayerController : MonoBehaviour {
     private RectTransform HealthBar;                // HP UI
 
     private static BattleManager bm;
+
     
 	void Awake () {
         currentHealth = maxHealth;
         displayedHealth = currentHealth;
-        if (character != null)
-        {
-            GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
-        }
 	}
 
-    private void Start()
-    {
+    void Start () {
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         if (bm == null) Debug.Log("BM is null.");
+        if (character != null)
+        {
+            GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
+            NetworkServer.Spawn(c);
+        }
     }
 
+    /*
+    public override void OnStartLocalPlayer()
+    {
+        currentHealth = maxHealth;
+        displayedHealth = currentHealth;
+        Debug.Log("OnStartLocalPlayer " + playerName);
+        HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
+        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        if (bm == null) Debug.Log("BM is null.");
+        if (character != null)
+        {
+            GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
+            NetworkServer.Spawn(c);
+        }
+    }
+    */
+
     void FixedUpdate () {
+        //if (!isLocalPlayer) return;
         if (Input.GetMouseButtonDown(0))
         {
             /*

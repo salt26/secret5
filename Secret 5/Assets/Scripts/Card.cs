@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
-public class Card : MonoBehaviour {
+public class Card : NetworkBehaviour {
 
     [SerializeField] private string cardName;
-    private bool CardAvaliable = true;//조작UI에서 카드가 보여야 되는지 아닌지
+    private bool CardAvaliable = true; // 조작UI에서 카드가 보여야 되는지 아닌지
     private Image Border;
     [SerializeField] bool checker;
 
     private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
     private Queue<IEnumerator> process = new Queue<IEnumerator>();  // 함수를 순차적으로 실행하기 위한 Queue
 
-    private void Awake()
+    public override void OnStartServer()
     {
         Border = GetComponentInChildren<Image>();
         Border.gameObject.SetActive(false);

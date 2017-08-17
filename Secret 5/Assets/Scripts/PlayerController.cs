@@ -25,14 +25,24 @@ public class PlayerController : NetworkBehaviour {
     private RectTransform HealthBar;                // HP UI
 
     private static BattleManager bm;
+
     
-    /*
 	void Awake () {
         currentHealth = maxHealth;
         displayedHealth = currentHealth;
 	}
-    */
+    void Start () {
+        HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
+        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        if (bm == null) Debug.Log("BM is null.");
+        if (character != null)
+        {
+            GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
+            NetworkServer.Spawn(c);
+        }
+    }
 
+    /*
     public override void OnStartLocalPlayer()
     {
         currentHealth = maxHealth;
@@ -47,9 +57,10 @@ public class PlayerController : NetworkBehaviour {
             NetworkServer.Spawn(c);
         }
     }
+    */
 
     void FixedUpdate () {
-        if (!isLocalPlayer) return;
+        //if (!isLocalPlayer) return;
         if (Input.GetMouseButtonDown(0))
         {
             /*

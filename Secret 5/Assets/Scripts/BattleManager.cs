@@ -36,7 +36,7 @@ public class BattleManager : NetworkBehaviour {
     private int count;
 
     private static CardDatabase cd;
-
+    
     public override void OnStartServer()
     {
         base.OnStartServer(); turnStep = 0;
@@ -109,27 +109,6 @@ public class BattleManager : NetworkBehaviour {
         List<PlayerController> tempPlayers = new List<PlayerController>();
 
         /*
-        List<int> rand = RandomListGenerator(5);
-        List<Vector3> pos = new List<Vector3>();
-        List<Quaternion> rot = new List<Quaternion>();
-        for (int i = 0; i < 5; i++)
-        {
-            Debug.Log("rand[" + i + "] = " + rand[i]);
-        }
-
-        pos.Add(new Vector3(0f, 0f, 0f));
-        pos.Add(new Vector3(3.236f, 0f, 2.351f));
-        pos.Add(new Vector3(2f, 0f, 6.155f));
-        pos.Add(new Vector3(-2f, 0f, 6.155f));
-        pos.Add(new Vector3(-3.236f, 0f, 2.351f));
-
-        rot.Add(Quaternion.identity);
-        rot.Add(Quaternion.Euler(0f, -72f, 0f));
-        rot.Add(Quaternion.Euler(0f, -144f, 0f));
-        rot.Add(Quaternion.Euler(0f, 144f, 0f));
-        rot.Add(Quaternion.Euler(0f, 72f, 0f));
-        */
-        /*
         players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
         players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
         players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
@@ -168,11 +147,9 @@ public class BattleManager : NetworkBehaviour {
             int r = Random.Range(0, tempPlayers.Count);
             playerPermutation[i].player = tempPlayers[r];
             tempPlayers.RemoveAt(r);
-            NetworkServer.Spawn(players[0].gameObject);
+            //NetworkServer.Spawn(players[0].gameObject);
         }
     }
-    */
-    /*
     void Start ()
     {
         CardPermutation();

@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Prototype.NetworkLobby;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
 public class BattleManager : NetworkBehaviour {
+
+    static public BattleManager bm;
 
     public GameObject player;
     [SerializeField] private List<GameObject> cards = new List<GameObject>();
@@ -14,7 +17,7 @@ public class BattleManager : NetworkBehaviour {
     
     private PushingCard[] pushingcard = new PushingCard[2];
 
-    private List<PlayerControl> players = new List<PlayerControl>();
+    public List<PlayerControl> players = new List<PlayerControl>();
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
     private List<bool> isWin = new List<bool>();
     private int turnPlayer = 0; // 현재 자신의 턴을 진행하는 플레이어 번호
@@ -39,12 +42,61 @@ public class BattleManager : NetworkBehaviour {
     
     public override void OnStartServer()
     {
-        base.OnStartServer(); turnStep = 0;
+        base.OnStartServer();
+        turnStep = 0;
         cd = GetComponent<CardDatabase>();
         pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
 
-        List<PlayerControl> tempPlayers = new List<PlayerControl>();
+        // 플레이어 번호를 생성 순서가 아닌 생성 위치에 따라 정렬하는 과정입니다.
+        List<PlayerControl> temp = new List<PlayerControl>()
+        {
+            null, null, null, null, null
+        };
+        for (int j = 0; j < 5; j++)
+        {
+            if (players[j].transform.position.z < 1f)
+            {
+                temp[0] = players[j];
+            }
+            else if (players[j].transform.position.z < 4f)
+            {
+                if (players[j].transform.position.x > 0f)
+                {
+                    temp[1] = players[j];
+                }
+                else
+                {
+                    temp[4] = players[j];
+                }
+            }
+            else
+            {
+                if (players[j].transform.position.x > 0f)
+                {
+                    temp[2] = players[j];
+                }
+                else
+                {
+                    temp[3] = players[j];
+                }
+            }
+        }
+        players = temp;
 
+        for (int i = 0; i < 5; i++)
+        {
+            players[i].playerNum = i + 1;
+        }
+
+        List<PlayerControl> tempPlayers = new List<PlayerControl>
+        {
+            players[0],
+            players[1],
+            players[2],
+            players[3],
+            players[4]
+        };
+        /*
         players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerControl>());
         players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerControl>());
         players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerControl>());
@@ -74,6 +126,8 @@ public class BattleManager : NetworkBehaviour {
         players[4].SetPlayerNum(5);
         players[4].SetName("Player 5");
         tempPlayers.Add(players[4]);
+        */
+
 
         // 목표 그래프에 5명의 플레이어를 랜덤한 순서로 배치한다.
         for (int i = 0; i < 5; i++)
@@ -99,9 +153,11 @@ public class BattleManager : NetworkBehaviour {
         Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
         SetCameraVisible(cameraPlayer);
     }
-    /*
     private void Awake()
     {
+        bm = this;
+    }
+    /*
         turnStep = 0;
         cd = GetComponent<CardDatabase>();
         pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
@@ -382,6 +438,7 @@ public class BattleManager : NetworkBehaviour {
 
     private void SetCameraVisible(int cp)
     {
+        Debug.Log(cp);
         foreach (PlayerControl p in players)
         {
             p.gameObject.GetComponentInChildren<Camera>().enabled = false;

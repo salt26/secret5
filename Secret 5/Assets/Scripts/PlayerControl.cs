@@ -8,39 +8,39 @@ public class PlayerControl : NetworkBehaviour {
 
     [SerializeField] private int currentHealth;     // 현재 남은 체력(실시간으로 변화, 외부 열람 불가)
     [SerializeField] private int maxHealth = 6;     // 최대 체력(초기 체력)
-    [SerializeField] private GameObject character;  // 캐릭터 모델
-    [SerializeField] private bool isDead = false;   // 사망 여부(true이면 사망)
-    [SerializeField] private string playerName;     // 플레이어 이름
-    [SerializeField] private int playerNum;         // 대전에서 부여된 플레이어 번호
+    [SyncVar] private GameObject character;  // 캐릭터 모델
+    [SyncVar] private bool isDead = false;   // 사망 여부(true이면 사망)
+    [SyncVar] public string playerName;     // 플레이어 이름
+    [SyncVar] public int playerNum;         // 대전에서 부여된 플레이어 번호
+    [SyncVar] public Color color = Color.white;
 
-    private int displayedHealth;                    // 현재 남은 체력(턴이 끝날 때만 변화, 외부 열람 가능)
-    private bool isFreezed = false;                 // 빙결 여부(true이면 다음 한 번의 내 턴에 교환 불가)
+
+    [SyncVar] private int displayedHealth;                    // 현재 남은 체력(턴이 끝날 때만 변화, 외부 열람 가능)
+    [SyncVar] private bool isFreezed = false;                 // 빙결 여부(true이면 다음 한 번의 내 턴에 교환 불가)
 
     private bool isAI = false;                      // 인공지능 플레이어 여부(true이면 인공지능, false이면 사람)
     private bool hasDecidedObjectPlayer = false;    // 내 턴에 교환 상대를 선택했는지 여부
     private bool hasDecidedPlayCard = false;        // 교환 시 교환할 카드를 선택했는지 여부
-    private PlayerControl objectTarget;          // 내가 선택한 교환 대상
+    private PlayerControl objectTarget;             // 내가 선택한 교환 대상
     private Card playCard;                          // 내가 낼 카드
 
     private RectTransform HealthBar;                // HP UI
 
     private static BattleManager bm;
-
     
 	void Awake () {
+        bm = BattleManager.bm;
+        bm.players.Add(this);
         currentHealth = maxHealth;
         displayedHealth = currentHealth;
 	}
 
     void Start () {
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
-        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         if (bm == null) Debug.Log("BM is null.");
-        if (character != null)
-        {
-            GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
-            NetworkServer.Spawn(c);
-        }
+        Renderer[] rends = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in rends)
+            r.material.color = color;
     }
 
     /*
@@ -60,8 +60,9 @@ public class PlayerControl : NetworkBehaviour {
     }
     */
 
+
     void FixedUpdate () {
-        //if (!isLocalPlayer) return;
+        if (!isLocalPlayer) return;
         if (Input.GetMouseButtonDown(0))
         {
             /*

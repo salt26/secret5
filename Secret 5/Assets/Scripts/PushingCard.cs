@@ -25,7 +25,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void Start()
     {
-        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        bm = BattleManager.bm;
         ExchangeComplete = false;
         cardOriginal = this.transform.position;
         isDrag = false;
@@ -36,7 +36,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void FixedUpdate()
     {
-        switch (bm.GetCameraPlayer().GetPlayerNum())
+        switch (bm.GetCameraPlayer().GetPlayerNum())    // 현재 GetPlayerNum() 이 항상 0을 준다!
         {
             case 1:
                 cardL = bm.GetCardsInHand()[0].GetComponent<Card>();
@@ -60,9 +60,9 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
-        if (this.CompareTag("Left"))
+        if (CompareTag("Left"))
             CardAvailability(cardL);
-        else if (this.CompareTag("Right"))
+        else if (CompareTag("Right"))
             CardAvailability(cardR);
         else
             Debug.Log("Wrong Tag At CardPanel");
@@ -137,6 +137,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private void CardAvailability(Card card)
     {
+        if (card == null) return;
         if (card.GetCardAvaliable() == true)
         {
             if(!isDrag)

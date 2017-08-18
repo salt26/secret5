@@ -387,6 +387,15 @@ namespace Prototype.NetworkLobby
             ServerChangeScene(playScene);
         }
 
+        /*
+        // TODO
+        public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+        {
+            var player = Instantiate(playerPrefab, GetStartPosition().position, GetStartPosition().rotation);
+            NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+        }
+        */
+
         // ----------------- Client callbacks ------------------
 
         public override void OnClientConnect(NetworkConnection conn)

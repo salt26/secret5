@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
-public class PlayerController : NetworkBehaviour {
+public class PlayerControl : NetworkBehaviour {
 
     [SerializeField] private int currentHealth;     // 현재 남은 체력(실시간으로 변화, 외부 열람 불가)
     [SerializeField] private int maxHealth = 6;     // 최대 체력(초기 체력)
@@ -19,7 +19,7 @@ public class PlayerController : NetworkBehaviour {
     private bool isAI = false;                      // 인공지능 플레이어 여부(true이면 인공지능, false이면 사람)
     private bool hasDecidedObjectPlayer = false;    // 내 턴에 교환 상대를 선택했는지 여부
     private bool hasDecidedPlayCard = false;        // 교환 시 교환할 카드를 선택했는지 여부
-    private PlayerController objectTarget;          // 내가 선택한 교환 대상
+    private PlayerControl objectTarget;          // 내가 선택한 교환 대상
     private Card playCard;                          // 내가 낼 카드
 
     private RectTransform HealthBar;                // HP UI
@@ -136,13 +136,13 @@ public class PlayerController : NetworkBehaviour {
         {
             //Debug.Log("Click " + hit.collider.name + ".");
             Debug.DrawLine(ray.origin, hit.point, Color.blue, 3f);
-            if (hit.collider.gameObject.GetComponentInParent<PlayerController>() != null
-                && !hit.collider.gameObject.GetComponentInParent<PlayerController>().Equals(this))
+            if (hit.collider.gameObject.GetComponentInParent<PlayerControl>() != null
+                && !hit.collider.gameObject.GetComponentInParent<PlayerControl>().Equals(this))
             {
-                if (objectTarget == null || !objectTarget.Equals(hit.collider.gameObject.GetComponentInParent<PlayerController>()))
+                if (objectTarget == null || !objectTarget.Equals(hit.collider.gameObject.GetComponentInParent<PlayerControl>()))
                 {
-                    objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerController>();
-                    Debug.Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerController>().GetName() + " to a target.");
+                    objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerControl>();
+                    Debug.Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
                 }
             }
         }
@@ -253,7 +253,7 @@ public class PlayerController : NetworkBehaviour {
         return hasDecidedPlayCard;
     }
 
-    public PlayerController GetObjectTarget()
+    public PlayerControl GetObjectTarget()
     {
         return objectTarget;
     }

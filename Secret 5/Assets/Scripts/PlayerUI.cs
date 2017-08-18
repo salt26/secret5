@@ -6,12 +6,12 @@ using UnityEngine.UI;
 public class PlayerUI : MonoBehaviour {
 
     Text t;
-    PlayerController p;
+    PlayerControl p;
 
 	// Use this for initialization
 	void Start () {
         t = GetComponent<Text>();
-        p = GetComponentInParent<PlayerController>();
+        p = GetComponentInParent<PlayerControl>();
     }
 
     private void FixedUpdate()

@@ -14,14 +14,14 @@ public class BattleManager : NetworkBehaviour {
     
     private PushingCard[] pushingcard = new PushingCard[2];
 
-    private List<PlayerController> players = new List<PlayerController>();
+    private List<PlayerControl> players = new List<PlayerControl>();
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
     private List<bool> isWin = new List<bool>();
     private int turnPlayer = 0; // 현재 자신의 턴을 진행하는 플레이어 번호
     private int turnStep;   // 턴의 단계 (0: 대전 시작, 1: 턴 시작, 2: 턴 진행자의 교환 상대 선택과 교환할 카드 선택,
                             //           3: 교환당하는 자의 교환할 카드 선택, 4: 교환 중(카드를 낼 때와 받을 때 효과 발동),
                             //           5: 빙결 발동, 6: 턴이 끝날 때 효과 발동, 7: 턴 종료)
-    private PlayerController objectPlayer;  // 교환당하는 플레이어
+    private PlayerControl objectPlayer;  // 교환당하는 플레이어
     private Card turnPlayerCard;            // 턴을 진행한 플레이어가 낸 카드
     private Card objectPlayerCard;          // 교환당하는 플레이어가 낸 카드
     private Exchange exchange;
@@ -43,13 +43,13 @@ public class BattleManager : NetworkBehaviour {
         cd = GetComponent<CardDatabase>();
         pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
 
-        List<PlayerController> tempPlayers = new List<PlayerController>();
+        List<PlayerControl> tempPlayers = new List<PlayerControl>();
 
-        players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerControl>());
         players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[0].SetPlayerNum(1);
         players[0].SetName("Player 1");
@@ -106,14 +106,14 @@ public class BattleManager : NetworkBehaviour {
         cd = GetComponent<CardDatabase>();
         pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
 
-        List<PlayerController> tempPlayers = new List<PlayerController>();
+        List<PlayerControl> tempPlayers = new List<PlayerControl>();
 
         /*
-        players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerController>());
-        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerController>());
+        players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerControl>());
+        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerControl>());
         players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
         players[0].SetPlayerNum(1);
         players[0].SetName("Player 1");
@@ -175,12 +175,12 @@ public class BattleManager : NetworkBehaviour {
             if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
             {
                 Debug.DrawLine(ray.origin, hit.point, Color.green, 3f);
-                if (hit.collider.gameObject.GetComponentInParent<PlayerController>() != null
-                    && !hit.collider.gameObject.GetComponentInParent<PlayerController>().Equals(players[cameraPlayer]))
+                if (hit.collider.gameObject.GetComponentInParent<PlayerControl>() != null
+                    && !hit.collider.gameObject.GetComponentInParent<PlayerControl>().Equals(players[cameraPlayer]))
                 {
-                    cameraPlayer = hit.collider.gameObject.GetComponentInParent<PlayerController>().GetPlayerNum() - 1;
+                    cameraPlayer = hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetPlayerNum() - 1;
                     SetCameraVisible(cameraPlayer);
-                    Debug.Log(hit.collider.gameObject.GetComponentInParent<PlayerController>().GetName() + "'s camera.");
+                    Debug.Log(hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + "'s camera.");
                 }
             }
         }
@@ -357,7 +357,7 @@ public class BattleManager : NetworkBehaviour {
         }
 	}
 
-    public void SetObjectPlayer(PlayerController objectTarget)
+    public void SetObjectPlayer(PlayerControl objectTarget)
     {
         if (turnStep != 2 || objectTarget == null) return;
         objectPlayer = objectTarget;
@@ -365,7 +365,7 @@ public class BattleManager : NetworkBehaviour {
         Debug.Log("turnStep 3(select a card to play)");
     }
 
-    public void SetCardToPlay(Card card, PlayerController player)
+    public void SetCardToPlay(Card card, PlayerControl player)
     {
         if (turnStep != 3 || card == null || player == null) return;
         if (player.Equals(players[turnPlayer]) && turnPlayerCard == null)
@@ -382,7 +382,7 @@ public class BattleManager : NetworkBehaviour {
 
     private void SetCameraVisible(int cp)
     {
-        foreach (PlayerController p in players)
+        foreach (PlayerControl p in players)
         {
             p.gameObject.GetComponentInChildren<Camera>().enabled = false;
         }
@@ -407,7 +407,7 @@ public class BattleManager : NetworkBehaviour {
         }
     }
 
-    public List<Card> GetPlayerHand(PlayerController player)
+    public List<Card> GetPlayerHand(PlayerControl player)
     {
         List<Card> hand = new List<Card>();
         int playerNum = players.IndexOf(player);
@@ -420,12 +420,12 @@ public class BattleManager : NetworkBehaviour {
         else return null;
     }
 
-    public PlayerController GetTurnPlayer()
+    public PlayerControl GetTurnPlayer()
     {
         return players[turnPlayer];
     }
 
-    public PlayerController GetObjectPlayer()
+    public PlayerControl GetObjectPlayer()
     {
         return objectPlayer;
     }
@@ -435,14 +435,14 @@ public class BattleManager : NetworkBehaviour {
         return turnStep;
     }
 
-    public PlayerController GetCameraPlayer()
+    public PlayerControl GetCameraPlayer()
     {
         return players[cameraPlayer];
     }
 
     public void DecideClick()
     {
-        foreach (PlayerController p in players)
+        foreach (PlayerControl p in players)
         {
             p.DecideClicked();
         }
@@ -454,7 +454,7 @@ public class BattleManager : NetworkBehaviour {
     }
     
 
-    public Card GetPlayerSelectedCard(PlayerController player)
+    public Card GetPlayerSelectedCard(PlayerControl player)
     {
         if (turnStep != 3 || player == null) return null;
         else if (player.Equals(players[turnPlayer]))

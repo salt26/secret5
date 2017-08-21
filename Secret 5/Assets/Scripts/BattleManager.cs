@@ -12,7 +12,7 @@ public class BattleManager : NetworkBehaviour {
     // 0 ~ 1: players[0]의 손패, 2 ~ 3: players[1]의 손패, 4 ~ 5: players[2]의 손패,
     // 6 ~ 7: players[3]의 손패, 8 ~ 9: players[4]의 손패
     
-    private PushingCard[] pushingcard = new PushingCard[2];
+    private Pusher pusher;
 
     private List<PlayerController> players = new List<PlayerController>();
     private List<TargetGraph> playerPermutation = new List<TargetGraph>();
@@ -41,7 +41,7 @@ public class BattleManager : NetworkBehaviour {
     {
         base.OnStartServer(); turnStep = 0;
         cd = GetComponent<CardDatabase>();
-        pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
+        pusher = GameObject.Find("CardPanel").GetComponent<Pusher>();
 
         List<PlayerController> tempPlayers = new List<PlayerController>();
 
@@ -180,6 +180,7 @@ public class BattleManager : NetworkBehaviour {
                 {
                     cameraPlayer = hit.collider.gameObject.GetComponentInParent<PlayerController>().GetPlayerNum() - 1;
                     SetCameraVisible(cameraPlayer);
+                    pusher.SetCardChange();
                     Debug.Log(hit.collider.gameObject.GetComponentInParent<PlayerController>().GetName() + "'s camera.");
                 }
             }
@@ -290,6 +291,10 @@ public class BattleManager : NetworkBehaviour {
         }
         else if (turnStep == 6)
         {
+            objectPlayer = null;
+            turnPlayerCard = null;
+            objectPlayerCard = null;
+
             List<Card> hand = GetPlayerHand(players[turnPlayer]);
             // 턴을 진행한 플레이어가 폭탄 카드를 들고 있으면 펑!
             if (hand[0].GetCardName() == "Bomb" || hand[1].GetCardName() == "Bomb")
@@ -467,6 +472,7 @@ public class BattleManager : NetworkBehaviour {
         }
         else
         {
+            Debug.Log("a");
             return null;
         }
     }
@@ -477,17 +483,12 @@ public class BattleManager : NetworkBehaviour {
     {
         if (turnStep != 9) return;
 
-        for (int i = 0; i < 2; i++)
-        {
-            pushingcard[i].SetExchangeComplete();
-        }
-        objectPlayer = null;
-        turnPlayerCard = null;
-        objectPlayerCard = null;
+        pusher.SetExchangeComplete();
 
         turnStep = 6;
         Debug.Log("turnStep 6(postprocessing)");
     }
+
 
     private List<int> RandomListGenerator(int n)
     {

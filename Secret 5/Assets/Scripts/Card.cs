@@ -7,6 +7,7 @@ using UnityEngine.Networking;
 public class Card : NetworkBehaviour {
 
     [SerializeField] private string cardName;
+    [SerializeField] private int cardCode; // 0 ~ 9
     private bool CardAvaliable = true; // 조작UI에서 카드가 보여야 되는지 아닌지
     private Image Border;
     [SerializeField] bool checker;
@@ -72,7 +73,8 @@ public class Card : NetworkBehaviour {
     /// 카드를 뒤집는 함수입니다.
     /// </summary>
     /// <param name="pos">카드 인덱스</param>
-    public void FlipCard(int pos, bool toBack)
+    [ClientRpc]
+    public void RpcFlipCard(int pos, bool toBack)
     {
         if (pos < 0 || pos > 10) return;
 
@@ -80,7 +82,8 @@ public class Card : NetworkBehaviour {
         process.Enqueue(Flip(pos, toBack));
     }
 
-    public void FlipCardImmediate(int pos, bool toBack)
+    [ClientRpc]
+    public void RpcFlipCardImmediate(int pos, bool toBack)
     {
         if (pos < 0 || pos > 10) return;
 
@@ -355,6 +358,11 @@ public class Card : NetworkBehaviour {
         else if (start == 10 && dest == 8) return Quaternion.Euler(90f, -9f, 90f);
         else if (start == 10 && dest == 9) return Quaternion.Euler(90f, -27f, 90f);
         else return Quaternion.identity;
+    }
+
+    public int GetCardCode()
+    {
+        return cardCode;
     }
 
     public void SetHighLight(bool TF)

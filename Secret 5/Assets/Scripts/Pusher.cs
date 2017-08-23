@@ -8,7 +8,6 @@ public class Pusher : MonoBehaviour{
 
     private static BattleManager bm;
 
-    private Vector3 cardx;
     private Vector3 cardOriginal;
 
     private Image[] cardUI;

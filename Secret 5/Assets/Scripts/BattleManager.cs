@@ -291,10 +291,6 @@ public class BattleManager : NetworkBehaviour {
         }
         else if (turnStep == 6)
         {
-            objectPlayer = null;
-            turnPlayerCard = null;
-            objectPlayerCard = null;
-
             List<Card> hand = GetPlayerHand(players[turnPlayer]);
             // 턴을 진행한 플레이어가 폭탄 카드를 들고 있으면 펑!
             if (hand[0].GetCardName() == "Bomb" || hand[1].GetCardName() == "Bomb")
@@ -360,6 +356,8 @@ public class BattleManager : NetworkBehaviour {
         {
             // 애니메이션이 끝나면 카드의 위치가 바뀌고 turnStep = 6 이 됩니다.
         }
+
+        ObjectiveHightlight(cameraPlayer);
 	}
 
     public void SetObjectPlayer(PlayerController objectTarget)
@@ -408,6 +406,24 @@ public class BattleManager : NetworkBehaviour {
                     + playerPermutation[playerPermutation[i].GetTargetIndex()[0]].player.GetName() + " and "
                     + playerPermutation[playerPermutation[i].GetTargetIndex()[1]].player.GetName());
                 break;
+            }
+        }
+    }
+
+    private void ObjectiveHightlight(int CameraNumber)
+    {
+        List<TargetGraph> tg = playerPermutation;
+        for (int i = 0; i < tg.Count; i++)
+        {
+            if (tg[i].player.Equals(players[CameraNumber]))
+            {
+                for (int j=0; j < 5; j++)
+                {
+                    if (players[j] == tg[tg[i].GetTargetIndex()[0]].player || players[j] == tg[tg[i].GetTargetIndex()[1]].player)
+                        players[j].SetHighlight(true);
+                    else
+                        players[j].SetHighlight(false);
+                }
             }
         }
     }
@@ -485,6 +501,10 @@ public class BattleManager : NetworkBehaviour {
 
         pusher.SetExchangeComplete();
 
+        objectPlayer = null;
+        turnPlayerCard = null;
+        objectPlayerCard = null;
+
         turnStep = 6;
         Debug.Log("turnStep 6(postprocessing)");
     }
@@ -526,5 +546,15 @@ public class BattleManager : NetworkBehaviour {
             c.Add(cards[2 * rand2[i] + 1]);
         }
         cards = c;
+    }
+
+    public List<TargetGraph> GetPlayerPermutation()
+    {
+        return playerPermutation;
+    }
+
+    public List<PlayerController> GetPlayers()
+    {
+        return players;
     }
 }

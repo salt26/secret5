@@ -30,15 +30,15 @@ public class DoubleArrow : MonoBehaviour {
     {
         Arrow.rectTransform.localScale = new Vector3(1, 1, 1);
         int num = first.GetPlayerNum() * 10 + second.GetPlayerNum();
-        float Height = ArrowLength(num);
-        Vector3 Position = (PlayerPosition(first.GetPlayerNum()) + PlayerPosition(second.GetPlayerNum()))/2;
+        float Height = 1.3f;
+        Vector3 Position = ArrowPosition(num);
         Quaternion Angular = Angle(num);
 
         Arrow.rectTransform.SetPositionAndRotation(Position, Angular);
         Arrow.rectTransform.sizeDelta = new Vector2(Arrow.rectTransform.sizeDelta.x, Height);
     }
 
-    private float ArrowLength(int ab)
+    /*private float ArrowLength(int ab)
     {
         switch(ab)
         {
@@ -68,6 +68,7 @@ public class DoubleArrow : MonoBehaviour {
                 return 10f;
         }
     }
+    */
 
     private Vector3 PlayerPosition(int a)
     {
@@ -83,6 +84,45 @@ public class DoubleArrow : MonoBehaviour {
                 return new Vector3(-2f, 0f, 6.155f);
             case 5:
                 return new Vector3(-3.236f, 0f, 2.351f);
+            default:
+                return new Vector3(0f, 0f, 0f);
+        }
+    }
+
+    private Vector3 ArrowPosition(int ab)
+    {
+        switch (ab)
+        {
+            case 12:
+            case 21:
+                return (PlayerPosition(1) + PlayerPosition(2)) / 2;
+            case 13:
+            case 31:
+                return new Vector3(0.647f, 0f, 3.192f);
+            case 14:
+            case 41:
+                return new Vector3(-0.647f, 0f, 3.192f);
+            case 15:
+            case 51:
+                return (PlayerPosition(1) + PlayerPosition(5)) / 2;
+            case 23:
+            case 32:
+                return (PlayerPosition(2) + PlayerPosition(3)) / 2;
+            case 24:
+            case 42:
+                return new Vector3(0.400f, 0f, 3.953f);
+            case 25:
+            case 52:
+                return new Vector3(0f, 0f, 2.722f);
+            case 34:
+            case 43:
+                return (PlayerPosition(3) + PlayerPosition(4)) / 2;
+            case 35:
+            case 53:
+                return new Vector3(-0.400f, 0f, 3.953f);
+            case 45:
+            case 54:
+                return (PlayerPosition(4) + PlayerPosition(5)) / 2;
             default:
                 return new Vector3(0f, 0f, 0f);
         }

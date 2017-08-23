@@ -26,6 +26,8 @@ public class PlayerController : NetworkBehaviour {
 
     private static BattleManager bm;
 
+    private GameObject Border;
+    private SpriteRenderer Face;
     
 	void Awake () {
         currentHealth = maxHealth;
@@ -33,6 +35,9 @@ public class PlayerController : NetworkBehaviour {
 	}
 
     void Start () {
+        Border = GetComponentsInChildren<SpriteRenderer>()[2].gameObject;
+        Face = GetComponentsInChildren<SpriteRenderer>()[1];
+        Border.SetActive(false);
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
         if (bm == null) Debug.Log("BM is null.");
@@ -41,6 +46,7 @@ public class PlayerController : NetworkBehaviour {
             GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
             NetworkServer.Spawn(c);
         }
+
     }
 
     /*
@@ -74,8 +80,12 @@ public class PlayerController : NetworkBehaviour {
                 PlayerToSelectTarget();
         }
 
+        int CameraNum = bm.GetCameraPlayer().GetPlayerNum();
+        
+
         HealthBar.sizeDelta = new Vector2(displayedHealth * 100f / 6f, HealthBar.sizeDelta.y); // HealthBar 변경 -> displayedHealth 기준으로 계산하도록 수정
 	}
+
 
     public void Damaged()
     {
@@ -256,5 +266,10 @@ public class PlayerController : NetworkBehaviour {
     public PlayerController GetObjectTarget()
     {
         return objectTarget;
+    }
+
+    public void SetHighlight(bool TF)
+    {
+        Border.SetActive(TF);
     }
 }

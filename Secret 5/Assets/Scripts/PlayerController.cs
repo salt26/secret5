@@ -35,8 +35,8 @@ public class PlayerController : NetworkBehaviour {
 	}
 
     void Start () {
-        Border = GetComponentsInChildren<SpriteRenderer>()[2].gameObject;
-        Face = GetComponentsInChildren<SpriteRenderer>()[1];
+        Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
+        Face = GetComponentsInChildren<SpriteRenderer>()[0];
         Border.SetActive(false);
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
@@ -77,7 +77,10 @@ public class PlayerController : NetworkBehaviour {
                 PlayerToSelectCard();
             */
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
+            {
+                Debug.Log("clicked.");
                 PlayerToSelectTarget();
+            }
         }
 
         int CameraNum = bm.GetCameraPlayer().GetPlayerNum();
@@ -140,11 +143,12 @@ public class PlayerController : NetworkBehaviour {
 
         // 내 턴이 아니면 패스
         if (!bm.GetTurnPlayer().Equals(this)) return;
+        Debug.Log("PlayerToSelectTarget");
         Ray ray = GetComponentInChildren<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
         {
-            //Debug.Log("Click " + hit.collider.name + ".");
+            Debug.Log("Click " + hit.collider.name + ".");
             Debug.DrawLine(ray.origin, hit.point, Color.blue, 3f);
             if (hit.collider.gameObject.GetComponentInParent<PlayerController>() != null
                 && !hit.collider.gameObject.GetComponentInParent<PlayerController>().Equals(this))

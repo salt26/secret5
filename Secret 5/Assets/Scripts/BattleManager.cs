@@ -258,6 +258,7 @@ public class BattleManager : NetworkBehaviour {
         else if (turnStep == 4)
         {
             exchange = new Exchange(players[turnPlayer], players[objectPlayer], GetCard(turnPlayerCard), GetCard(objectPlayerCard));
+            pusher.Setexchange(exchange);
             if (exchange.GetTurnNum() == 0)
             {
                 RpcPrintLog("Exception throwed while making an exchange!");
@@ -348,13 +349,18 @@ public class BattleManager : NetworkBehaviour {
         }
         else if (turnStep == 6)
         {
+            Debug.Log("a");
             List<Card> hand = GetPlayerHand(players[turnPlayer]);
             // 턴을 진행한 플레이어가 폭탄 카드를 들고 있으면 펑!
+            Debug.Log("b");
             if (hand[0].GetCardName() == "Bomb" || hand[1].GetCardName() == "Bomb")
             {
                 players[turnPlayer].Damaged();
+                Debug.Log("c");
             }
+            
             turnStep = 7;
+            Debug.Log("d");
             RpcPrintLog("turnStep 7(turn ends)");
         }
         else if (turnStep == 7)

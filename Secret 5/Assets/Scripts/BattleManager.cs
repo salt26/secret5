@@ -257,6 +257,7 @@ public class BattleManager : NetworkBehaviour {
         else if (turnStep == 4)
         {
             exchange = new Exchange(players[turnPlayer], players[objectPlayer], GetCard(turnPlayerCard), GetCard(objectPlayerCard));
+            pusher.Setexchange(exchange);
             if (exchange.GetTurnNum() == 0)
             {
                 RpcPrintLog("Exception throwed while making an exchange!");

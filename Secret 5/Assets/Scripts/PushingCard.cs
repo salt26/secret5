@@ -15,6 +15,8 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Card cardL;
     private Card cardR;
 
+    static public PlayerControl localPlayer = null;
+
     [SerializeField] private Card selectedCard;
 
     private bool isDrag;
@@ -25,44 +27,51 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void Start()
     {
-        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        bm = BattleManager.bm;
         ExchangeComplete = false;
-        cardOriginal = this.transform.position;
+        cardOriginal = transform.position;
         isDrag = false;
         cardOriginal = transform.position;
 
+        
     }
 
 
     public void FixedUpdate()
     {
-        switch (bm.GetCameraPlayer().GetPlayerNum())
+        if (localPlayer == null)
+        {
+            Debug.Log("localPlayer is null.");
+            return;
+        }
+        else Debug.Log("PushingCard localPlayer is " + localPlayer.GetName() + ".");
+        switch (localPlayer.GetPlayerNum())
         {
             case 1:
-                cardL = bm.GetCardsInHand()[0].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[1].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(0);
+                cardR = bm.GetCardInPosition(1);
                 break;
             case 2:
-                cardL = bm.GetCardsInHand()[2].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[3].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(2);
+                cardR = bm.GetCardInPosition(3);
                 break;
             case 3:
-                cardL = bm.GetCardsInHand()[4].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[5].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(4);
+                cardR = bm.GetCardInPosition(5);
                 break;
             case 4:
-                cardL = bm.GetCardsInHand()[6].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[7].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(6);
+                cardR = bm.GetCardInPosition(7);
                 break;
             case 5:
-                cardL = bm.GetCardsInHand()[8].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[9].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(8);
+                cardR = bm.GetCardInPosition(9);
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
-        if (this.CompareTag("Left"))
+        if (CompareTag("Left"))
             CardAvailability(cardL);
-        else if (this.CompareTag("Right"))
+        else if (CompareTag("Right"))
             CardAvailability(cardR);
         else
             Debug.Log("Wrong Tag At CardPanel");
@@ -89,10 +98,10 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnDrag(PointerEventData eventData)
     {
-        if ((bm.GetCameraPlayer().Equals(bm.GetTurnPlayer()) && bm.GetCameraPlayer().GetObjectTarget() != null && bm.GetTurnStep() == 2)
-            || (bm.GetCameraPlayer().Equals(bm.GetObjectPlayer()) && bm.GetTurnStep() == 3))
+        if ((localPlayer.Equals(bm.GetTurnPlayer()) && localPlayer.GetObjectTarget() != null && bm.GetTurnStep() == 2)
+            || (localPlayer.Equals(bm.GetObjectPlayer()) && bm.GetTurnStep() == 3))
         {
-            if (bm.GetPlayerSelectedCard(bm.GetCameraPlayer()) == null)
+            if (bm.GetPlayerSelectedCard(localPlayer) == null)
             {
                 cardx.y = eventData.position.y;
                 if (cardx.y > cardOriginal.y)
@@ -127,16 +136,17 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 Debug.Log("Card is not appropriate");
             }
 
-            if(selectedCard != null)
+            if(selectedCard != null && localPlayer != null)
             {
-                bm.GetCameraPlayer().DecideClicked();
-                bm.SetCardToPlay(selectedCard, bm.GetCameraPlayer());
+                localPlayer.DecideClicked();
+                localPlayer.CmdSetCardToPlay(selectedCard.GetCardCode(), localPlayer.GetPlayerIndex()); // 임시 주석
             }
         }
     }
 
     private void CardAvailability(Card card)
     {
+        if (card == null) return;
         if (card.GetCardAvaliable() == true)
         {
             if(!isDrag)
@@ -173,7 +183,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private void Highlighting()
     {
-        if(bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == bm.GetCameraPlayer())
+        if(bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == localPlayer)
         {
             if (selectedCard == cardL && this.CompareTag("Left"))
                 selectedCard.SetHighLight(true);

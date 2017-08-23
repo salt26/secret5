@@ -81,6 +81,7 @@ public class PlayerControl : NetworkBehaviour {
         base.OnStartLocalPlayer();
         playerCamera.SetActive(true);
         PushingCard.localPlayer = this;
+        Card.localPlayer = this;
     }
 
     /*

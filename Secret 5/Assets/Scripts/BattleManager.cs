@@ -111,7 +111,7 @@ public class BattleManager : NetworkBehaviour {
         CardPermutation();
         for (int i = 0; i < 10; i++)
         {
-            cards[cardcode[i]].GetComponent<Card>().MoveCard(100 + i);
+            cards[cardcode[i]].GetComponent<Card>().RpcMoveCard(100 + i);
             // cards[i].GetComponent<Card>().MoveCard(100 + i); // 이전 코드
             // TODO 개별 클라이언트마다 카드 앞면으로 뒤집기
         }
@@ -296,6 +296,7 @@ public class BattleManager : NetworkBehaviour {
             */
 
             // 카드 위치 변경 및 카드 이동 애니메이션 재생
+            /*
             foreach (PlayerControl p in players)
             {
                 if (p.GetPlayerIndex() == tpcIndex / 2)
@@ -308,10 +309,12 @@ public class BattleManager : NetworkBehaviour {
                     cards[cardcode[opcIndex]].GetComponent<Card>().RpcFlipCard(opcIndex, true);
                 }
             }
+            */
 
-            cards[cardcode[tpcIndex]].GetComponent<Card>().MoveCard(tpcIndex * 10 + opcIndex);
-            cards[cardcode[opcIndex]].GetComponent<Card>().MoveCard(opcIndex * 10 + tpcIndex);
+            cards[cardcode[tpcIndex]].GetComponent<Card>().RpcMoveCard(tpcIndex * 10 + opcIndex);
+            cards[cardcode[opcIndex]].GetComponent<Card>().RpcMoveCard(opcIndex * 10 + tpcIndex);
 
+            /*
             foreach (PlayerControl p in players)
             {
                 if (p.GetPlayerIndex() == tpcIndex / 2)
@@ -323,6 +326,7 @@ public class BattleManager : NetworkBehaviour {
                     cards[cardcode[tpcIndex]].GetComponent<Card>().RpcFlipCard(opcIndex, false);
                 }
             }
+            */
 
             // 손패 교환
             int temp = cardcode[tpcIndex];

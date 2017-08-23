@@ -44,6 +44,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             Debug.Log("localPlayer is null.");
             return;
         }
+        else Debug.Log("PushingCard localPlayer is " + localPlayer.GetName() + ".");
         switch (localPlayer.GetPlayerNum())
         {
             case 1:

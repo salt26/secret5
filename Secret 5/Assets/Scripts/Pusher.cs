@@ -45,7 +45,6 @@ public class Pusher : MonoBehaviour{
             Debug.Log("localPlayer is null.");
             return;
         }
-        else Debug.Log("PushingCard localPlayer is " + localPlayer.GetName() + ".");
         switch (localPlayer.GetPlayerNum())
         {
             case 1:
@@ -102,7 +101,7 @@ public class Pusher : MonoBehaviour{
 
     public void AfterSmallMove()
     {
-        if (ExchangeComplete == true)
+        if (ExchangeComplete == true && si != null)
         {
             if (exchange.GetObjectPlayerCard().GetCardCode() == 3)
                 MoveDeceive(GameObject.FindGameObjectWithTag(selectedCardInfo.GetLR()).transform.position, selectedCardInfo.GetOriginalPosition(), selectedCardInfo.GetLR());
@@ -117,6 +116,10 @@ public class Pusher : MonoBehaviour{
             selectedCardInfo = null;
             selectedCard = null;
             ExchangeComplete = false;
+        }
+        else if (si == null)
+        {
+            Debug.Log("si is null.");
         }
 
     }

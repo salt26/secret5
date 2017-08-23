@@ -34,6 +34,10 @@ public class PlayerControl : NetworkBehaviour {
     
 	void Awake () {
         bm = BattleManager.bm;
+        HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
+        Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
+        Face = GetComponentsInChildren<SpriteRenderer>()[0];
+        Border.SetActive(false);
         currentHealth = maxHealth;
         displayedHealth = currentHealth;
         if (transform.position.z < 1f)
@@ -66,14 +70,9 @@ public class PlayerControl : NetworkBehaviour {
     }
 
     void Start () {
-        Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
-        Face = GetComponentsInChildren<SpriteRenderer>()[0];
-        Border.SetActive(false);
-        HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         if (bm == null) Debug.Log("BM is null.");
         Renderer[] rends = GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in rends)
-            r.material.color = color;
+        rends[0].material.color = color;
         /*
         if (GetPlayerIndex() != -1)
             bm.SetCameraVisible(GetPlayerIndex());
@@ -87,8 +86,9 @@ public class PlayerControl : NetworkBehaviour {
         base.OnStartLocalPlayer();
         playerCamera.SetActive(true);
         PushingCard.localPlayer = this;
+        Pusher.localPlayer = this;
         Card.localPlayer = this;
-        ObjectiveHightlight(); // TODO PlayerControl로 옮기기
+        ObjectiveHightlight();
     }
 
     /*
@@ -364,7 +364,16 @@ public class PlayerControl : NetworkBehaviour {
             }
         }
         */
-        List<int> t = bm.GetTarget(GetPlayerIndex());
+        StartCoroutine("Highlight");
+    }
+
+    IEnumerator Highlight()
+    {
+        List<int> t = null;
+        while (t == null) {
+            t = bm.GetTarget(GetPlayerIndex());
+            yield return null;
+        }
         for (int i = 0; i < 5; i++)
         {
             if (t[0] == i || t[1] == i)

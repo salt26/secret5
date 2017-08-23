@@ -11,6 +11,8 @@ public class Card : NetworkBehaviour {
     private Image Border; // HighLight
     static public PlayerControl localPlayer = null;
 
+    private static BattleManager bm;
+
     private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
     private Queue<IEnumerator> process = new Queue<IEnumerator>();  // 함수를 순차적으로 실행하기 위한 Queue
 
@@ -25,6 +27,11 @@ public class Card : NetworkBehaviour {
         Border.gameObject.SetActive(false);
     }
 
+    private void Start()
+    {
+        bm = BattleManager.bm;
+    }
+
     private void FixedUpdate()
     {
         if (localPlayer == null)
@@ -32,7 +39,6 @@ public class Card : NetworkBehaviour {
             Debug.Log("localPlayer is null.");
             return;
         }
-        else Debug.Log("Card" + cardCode + " localPlayer is " + localPlayer.GetName() + ".");
         // Queue에서 줄 서있는 함수들을 하나씩 차례로 실행시킵니다.
         if (process.Count != 0 && !isMoving)
         {
@@ -150,8 +156,7 @@ public class Card : NetworkBehaviour {
             GetComponent<Transform>().rotation = fr;
         }
 
-        // 교환을 종료합니다.
-        BattleManager bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        // 교환을 종료합니다. (turnStep이 9일 때만 실행됨)
         bm.AfterExchange();
 
         yield return null;

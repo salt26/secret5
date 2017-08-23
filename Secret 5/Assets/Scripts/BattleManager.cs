@@ -14,7 +14,7 @@ public class BattleManager : NetworkBehaviour {
     // cards의 i번째 값은 cardCode가 i인 Card 컴포넌트를 포함하는 게임오브젝트입니다.
     // 이제 cards의 순서는 바뀌지 않고 카드 교환 시 cardcode의 순서가 바뀝니다.
     
-    private Pusher pusher;
+    public Pusher pusher;
 
     public List<PlayerControl> players = new List<PlayerControl>(){
             null, null, null, null, null
@@ -109,16 +109,18 @@ public class BattleManager : NetworkBehaviour {
             cardcode.Add(i);
         }
         CardPermutation();
+
+        yield return new WaitForSeconds(2f);
+
         for (int i = 0; i < 10; i++)
         {
+            RpcPrintLog("Card" + i + " moves.");
             cards[cardcode[i]].GetComponent<Card>().RpcMoveCard(100 + i);
             // cards[i].GetComponent<Card>().MoveCard(100 + i); // 이전 코드
             // TODO 개별 클라이언트마다 카드 앞면으로 뒤집기
         }
         turnPlayer = Random.Range(0, 5);
         //cameraPlayer = turnPlayer;
-
-        yield return new WaitForSeconds(2f);
 
         RpcPrintLog("Battle starts.");
         for (int j = 0; j < 5; j++)
@@ -505,7 +507,7 @@ public class BattleManager : NetworkBehaviour {
         return players[cameraPlayer];
     }
     */
-
+    /*
     public void DecideClick()
     {
         foreach (PlayerControl p in players)
@@ -513,6 +515,7 @@ public class BattleManager : NetworkBehaviour {
             p.DecideClicked();
         }
     }
+    */
 
     /// <summary>
     /// 카드들의 목록을 반환합니다. 주의: 이 리스트의 순서는 카드 배치 순서를 반영하지 않습니다! 카드 배치 순서를 얻고 싶다면 GetCardCode()를 사용하십시오.
@@ -554,7 +557,7 @@ public class BattleManager : NetworkBehaviour {
         objectPlayerCard = -1;
 
         turnStep = 6;
-        RpcPrintLog("turnStep 6(postprocessing)");
+        Debug.Log("turnStep 6(postprocessing)");
     }
 
 

@@ -8,7 +8,6 @@ public class Card : NetworkBehaviour {
 
     [SerializeField] private string cardName;
     [SerializeField] private int cardCode; // 0 ~ 9
-    private bool CardAvaliable = true; // 조작UI에서 카드가 보여야 되는지 아닌지
     private Image Border; // HighLight
     static public PlayerControl localPlayer = null;
 
@@ -53,16 +52,6 @@ public class Card : NetworkBehaviour {
         return cardName;
     }
     
-    public bool GetCardAvaliable()
-    {
-        return CardAvaliable;
-    }
-
-    public void SetCardAvaliable(bool TF)
-    {
-        CardAvaliable = TF;
-
-    }
 
     /// <summary>
     /// 카드 교환 시 카드를 이동시키는 함수입니다. 이제는 뒤집기를 포함합니다.

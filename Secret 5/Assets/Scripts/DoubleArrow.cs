@@ -11,7 +11,7 @@ public class DoubleArrow : MonoBehaviour {
 
     private void Start()
     {
-        bm = bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        bm = BattleManager.bm;
     }
 
     private void FixedUpdate()
@@ -26,7 +26,7 @@ public class DoubleArrow : MonoBehaviour {
         }
     }
     
-    private void DrawArrow(PlayerController first, PlayerController second)
+    private void DrawArrow(PlayerControl first, PlayerControl second)
     {
         Arrow.rectTransform.localScale = new Vector3(1, 1, 1);
         int num = first.GetPlayerNum() * 10 + second.GetPlayerNum();

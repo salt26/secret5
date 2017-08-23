@@ -40,7 +40,7 @@ public class CardDatabase : MonoBehaviour {
     }
 
     /*
-    private void Attack(PlayerController playedPlayer, PlayerController receivedPlayer)
+    private void Attack(PlayerControl playedPlayer, PlayerControl receivedPlayer)
     {
         // TODO
         // 카드에 효과가 달려있으면 안될 것 같은데?
@@ -107,7 +107,7 @@ public class CardInfo
     private string cardDetailText;  // 카드의 효과 설명 텍스트
     /*
     private int cardEffectType;     // 0: 받을 때 효과, 1: 낼 때 효과, 2: 내 턴이 끝날 때 효과
-    public delegate void PlayCard(PlayerController playedPlayer, PlayerController receivedPlayer); 
+    public delegate void PlayCard(PlayerControl playedPlayer, PlayerControl receivedPlayer); 
                                     // 카드의 효과를 수행하는 함수 대리자
     public PlayCard Play;           // 외부에서 카드의 효과를 수행할 때 ci.Play(cardName); 과 같은 방법으로 호출하면 된다.
     */

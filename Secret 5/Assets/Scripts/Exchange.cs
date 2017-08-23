@@ -9,8 +9,8 @@ using UnityEngine;
 /// </summary>
 public class Exchange{
 
-    private PlayerController turnPlayer;    // 턴을 진행하는 플레이어
-    private PlayerController objectPlayer;  // 교환당하는 플레이어
+    private PlayerControl turnPlayer;    // 턴을 진행하는 플레이어
+    private PlayerControl objectPlayer;  // 교환당하는 플레이어
     private Card turnPlayerCard;          // 턴을 진행하는 플레이어가 낸 카드 이름(종류)
     private Card objectPlayerCard;        // 교환당하는 플레이어가 낸 카드 이름(종류)
     private Card turnPlayerVoidCard;      // 턴을 진행하는 플레이어가 냈지만 상대의 속임 카드로 인해 돌려받게 된 카드 이름(종류)
@@ -29,7 +29,7 @@ public class Exchange{
     private bool isObjectPComplete;
     private static CardDatabase cd;
 
-    public Exchange(PlayerController turnP, PlayerController objectP, Card turnPCard, Card objectPCard)
+    public Exchange(PlayerControl turnP, PlayerControl objectP, Card turnPCard, Card objectPCard)
     {
         isComplete = false;
         turnPlayerCard = turnPCard;
@@ -155,7 +155,7 @@ public class Exchange{
     /// </summary>
     /// <param name="player">플레이어</param>
     /// <returns></returns>
-    public bool IsPlayerConcerned(PlayerController player)
+    public bool IsPlayerConcerned(PlayerControl player)
     {
         if (player == null) return false;
         return (player.Equals(turnPlayer) || player.Equals(objectPlayer));
@@ -183,7 +183,7 @@ public class Exchange{
     /// 턴을 진행한 플레이어를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    public PlayerController GetTurnPlayer()
+    public PlayerControl GetTurnPlayer()
     {
         return turnPlayer;
     }
@@ -192,7 +192,7 @@ public class Exchange{
     /// 교환당한 플레이어를 반환합니다.
     /// </summary>
     /// <returns></returns>
-    public PlayerController GetObjectPlayer()
+    public PlayerControl GetObjectPlayer()
     {
         return objectPlayer;
     }

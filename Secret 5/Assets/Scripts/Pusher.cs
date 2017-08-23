@@ -19,6 +19,7 @@ public class Pusher : MonoBehaviour{
     private Card cardR;
     [SerializeField] private Card selectedCard;
 
+    static public PlayerControl localPlayer = null;
 
     [SerializeField] bool ExchangeComplete;
     bool changingCard;
@@ -29,7 +30,7 @@ public class Pusher : MonoBehaviour{
 
     private void Start()
     {
-        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
+        bm = BattleManager.bm;
         changingCard = true;
         cardUI = GetComponentsInChildren<Image>();
         cardUIL = cardUI[1];
@@ -39,27 +40,33 @@ public class Pusher : MonoBehaviour{
 
     private void FixedUpdate()
     {
-        switch (bm.GetCameraPlayer().GetPlayerNum())
+        if (localPlayer == null)
+        {
+            Debug.Log("localPlayer is null.");
+            return;
+        }
+        else Debug.Log("PushingCard localPlayer is " + localPlayer.GetName() + ".");
+        switch (localPlayer.GetPlayerNum())
         {
             case 1:
-                cardL = bm.GetCardsInHand()[0].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[1].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(0);
+                cardR = bm.GetCardInPosition(1);
                 break;
             case 2:
-                cardL = bm.GetCardsInHand()[2].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[3].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(2);
+                cardR = bm.GetCardInPosition(3);
                 break;
             case 3:
-                cardL = bm.GetCardsInHand()[4].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[5].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(4);
+                cardR = bm.GetCardInPosition(5);
                 break;
             case 4:
-                cardL = bm.GetCardsInHand()[6].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[7].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(6);
+                cardR = bm.GetCardInPosition(7);
                 break;
             case 5:
-                cardL = bm.GetCardsInHand()[8].GetComponent<Card>();
-                cardR = bm.GetCardsInHand()[9].GetComponent<Card>();
+                cardL = bm.GetCardInPosition(8);
+                cardR = bm.GetCardInPosition(9);
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
@@ -83,14 +90,9 @@ public class Pusher : MonoBehaviour{
             }
 
             selectedCard = si.GetCard();
-            bm.GetCameraPlayer().DecideClicked();
-            bm.SetCardToPlay(selectedCard, bm.GetCameraPlayer());
-
-            if(!(bm.GetPlayerSelectedCard(bm.GetTurnPlayer()) == null || bm.GetPlayerSelectedCard(bm.GetObjectPlayer()) == null))
-            {
-                //process.Enqueue(MovingCardUp(this.transform.position));
-                //StartCoroutine(process.Dequeue());
-            }
+            localPlayer.DecideClicked();
+            localPlayer.CmdSetCardToPlay(selectedCard.GetCardCode(), localPlayer.GetPlayerIndex());
+            
             //끝날때 해야 될것
             //si = null;
             //moved = false;
@@ -109,11 +111,11 @@ public class Pusher : MonoBehaviour{
             
             MoveCardDown(GameObject.FindGameObjectWithTag(si.GetLR()).transform.position, si.GetOriginalPosition(), si.GetLR());
             //if (bm.GetCameraPlayer() == bm.GetObjectPlayer() && bm.GetPlayerSelectedCard(bm.GetTurnPlayer()).GetCardName() == "Deceive")
-            //속임 고쳐야됨
+            // TODO 속임 고쳐야됨
 
 
-            StartCoroutine(process.Dequeue());//아래로 내려가게 함
-            //Todo 카드의 이펙트
+            StartCoroutine(process.Dequeue()); // 아래로 내려가게 함
+            // TODO 카드의 이펙트
             si = null;
             selectedCard = null;
             for (int i = 0; i < 10; i++)
@@ -127,7 +129,7 @@ public class Pusher : MonoBehaviour{
     
     private void Highlighting()
     {
-        if (bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == bm.GetCameraPlayer() && !(selectedCard == null))
+        if (bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == localPlayer && !(selectedCard == null))
         {
                 selectedCard.SetHighLight(true);
         }

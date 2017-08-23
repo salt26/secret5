@@ -7,13 +7,15 @@ using UnityEngine.Networking;
 public class Card : NetworkBehaviour {
 
     [SerializeField] private string cardName;
+    [SerializeField] private int cardCode; // 0 ~ 9
     private bool CardAvaliable = true; // 조작UI에서 카드가 보여야 되는지 아닌지
-    private Image Border;//HighLight
+    private Image Border; // HighLight
+    static public PlayerControl localPlayer = null;
 
     private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
     private Queue<IEnumerator> process = new Queue<IEnumerator>();  // 함수를 순차적으로 실행하기 위한 Queue
 
-    private void Start()
+    private void Awake()
     {
         Border = GetComponentInChildren<Image>();
         if (Border == null)
@@ -26,6 +28,12 @@ public class Card : NetworkBehaviour {
 
     private void FixedUpdate()
     {
+        if (localPlayer == null)
+        {
+            Debug.Log("localPlayer is null.");
+            return;
+        }
+        else Debug.Log("Card" + cardCode + " localPlayer is " + localPlayer.GetName() + ".");
         // Queue에서 줄 서있는 함수들을 하나씩 차례로 실행시킵니다.
         if (process.Count != 0 && !isMoving)
         {
@@ -50,13 +58,12 @@ public class Card : NetworkBehaviour {
 
     }
 
-    // TODO 교환 시 Flip(낼 카드를 뒷면으로) -> Move -> Flip(받은 카드를 앞면으로) 순서대로 진행되도록 하기
-
     /// <summary>
-    /// 카드 교환 시 카드를 이동시키는 함수입니다.
+    /// 카드 교환 시 카드를 이동시키는 함수입니다. 이제는 뒤집기를 포함합니다.
     /// </summary>
     /// <param name="startDest">10 * (출발 인덱스) + (도착 인덱스)</param>
-    public void MoveCard(int startDest)
+    [ClientRpc]
+    public void RpcMoveCard(int startDest)
     {
         if (startDest > 109 || startDest < 0) return;
         int start = startDest / 10;
@@ -70,7 +77,8 @@ public class Card : NetworkBehaviour {
     /// 카드를 뒤집는 함수입니다.
     /// </summary>
     /// <param name="pos">카드 인덱스</param>
-    public void FlipCard(int pos, bool toBack)
+    [ClientRpc]
+    public void RpcFlipCard(int pos, bool toBack)
     {
         if (pos < 0 || pos > 10) return;
 
@@ -78,7 +86,8 @@ public class Card : NetworkBehaviour {
         process.Enqueue(Flip(pos, toBack));
     }
 
-    public void FlipCardImmediate(int pos, bool toBack)
+    [ClientRpc]
+    public void RpcFlipCardImmediate(int pos, bool toBack)
     {
         if (pos < 0 || pos > 10) return;
 
@@ -93,9 +102,26 @@ public class Card : NetworkBehaviour {
         Quaternion sr = GetRotationBack(start);
         Quaternion mr = GetRotationMoving(start, dest);
         Quaternion dr = GetRotationBack(dest);
+        Quaternion fr;
+        Quaternion br;
+        float t = Time.time;
+
+        // 내가 낸 카드이면 앞면에서 뒷면으로 뒤집습니다.
+        if (start / 2 == localPlayer.GetPlayerIndex())
+        {
+            t = Time.time;
+            fr = GetRotationFront(start);
+            br = GetRotationBack(start);
+            while (Time.time < t + 1f)
+            {
+                GetComponent<Transform>().rotation = Quaternion.Slerp(fr, br, (Time.time - t) / 1f);
+                yield return null;
+            }
+            GetComponent<Transform>().rotation = br;
+        }
 
         // 움직일 방향으로 회전입니다.
-        float t = Time.time;
+        t = Time.time;
         while (Time.time < t + (25f / 60f))
         {
             GetComponent<Transform>().rotation = Quaternion.Slerp(sr, mr, (Time.time - t) / (25f / 60f));
@@ -120,6 +146,20 @@ public class Card : NetworkBehaviour {
             yield return null;
         }
         GetComponent<Transform>().rotation = dr;
+
+        // 내가 받은 카드이면 뒷면에서 앞면으로 뒤집습니다.
+        if (dest / 2 == localPlayer.GetPlayerIndex())
+        {
+            t = Time.time;
+            fr = GetRotationFront(dest);
+            br = GetRotationBack(dest);
+            while (Time.time < t + 1f)
+            {
+                GetComponent<Transform>().rotation = Quaternion.Slerp(br, fr, (Time.time - t) / 1f);
+                yield return null;
+            }
+            GetComponent<Transform>().rotation = fr;
+        }
 
         // 교환을 종료합니다.
         BattleManager bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
@@ -353,6 +393,11 @@ public class Card : NetworkBehaviour {
         else if (start == 10 && dest == 8) return Quaternion.Euler(90f, -9f, 90f);
         else if (start == 10 && dest == 9) return Quaternion.Euler(90f, -27f, 90f);
         else return Quaternion.identity;
+    }
+
+    public int GetCardCode()
+    {
+        return cardCode;
     }
 
     public void SetHighLight(bool TF)

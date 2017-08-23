@@ -9,8 +9,7 @@ public class Card : NetworkBehaviour {
     [SerializeField] private string cardName;
     [SerializeField] private int cardCode; // 0 ~ 9
     private bool CardAvaliable = true; // 조작UI에서 카드가 보여야 되는지 아닌지
-    private Image Border;
-    [SerializeField] bool checker;
+    private Image Border; // HighLight
     static public PlayerControl localPlayer = null;
 
     private bool isMoving = false;                                  // 한 번에 하나의 함수만 실행하기 위해 사용되는 변수
@@ -35,7 +34,6 @@ public class Card : NetworkBehaviour {
             return;
         }
         else Debug.Log("Card" + cardCode + " localPlayer is " + localPlayer.GetName() + ".");
-        checker = Border.gameObject.activeInHierarchy;
         // Queue에서 줄 서있는 함수들을 하나씩 차례로 실행시킵니다.
         if (process.Count != 0 && !isMoving)
         {

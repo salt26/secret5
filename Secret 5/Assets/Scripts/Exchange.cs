@@ -76,19 +76,19 @@ public class Exchange{
         // 속임 효과 처리
         if (turnPlayerCard.GetCardName() == "Deceive")
         {
-            turnPlayerCard.SetCardAvaliable(false);//>>>>>>>>>>>
-            objectPlayerCard.SetCardAvaliable(true);//>>>>>>>>>>>
-            AnotherCardInHand(objectPlayerCard, objectPlayerHand).SetCardAvaliable(false);//>>>>>>>>>>>
-            AnotherCardInHand(turnPlayerCard, turnPlayerHand).SetCardAvaliable(true);//>>>>>>>>>>>
+            //turnPlayerCard.SetCardAvaliable(false);//>>>>>>>>>>>
+            //objectPlayerCard.SetCardAvaliable(true);//>>>>>>>>>>>
+            //AnotherCardInHand(objectPlayerCard, objectPlayerHand).SetCardAvaliable(false);//>>>>>>>>>>>
+            //AnotherCardInHand(turnPlayerCard, turnPlayerHand).SetCardAvaliable(true);//>>>>>>>>>>>
             objectPlayerVoidCard = objectPlayerCard;
             objectPlayerCard = AnotherCardInHand(objectPlayerCard, objectPlayerHand);
         }
         else if (objectPlayerCard.GetCardName() == "Deceive")
         {
-            objectPlayerCard.SetCardAvaliable(false);//>>>>>>>>>>>
-            turnPlayerCard.SetCardAvaliable(true);//>>>>>>>>>>>
-            AnotherCardInHand(turnPlayerCard, turnPlayerHand).SetCardAvaliable(false);//>>>>>>>>>>>
-            AnotherCardInHand(objectPlayerCard, objectPlayerHand).SetCardAvaliable(true);//>>>>>>>>>>>
+            //objectPlayerCard.SetCardAvaliable(false);//>>>>>>>>>>>
+            //turnPlayerCard.SetCardAvaliable(true);//>>>>>>>>>>>
+            //AnotherCardInHand(turnPlayerCard, turnPlayerHand).SetCardAvaliable(false);//>>>>>>>>>>>
+            //AnotherCardInHand(objectPlayerCard, objectPlayerHand).SetCardAvaliable(true);//>>>>>>>>>>>
             turnPlayerVoidCard = turnPlayerCard;
             turnPlayerCard = AnotherCardInHand(turnPlayerCard, turnPlayerHand);
         }

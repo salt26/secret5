@@ -13,8 +13,8 @@ public class BattleManager : NetworkBehaviour {
     [SerializeField] private List<GameObject> cards = new List<GameObject>();
     // cards의 i번째 값은 cardCode가 i인 Card 컴포넌트를 포함하는 게임오브젝트입니다.
     // 이제 cards의 순서는 바뀌지 않고 카드 교환 시 cardcode의 순서가 바뀝니다.
-
-    private PushingCard[] pushingcard = new PushingCard[2];
+    
+    private Pusher pusher;
 
     public List<PlayerControl> players = new List<PlayerControl>(){
             null, null, null, null, null
@@ -139,7 +139,6 @@ public class BattleManager : NetworkBehaviour {
 
         turnStep = 0;
         cd = GetComponent<CardDatabase>();
-        pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
     }
     /*
         turnStep = 0;
@@ -223,6 +222,7 @@ public class BattleManager : NetworkBehaviour {
                     cameraPlayer = hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetPlayerNum() - 1;
                     SetCameraVisible(cameraPlayer);
                     Debug.Log(hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + "'s camera.");
+                    pusher.SetCardChange();
                 }
             }
         }
@@ -411,7 +411,8 @@ public class BattleManager : NetworkBehaviour {
         {
             // 애니메이션이 끝나면 카드의 위치가 바뀌고 turnStep = 6 이 됩니다.
         }
-    }
+
+	}
 
     public void SetObjectPlayer(int objectTargetIndex)
     {
@@ -466,6 +467,7 @@ public class BattleManager : NetworkBehaviour {
         }
     }
     */
+    
 
     public List<Card> GetPlayerHand(PlayerControl player)
     {
@@ -534,6 +536,7 @@ public class BattleManager : NetworkBehaviour {
         }
         else
         {
+            Debug.Log("a");
             return null;
         }
     }
@@ -543,11 +546,8 @@ public class BattleManager : NetworkBehaviour {
     public void AfterExchange()
     {
         if (turnStep != 9) return;
-
-        for (int i = 0; i < 2; i++)
-        {
-            pushingcard[i].SetExchangeComplete();
-        }
+        
+        pusher.SetExchangeComplete();
         objectPlayer = -1;
         turnPlayerCard = -1;
         objectPlayerCard = -1;
@@ -555,6 +555,7 @@ public class BattleManager : NetworkBehaviour {
         turnStep = 6;
         RpcPrintLog("turnStep 6(postprocessing)");
     }
+
 
     private List<int> RandomListGenerator(int n)
     {
@@ -676,5 +677,11 @@ public class BattleManager : NetworkBehaviour {
                 break;
         }
         return t;
+    }
+    
+
+    public List<PlayerControl> GetPlayers()
+    {
+        return players;
     }
 }

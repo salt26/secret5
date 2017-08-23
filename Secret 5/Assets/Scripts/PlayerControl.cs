@@ -28,6 +28,9 @@ public class PlayerControl : NetworkBehaviour {
     [SerializeField] private GameObject playerCamera;
 
     private static BattleManager bm;
+
+    private GameObject Border;
+    private SpriteRenderer Face;
     
 	void Awake () {
         bm = BattleManager.bm;
@@ -63,6 +66,9 @@ public class PlayerControl : NetworkBehaviour {
     }
 
     void Start () {
+        Border = GetComponentsInChildren<SpriteRenderer>()[2].gameObject;
+        Face = GetComponentsInChildren<SpriteRenderer>()[1];
+        Border.SetActive(false);
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         if (bm == null) Debug.Log("BM is null.");
         Renderer[] rends = GetComponentsInChildren<Renderer>();
@@ -82,6 +88,7 @@ public class PlayerControl : NetworkBehaviour {
         playerCamera.SetActive(true);
         PushingCard.localPlayer = this;
         Card.localPlayer = this;
+        ObjectiveHightlight(); // TODO PlayerControl로 옮기기
     }
 
     /*
@@ -100,7 +107,7 @@ public class PlayerControl : NetworkBehaviour {
         }
     }
     */
-    
+
     void FixedUpdate () {
         if (isLocalPlayer && Input.GetMouseButtonDown(0))
         {
@@ -117,6 +124,7 @@ public class PlayerControl : NetworkBehaviour {
 
         HealthBar.sizeDelta = new Vector2(displayedHealth * 100f / 6f, HealthBar.sizeDelta.y); // HealthBar 변경 -> displayedHealth 기준으로 계산하도록 수정
 	}
+
 
     public void Damaged()
     {
@@ -325,9 +333,46 @@ public class PlayerControl : NetworkBehaviour {
     {
         return objectTarget;
     }
-    
+
     public int GetPlayerIndex()
     {
         return playerNum - 1;
+    }
+
+    public void SetHighlight(bool TF)
+    {
+        Border.SetActive(TF);
+    }
+    
+    private void ObjectiveHightlight()
+    {
+        /*
+        List<TargetGraph> tg = playerPermutation;
+        for (int i = 0; i < tg.Count; i++)
+        {
+            if (tg[i].player.Equals(players[CameraNumber]))
+            {
+                for (int j = 0; j < 5; j++)
+                {
+                    if (players[j] == tg[tg[i].GetTargetIndex()[0]].player || players[j] == tg[tg[i].GetTargetIndex()[1]].player)
+                        players[j].SetHighlight(true);
+                    else
+                        players[j].SetHighlight(false);
+                }
+            }
+        }
+        */
+        List<int> t = bm.GetTarget(GetPlayerIndex());
+        for (int i = 0; i < 5; i++)
+        {
+            if (t[0] == i || t[1] == i)
+            {
+                bm.players[i].SetHighlight(true);
+            }
+            else
+            {
+                bm.players[i].SetHighlight(false);
+            }
+        }
     }
 }

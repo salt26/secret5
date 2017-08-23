@@ -66,8 +66,8 @@ public class PlayerControl : NetworkBehaviour {
     }
 
     void Start () {
-        Border = GetComponentsInChildren<SpriteRenderer>()[2].gameObject;
-        Face = GetComponentsInChildren<SpriteRenderer>()[1];
+        Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
+        Face = GetComponentsInChildren<SpriteRenderer>()[0];
         Border.SetActive(false);
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         if (bm == null) Debug.Log("BM is null.");
@@ -119,7 +119,10 @@ public class PlayerControl : NetworkBehaviour {
             if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && bm.GetObjectPlayer().Equals(this))
                 PlayerToSelectCard();
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
+            {
+                Debug.Log("clicked.");
                 PlayerToSelectTarget();
+            }
         }
 
         HealthBar.sizeDelta = new Vector2(displayedHealth * 100f / 6f, HealthBar.sizeDelta.y); // HealthBar 변경 -> displayedHealth 기준으로 계산하도록 수정
@@ -186,7 +189,6 @@ public class PlayerControl : NetworkBehaviour {
 
         // 내 턴이 아니면 패스
         if (!bm.GetTurnPlayer().Equals(this)) return;
-        //Debug.Log("PlayerToSelectTarget");
         Ray ray = GetComponentInChildren<Camera>().ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))

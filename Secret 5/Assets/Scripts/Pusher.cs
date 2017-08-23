@@ -118,10 +118,6 @@ public class Pusher : MonoBehaviour{
             // TODO 카드의 이펙트
             si = null;
             selectedCard = null;
-            for (int i = 0; i < 10; i++)
-            {
-                bm.GetCardsInHand()[i].GetComponent<Card>().SetCardAvaliable(true);
-            }
             ExchangeComplete = false;
         }
 

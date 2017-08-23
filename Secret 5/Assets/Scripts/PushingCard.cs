@@ -10,8 +10,6 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     private Pusher pusher;
 
-    private bool isDrag;
-
     static public PlayerControl localPlayer = null;
 
     private Vector3 cardx;
@@ -24,7 +22,6 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         bm = BattleManager.bm;
         pusher = GetComponentInParent<Pusher>();
-        isDrag = false;
         cardOriginal = transform.position;
     }
 
@@ -59,20 +56,10 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
                 cardR = bm.GetCardInPosition(9);
                 break;
         }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
-
-        if (cardL.GetCardAvaliable() && CompareTag("Left") && isDrag == false)
-        {
-            transform.SetPositionAndRotation(cardOriginal, transform.rotation);
-        }
-        else if (cardR.GetCardAvaliable() && CompareTag("Right") && isDrag == false)
-        {
-            transform.SetPositionAndRotation(cardOriginal, transform.rotation);
-        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        isDrag = true;
         cardx.x = transform.position.x;
     }
 
@@ -94,26 +81,26 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        isDrag = false;
-
         if (this.transform.position.y >= Screen.height * 13 / 16)
         {
             if (CompareTag("Left"))
             {
                 pusher.MoveCardUp(cardx, new Vector3(cardOriginal.x, Screen.height * 3 / 2), tag);
-                cardL.SetCardAvaliable(false);
                 pusher.SetSelectedCard(new SelectedInfo(cardL, tag, cardOriginal));
             }
             else if (CompareTag("Right"))
             {
                 pusher.MoveCardUp(cardx, new Vector3(cardOriginal.x, Screen.height * 3 / 2), tag);
-                cardR.SetCardAvaliable(false);
                 pusher.SetSelectedCard(new SelectedInfo(cardR, tag, cardOriginal));
             }
             else
             {
                 Debug.Log("Card is not appropriate");
             }
+        }
+        else
+        {
+            transform.position = cardOriginal;
         }
     }
 }

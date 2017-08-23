@@ -157,7 +157,7 @@ public class Card : NetworkBehaviour {
         }
 
         // 교환을 종료합니다. (turnStep이 9일 때만 실행됨)
-        bm.AfterExchange();
+        localPlayer.CmdAfterExchange();
 
         yield return null;
         isMoving = false;

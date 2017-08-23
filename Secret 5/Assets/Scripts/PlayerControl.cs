@@ -286,6 +286,12 @@ public class PlayerControl : NetworkBehaviour {
         bm.SetObjectPlayer(objectTargetIndex);
     }
 
+    [Command]
+    public void CmdAfterExchange()
+    {
+        bm.AfterExchange();
+    }
+
     public void SetName(string name)
     {
         playerName = name;

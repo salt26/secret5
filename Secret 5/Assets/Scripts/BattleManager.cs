@@ -114,7 +114,6 @@ public class BattleManager : NetworkBehaviour {
 
         for (int i = 0; i < 10; i++)
         {
-            RpcPrintLog("Card" + i + " moves.");
             cards[cardcode[i]].GetComponent<Card>().RpcMoveCard(100 + i);
             // cards[i].GetComponent<Card>().MoveCard(100 + i); // 이전 코드
             // TODO 개별 클라이언트마다 카드 앞면으로 뒤집기
@@ -340,6 +339,7 @@ public class BattleManager : NetworkBehaviour {
         else if (turnStep == 5)
         {
             // TODO 빙결된 이펙트 보여주고 잠시 딜레이
+
             turnStep = 6;
 
             // 턴을 진행한 플레이어가 빙결된 상태였으면 해동된다.

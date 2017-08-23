@@ -10,9 +10,9 @@ public class Pusher : MonoBehaviour{
 
     private Vector3 cardOriginal;
 
-    private Image[] cardUI;
-    private Image cardUIL;
-    private Image cardUIR;
+    [SerializeField] private Image[] cardUI;
+    [SerializeField] private Image cardUIL;
+    [SerializeField] private Image cardUIR;
 
     private SelectedInfo si;
     private Card cardL;
@@ -22,9 +22,9 @@ public class Pusher : MonoBehaviour{
     static public PlayerControl localPlayer = null;
 
     [SerializeField] bool ExchangeComplete;
-    bool changingCard;
+    [SerializeField] bool changingCard;
 
-    bool moved;
+    [SerializeField] bool moved;
 
     private Queue<IEnumerator> process = new Queue<IEnumerator>();
 
@@ -71,15 +71,12 @@ public class Pusher : MonoBehaviour{
 
         if (changingCard == true)
         {
-            si = null;
-            selectedCard = null;
-            moved = false;
             cardUIL.GetComponent<Image>().sprite = cardL.GetComponentInChildren<Finder>().GetComponent<SpriteRenderer>().sprite;
             cardUIR.GetComponent<Image>().sprite = cardR.GetComponentInChildren<Finder>().GetComponent<SpriteRenderer>().sprite;
             changingCard = false;
         }//큰 카드와 작은 카드가 같은 스프라이트를 가지게 하는 코드입니다.
 
-        if(!(si == null))
+        if(si != null)
         {
             if(moved == false)
             {

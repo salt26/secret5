@@ -21,5 +21,7 @@ public class PlayerUI : MonoBehaviour {
         t.text = p.GetName();
         if (bm.GetTurnPlayer() == p)
             t.color = new Color(0, 0, 255);
+        else
+            t.color = new Color(0, 0, 0);
     }
 }

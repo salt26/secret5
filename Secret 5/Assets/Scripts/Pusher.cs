@@ -81,27 +81,22 @@ public class Pusher : MonoBehaviour{
             if(moved == false)
             {
                 moved = true;
-                Debug.Log("1");
                 StartCoroutine(process.Dequeue());//위로 올라가게 함
             }
 
             selectedCard = selectedCardInfo.GetCard();
             localPlayer.DecideClicked();
             localPlayer.CmdSetCardToPlay(selectedCard.GetCardCode(), localPlayer.GetPlayerIndex());
-            
-            //끝날때 해야 될것
-            //selectedCardInfo = null;
-            //moved = false;
+
+            Highlighting();
+
+            AfterSmallMove();
         }
-
-        Highlighting();
-
-        AfterSmallMove();
     }
 
     public void AfterSmallMove()
     {
-        if (ExchangeComplete == true && si != null)
+        if (ExchangeComplete == true && selectedCardInfo != null)
         {
             if (exchange.GetObjectPlayerCard().GetCardCode() == 3)
                 MoveDeceive(GameObject.FindGameObjectWithTag(selectedCardInfo.GetLR()).transform.position, selectedCardInfo.GetOriginalPosition(), selectedCardInfo.GetLR());
@@ -115,18 +110,19 @@ public class Pusher : MonoBehaviour{
             // TODO 카드의 이펙트
             selectedCardInfo = null;
             selectedCard = null;
+            moved = false;
             ExchangeComplete = false;
         }
-        else if (si == null)
+        else if (selectedCardInfo == null)
         {
-            Debug.Log("si is null.");
+            Debug.Log("selectedCardInfo is null.");
         }
 
     }
     
     private void Highlighting()
     {
-        if (bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == localPlayer && !(selectedCard == null))
+        if (bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == localPlayer && selectedCard != null)
         {
                 selectedCard.SetHighLight(true);
         }
@@ -204,6 +200,7 @@ public class Pusher : MonoBehaviour{
         GameObject.FindGameObjectWithTag(RL).transform.position = DCarddet;
 
         t = Time.time;
+        changingCard = true;
         while (Time.time - t < 3f / 3f)
         {
             GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCarddet, DCardPosition, (Time.time - t) / (3f / 3f));

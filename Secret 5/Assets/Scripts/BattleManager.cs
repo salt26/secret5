@@ -189,12 +189,8 @@ public class BattleManager : NetworkBehaviour
         else if (turnStep == 5)
         {
             // TODO 빙결된 이펙트 보여주고 잠시 딜레이
-
-            turnStep = 6;
-
-            // 턴을 진행한 플레이어가 빙결된 상태였으면 해동된다.
-            players[turnPlayer].Thawed();
-            //RpcPrintLog("turnStep 6(postprocessing)");
+            players[turnPlayer].RpcFreeze();
+            turnStep = 11;
         }
         else if (turnStep == 6)
         {
@@ -263,7 +259,15 @@ public class BattleManager : NetworkBehaviour
         }
         else if (turnStep == 9)
         {
-            // 애니메이션이 끝나면 카드의 위치가 바뀌고 turnStep = 6 이 됩니다.
+            // 카드 교환 애니메이션이 끝나면 카드의 위치가 바뀌고 turnStep 6이 됩니다.
+        }
+        else if (turnStep == 10)
+        {
+            // 교환(turnStep 4) 단계에서 오류가 생긴 경우
+        }
+        else if (turnStep == 11)
+        {
+            // 빙결 애니메이션이 끝나면 플레이어가 해동되고 turnStep 6이 됩니다.
         }
 
     }
@@ -360,6 +364,21 @@ public class BattleManager : NetworkBehaviour
         objectPlayerCard = -1;
 
         turnStep = 6;
+        Debug.Log("turnStep 6(postprocessing)");
+    }
+
+    /// <summary>
+    /// 빙결 처리 이후의 단계로 넘어가기 위해 호출되는 함수입니다.
+    /// </summary>
+    public void AfterFreezed()
+    {
+        if (turnStep != 11) return;
+        RpcPrintLog("AfterFreezed");
+
+        turnStep = 6;
+
+        // 턴을 진행한 플레이어가 빙결된 상태였으면 해동된다.
+        players[turnPlayer].Thawed();
         Debug.Log("turnStep 6(postprocessing)");
     }
 

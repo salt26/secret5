@@ -109,18 +109,29 @@ public class PlayerControl : NetworkBehaviour {
     */
 
     void FixedUpdate () {
+        if (isLocalPlayer && Input.GetMouseButtonDown(1))
+        {
+            LogDisplay.ClearText(); // TODO 임시 코드
+            string m = "cardcode";
+            for (int i = 0; i < 10; i++)
+            {
+                m += " " + bm.GetCardCode()[i];
+            }
+            Log(m);
+        }
         if (isLocalPlayer && Input.GetMouseButtonDown(0))
         {
+            /*
             if (bm.GetObjectPlayer() != null)
-                Debug.Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName() + ", bm.GetObjectPlayer(): " + bm.GetObjectPlayer().GetName());
-            else Debug.Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName());
+                Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName() + ", bm.GetObjectPlayer(): " + bm.GetObjectPlayer().GetName());
+            else Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName());
+            */
             if (bm.GetTurnStep() == 2 && objectTarget != null && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectCard();
             if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && bm.GetObjectPlayer().Equals(this))
                 PlayerToSelectCard();
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
             {
-                Debug.Log("clicked.");
                 PlayerToSelectTarget();
             }
         }
@@ -157,7 +168,7 @@ public class PlayerControl : NetworkBehaviour {
         if (!isDead)
         {
             isFreezed = true;
-            Debug.Log(playerName + " is freezed.");
+            Log(playerName + " is freezed.");
         }
     }
 
@@ -193,7 +204,7 @@ public class PlayerControl : NetworkBehaviour {
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
         {
-            Debug.Log("Click " + hit.collider.name + ".");
+            //Log("Click " + hit.collider.name + ".");
             Debug.DrawLine(ray.origin, hit.point, Color.blue, 3f);
             if (hit.collider.gameObject.GetComponentInParent<PlayerControl>() != null
                 && !hit.collider.gameObject.GetComponentInParent<PlayerControl>().Equals(this))
@@ -201,7 +212,7 @@ public class PlayerControl : NetworkBehaviour {
                 if (objectTarget == null || !objectTarget.Equals(hit.collider.gameObject.GetComponentInParent<PlayerControl>()))
                 {
                     objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerControl>();
-                    Debug.Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
+                    Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
                 }
             }
         }
@@ -225,7 +236,7 @@ public class PlayerControl : NetworkBehaviour {
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 9)))
         {
-            Debug.Log("Click " + hit.collider.name + ".");
+            //Log("Click " + hit.collider.name + ".");
             Debug.DrawLine(ray.origin, hit.point, Color.red, 3f);
             if (hit.collider.gameObject.GetComponentInParent<Card>() != null
                 && (hit.collider.gameObject.GetComponentInParent<Card>().Equals(hand[0])
@@ -238,7 +249,7 @@ public class PlayerControl : NetworkBehaviour {
                     
                 }
                 */
-                Debug.Log("Set " + hit.collider.gameObject.GetComponentInParent<Card>().GetCardName() + " card to play.");
+                Log("Set " + hit.collider.gameObject.GetComponentInParent<Card>().GetCardName() + " card to play.");
                 DecideClicked();
                 CmdSetCardToPlay(hit.collider.gameObject.GetComponentInParent<Card>().GetCardCode(), GetPlayerIndex());
             }
@@ -380,16 +391,44 @@ public class PlayerControl : NetworkBehaviour {
             t = bm.GetTarget(GetPlayerIndex());
             yield return null;
         }
+        bool b = true;  // bm.players가 모두 잘 채워져 있을 때까지 대기
+        do
+        {
+            b = true;
+            for (int i = 0; i < 5; i++)
+            {
+                if (bm.players[i] == null)
+                {
+                    b = false;
+                    break;
+                }
+            }
+            yield return null;
+        } while (!b);
+        Log(bm.players[t[0]].GetName() + " is my objective.");
+        bm.players[t[0]].SetHighlight(true);
+        Log(bm.players[t[1]].GetName() + " is my objective, too.");
+        bm.players[t[1]].SetHighlight(true);
+        /*
         for (int i = 0; i < 5; i++)
         {
             if (t[0] == i || t[1] == i)
             {
+                Log(bm.players[i].GetName() + " is my objective.");
                 bm.players[i].SetHighlight(true);
             }
             else
             {
+                Log(bm.players[i].GetName() + " is NOT my objective.");
                 bm.players[i].SetHighlight(false);
             }
         }
+        */
+    }
+
+    private void Log(string msg)
+    {
+        Debug.Log(msg);
+        LogDisplay.AddText(msg);
     }
 }

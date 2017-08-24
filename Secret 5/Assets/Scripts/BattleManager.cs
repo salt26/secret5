@@ -110,7 +110,7 @@ public class BattleManager : NetworkBehaviour {
         }
         CardPermutation();
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
 
         for (int i = 0; i < 10; i++)
         {
@@ -122,12 +122,14 @@ public class BattleManager : NetworkBehaviour {
         //cameraPlayer = turnPlayer;
 
         RpcPrintLog("Battle starts.");
+        /*
         for (int j = 0; j < 5; j++)
         {
             RpcPrintLog(players[j].GetName() + "'s objective is to eliminate "
                 + players[GetTarget(j)[0]].GetName() + " and "
                 + players[GetTarget(j)[1]].GetName());
         }
+        */
         RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
         //SetCameraVisible(cameraPlayer);
 
@@ -258,14 +260,14 @@ public class BattleManager : NetworkBehaviour {
         else if (turnStep == 4)
         {
             exchange = new Exchange(players[turnPlayer], players[objectPlayer], GetCard(turnPlayerCard), GetCard(objectPlayerCard));
-            pusher.Setexchange(exchange);
+            RpcSetOpponentCard(turnPlayer, objectPlayer, turnPlayerCard, objectPlayerCard);
             if (exchange.GetTurnNum() == 0)
             {
                 RpcPrintLog("Exception throwed while making an exchange!");
-                turnStep = 8;
+                turnStep = 10;
                 return;
             }
-            RpcPrintLog("Create Exchange");
+            //RpcPrintLog("Create Exchange");
             tpcIndex = cardcode.IndexOf(exchange.GetTurnPlayerCard().GetCardCode());
             opcIndex = cardcode.IndexOf(exchange.GetObjectPlayerCard().GetCardCode());
 
@@ -334,6 +336,16 @@ public class BattleManager : NetworkBehaviour {
             int temp = cardcode[tpcIndex];
             cardcode[tpcIndex] = cardcode[opcIndex];
             cardcode[opcIndex] = temp;
+            RpcExchangeCardIndex(tpcIndex, opcIndex);
+            
+
+            string m = "cardcode";
+            for (int i = 0; i < 10; i++)
+            {
+                m += " " + cardcode[i];
+            }
+            RpcPrintLog(m);
+
             turnStep = 9;
 
         }
@@ -345,7 +357,7 @@ public class BattleManager : NetworkBehaviour {
 
             // 턴을 진행한 플레이어가 빙결된 상태였으면 해동된다.
             players[turnPlayer].Thawed();
-            RpcPrintLog("turnStep 6(postprocessing)");
+            //RpcPrintLog("turnStep 6(postprocessing)");
         }
         else if (turnStep == 6)
         {
@@ -361,7 +373,7 @@ public class BattleManager : NetworkBehaviour {
             
             turnStep = 7;
             Debug.Log("d");
-            RpcPrintLog("turnStep 7(turn ends)");
+            //RpcPrintLog("turnStep 7(turn ends)");
         }
         else if (turnStep == 7)
         {
@@ -481,7 +493,7 @@ public class BattleManager : NetworkBehaviour {
     {
         List<Card> hand = new List<Card>();
         int playerNum = players.IndexOf(player);
-        if (playerNum != -1)
+        if (playerNum != -1 && turnStep > 0)
         {
             hand.Add(cards[cardcode[playerNum * 2]].GetComponent<Card>());
             hand.Add(cards[cardcode[playerNum * 2 + 1]].GetComponent<Card>());
@@ -556,7 +568,7 @@ public class BattleManager : NetworkBehaviour {
     {
         if (turnStep != 9) return;
         
-        pusher.SetExchangeComplete();
+        RpcSetExchangeComplete();
         objectPlayer = -1;
         turnPlayerCard = -1;
         objectPlayerCard = -1;
@@ -627,25 +639,24 @@ public class BattleManager : NetworkBehaviour {
 
     public Card GetCardInPosition(int cardPosition)
     {
-        if (cardPosition < 0 || cardPosition >= 10) return null;
+        if (cardPosition < 0 || cardPosition >= 10 || turnStep <= 0) return null;
         return cards[cardcode[cardPosition]].GetComponent<Card>();
     }
-
-    /*
+    
     /// <summary>
     /// 카드의 배치 상태 리스트를 반환합니다.
     /// 만약 i번째 자리에 배치된 카드에 접근하고 싶다면 GetCardsInHand()[GetCardCode()[i]].GetComponent<Card>()를 사용하십시오.
     /// </summary>
     /// <returns></returns>
-    public CardCode GetCardCode()
+    public SyncListInt GetCardCode()
     {
         return cardcode;
     }
-    */
 
     [ClientRpc]
     public void RpcPrintLog(string msg)
     {
+        LogDisplay.AddText(msg);
         Debug.Log(msg);
     }
 
@@ -688,9 +699,28 @@ public class BattleManager : NetworkBehaviour {
         return t;
     }
     
-
     public List<PlayerControl> GetPlayers()
     {
         return players;
+    }
+
+    [ClientRpc]
+    private void RpcExchangeCardIndex(int tpc, int opc)
+    {
+        int temp = cardcode[tpc];
+        cardcode[tpc] = cardcode[opc];
+        cardcode[opc] = temp;
+    }
+
+    [ClientRpc]
+    private void RpcSetExchangeComplete()
+    {
+        pusher.SetExchangeComplete();
+    }
+
+    [ClientRpc]
+    private void RpcSetOpponentCard(int TP, int OP, int TPCardCode, int OPCardCode)
+    {
+        pusher.SetOpponentCard(TP, OP, TPCardCode, OPCardCode);
     }
 }

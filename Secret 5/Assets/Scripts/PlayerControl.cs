@@ -88,7 +88,7 @@ public class PlayerControl : NetworkBehaviour {
         PushingCard.localPlayer = this;
         Pusher.localPlayer = this;
         Card.localPlayer = this;
-        ObjectiveHightlight();
+        ObjectiveHighlight();
     }
 
     /*
@@ -177,6 +177,19 @@ public class PlayerControl : NetworkBehaviour {
         {
             currentHealth = 0;
             isDead = true;
+        }
+        int HealthChange = displayedHealth - currentHealth;
+        if (HealthChange < 0)
+        {
+            //힐을 받음
+        }
+        else if (HealthChange > 0 || isDead == false)
+        {
+            //데미지를 받음
+        }
+        else if (isDead == true)
+        {
+            //뒤짐
         }
         displayedHealth = currentHealth;
     }
@@ -346,7 +359,7 @@ public class PlayerControl : NetworkBehaviour {
         Border.SetActive(TF);
     }
     
-    private void ObjectiveHightlight()
+    private void ObjectiveHighlight()
     {
         /*
         List<TargetGraph> tg = playerPermutation;
@@ -386,4 +399,51 @@ public class PlayerControl : NetworkBehaviour {
             }
         }
     }
+
+    IEnumerator HealedAnimation()
+    {
+        Face.sprite = (Sprite)Resources.Load("캐릭터/치유받은 캐릭터");
+        Quaternion Original = Face.transform.rotation;
+
+        float t = Time.time;
+        while (Time.time - t < (20f / 60f)) 
+        {
+            Face.transform.rotation = Quaternion.Lerp(Original, Quaternion.Euler(0f, Original.y + 181f, 0f), (Time.time - t) / (20f / 60f));
+            yield return null;
+        }
+
+        t = Time.time;
+        while (Time.time - t < (20f / 60f)) 
+        {
+            Face.transform.rotation = Quaternion.Lerp(Quaternion.Euler(0f, Original.y + 181f, 0f), Original, (Time.time - t) / (20f / 60f));
+            yield return null;
+        }
+
+        Face.transform.rotation = Original;
+    }
+
+    IEnumerator DamagedAnimation()
+    {
+        Face.sprite = (Sprite)Resources.Load("캐릭터/데미지받은 캐릭터");
+        Vector3 Original = Face.transform.position;
+        for (int i = 0; i < 5; i++)
+        {
+            Face.transform.position = Original + new Vector3(0.2f, 0f, 0f);
+            yield return new WaitForSeconds(5f / 60f);
+            Face.transform.position = Original - new Vector3(-0.2f, 0f, 0f);
+            yield return new WaitForSeconds(5f / 60f);
+        }
+        Face.transform.position = Original;
+        yield return new WaitForSeconds(40f / 60f);
+        Face.sprite = (Sprite)Resources.Load("캐릭터/디폴트 캐릭터");
+    }
+
+    IEnumerator DeadAnimation()
+    {
+        Face.sprite = (Sprite)Resources.Load("캐릭터/죽은 캐릭터");
+        yield return null;
+        
+        
+    }
+
 }

@@ -35,6 +35,8 @@ public class PlayerControl : NetworkBehaviour
     private SpriteRenderer Face;
     
     public GameObject Ice;
+    public GameObject targetMark;
+    private bool isMarked; //마크가 되었는지 여부
 
     void Awake () {
         bm = BattleManager.bm;
@@ -127,6 +129,9 @@ public class PlayerControl : NetworkBehaviour
             }
         }
 
+        if (bm.GetTurnStep() == 3 && isMarked == true)
+            Destroy(GameObject.Find("TargetMark(Clone)"));
+
         HealthBar.sizeDelta = new Vector2(displayedHealth * 100f / 6f, HealthBar.sizeDelta.y); // HealthBar 변경 -> displayedHealth 기준으로 계산하도록 수정
     }
 
@@ -215,10 +220,21 @@ public class PlayerControl : NetworkBehaviour
             if (hit.collider.gameObject.GetComponentInParent<PlayerControl>() != null
                 && !hit.collider.gameObject.GetComponentInParent<PlayerControl>().Equals(this))
             {
-                if (objectTarget == null || !objectTarget.Equals(hit.collider.gameObject.GetComponentInParent<PlayerControl>()))
+                if (objectTarget == null) 
                 {
                     objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerControl>();
+                    Instantiate(targetMark, objectTarget.transform);
+                    isMarked = true;
                     Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
+                }
+                else if (!objectTarget.Equals(hit.collider.gameObject.GetComponentInParent<PlayerControl>()))
+                {
+                    Destroy(GameObject.Find("TargetMark(Clone)"));
+                    objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerControl>();
+                    Instantiate(targetMark, objectTarget.transform);
+                    isMarked = true;
+                    Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
+
                 }
             }
         }
@@ -511,4 +527,6 @@ public class PlayerControl : NetworkBehaviour
     {
         yield return null;
     }
+
+    
 }

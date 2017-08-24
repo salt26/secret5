@@ -29,6 +29,9 @@ public class Pusher : MonoBehaviour{
     [SerializeField] bool moved;
     bool selected;
 
+    public Image glacier;
+    private Image freeze;
+
     private Queue<IEnumerator> process = new Queue<IEnumerator>();
 
     private void Awake()
@@ -123,6 +126,16 @@ public class Pusher : MonoBehaviour{
             Highlighting();
             LogDisplay.AddText("AfterSmallMove");
             StartCoroutine("AfterSmallMove");
+        }
+
+        if (localPlayer.HasFreezed())
+        {
+            freeze = (Image)Instantiate(glacier, GetComponentInParent<Canvas>().transform);
+            freeze.rectTransform.localPosition = new Vector3(-3f, -145f);
+        }
+        else if (!localPlayer.HasFreezed() && freeze != null)
+        {
+            Destroy(freeze);
         }
     }
 

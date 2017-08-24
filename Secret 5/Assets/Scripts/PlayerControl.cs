@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
+using Prototype.NetworkLobby;
 
-public class PlayerControl : NetworkBehaviour {
+public class PlayerControl : NetworkBehaviour
+{
 
     [SyncVar] private int currentHealth;     // 현재 남은 체력(실시간으로 변화, 외부 열람 불가)
-    [SerializeField][SyncVar] private int maxHealth = 6;     // 최대 체력(초기 체력)
+    [SerializeField] [SyncVar] private int maxHealth = 6;     // 최대 체력(초기 체력)
     [SyncVar] private GameObject character;  // 캐릭터 모델
     [SyncVar] private bool isDead = false;   // 사망 여부(true이면 사망)
     [SyncVar] public string playerName;     // 플레이어 이름
@@ -31,8 +33,9 @@ public class PlayerControl : NetworkBehaviour {
 
     private GameObject Border;
     private SpriteRenderer Face;
-    
-	void Awake () {
+
+    void Awake()
+    {
         bm = BattleManager.bm;
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
@@ -69,7 +72,8 @@ public class PlayerControl : NetworkBehaviour {
         bm.players[playerNum - 1] = this;
     }
 
-    void Start () {
+    void Start()
+    {
         if (bm == null) Debug.Log("BM is null.");
         Renderer[] rends = GetComponentsInChildren<Renderer>();
         rends[0].material.color = color;
@@ -108,7 +112,9 @@ public class PlayerControl : NetworkBehaviour {
     }
     */
 
-    void FixedUpdate () {
+    void FixedUpdate()
+    {
+        if (!ClientScene.ready) Log("ClientScene.ready is false.");
         if (isLocalPlayer && Input.GetMouseButtonDown(1))
         {
             LogDisplay.ClearText(); // TODO 임시 코드
@@ -137,7 +143,7 @@ public class PlayerControl : NetworkBehaviour {
         }
 
         HealthBar.sizeDelta = new Vector2(displayedHealth * 100f / 6f, HealthBar.sizeDelta.y); // HealthBar 변경 -> displayedHealth 기준으로 계산하도록 수정
-	}
+    }
 
 
     public void Damaged()
@@ -191,7 +197,7 @@ public class PlayerControl : NetworkBehaviour {
         }
         displayedHealth = currentHealth;
     }
-    
+
     [ClientCallback]
     public void PlayerToSelectTarget()
     {
@@ -255,7 +261,7 @@ public class PlayerControl : NetworkBehaviour {
             }
         }
     }
-    
+
     [ClientCallback]
     public void DecideClicked()
     {
@@ -362,7 +368,7 @@ public class PlayerControl : NetworkBehaviour {
     {
         Border.SetActive(TF);
     }
-    
+
     private void ObjectiveHightlight()
     {
         /*
@@ -387,7 +393,8 @@ public class PlayerControl : NetworkBehaviour {
     IEnumerator Highlight()
     {
         List<int> t = null;
-        while (t == null) {
+        while (t == null)
+        {
             t = bm.GetTarget(GetPlayerIndex());
             yield return null;
         }

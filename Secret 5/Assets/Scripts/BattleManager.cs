@@ -5,7 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
-public class BattleManager : NetworkBehaviour {
+public class BattleManager : NetworkBehaviour
+{
 
     static public BattleManager bm;
 
@@ -13,7 +14,7 @@ public class BattleManager : NetworkBehaviour {
     [SerializeField] private List<GameObject> cards = new List<GameObject>();
     // cards의 i번째 값은 cardCode가 i인 Card 컴포넌트를 포함하는 게임오브젝트입니다.
     // 이제 cards의 순서는 바뀌지 않고 카드 교환 시 cardcode의 순서가 바뀝니다.
-    
+
     public Pusher pusher;
 
     public List<PlayerControl> players = new List<PlayerControl>(){
@@ -135,6 +136,14 @@ public class BattleManager : NetworkBehaviour {
 
         turnStep = 1;
     }
+    
+    private void OnPlayerDisconnected(NetworkPlayer player)
+    {
+        Network.RemoveRPCs(player);
+        Network.DestroyPlayerObjects(player);
+        RpcPrintLog("A player has disconnected. Battle ends.");
+        StartCoroutine(ReturnToLobby(3f));
+    }
 
     private void Awake()
     {
@@ -209,7 +218,8 @@ public class BattleManager : NetworkBehaviour {
     }
     */
 
-    void FixedUpdate() {
+    void FixedUpdate()
+    {
         if (!isServer) return;
         /*
         if (Input.GetMouseButtonDown(1))
@@ -337,7 +347,7 @@ public class BattleManager : NetworkBehaviour {
             cardcode[tpcIndex] = cardcode[opcIndex];
             cardcode[opcIndex] = temp;
             RpcExchangeCardIndex(tpcIndex, opcIndex);
-            
+
 
             string m = "cardcode";
             for (int i = 0; i < 10; i++)
@@ -370,7 +380,7 @@ public class BattleManager : NetworkBehaviour {
                 players[turnPlayer].Damaged();
                 Debug.Log("c");
             }
-            
+
             turnStep = 7;
             Debug.Log("d");
             //RpcPrintLog("turnStep 7(turn ends)");
@@ -416,6 +426,7 @@ public class BattleManager : NetworkBehaviour {
                     if (isWin[i]) RpcPrintLog(players[i].GetName() + " wins!");
                 }
                 RpcPrintLog("Battle ends.");
+                StartCoroutine(ReturnToLobby(5f));
                 turnStep = 8;
             }
             else
@@ -432,7 +443,7 @@ public class BattleManager : NetworkBehaviour {
             // 애니메이션이 끝나면 카드의 위치가 바뀌고 turnStep = 6 이 됩니다.
         }
 
-	}
+    }
 
     public void SetObjectPlayer(int objectTargetIndex)
     {
@@ -487,7 +498,7 @@ public class BattleManager : NetworkBehaviour {
         }
     }
     */
-    
+
 
     public List<Card> GetPlayerHand(PlayerControl player)
     {
@@ -567,7 +578,7 @@ public class BattleManager : NetworkBehaviour {
     public void AfterExchange()
     {
         if (turnStep != 9) return;
-        
+
         RpcSetExchangeComplete();
         objectPlayer = -1;
         turnPlayerCard = -1;
@@ -642,7 +653,7 @@ public class BattleManager : NetworkBehaviour {
         if (cardPosition < 0 || cardPosition >= 10 || turnStep <= 0) return null;
         return cards[cardcode[cardPosition]].GetComponent<Card>();
     }
-    
+
     /// <summary>
     /// 카드의 배치 상태 리스트를 반환합니다.
     /// 만약 i번째 자리에 배치된 카드에 접근하고 싶다면 GetCardsInHand()[GetCardCode()[i]].GetComponent<Card>()를 사용하십시오.
@@ -698,7 +709,7 @@ public class BattleManager : NetworkBehaviour {
         }
         return t;
     }
-    
+
     public List<PlayerControl> GetPlayers()
     {
         return players;
@@ -722,5 +733,11 @@ public class BattleManager : NetworkBehaviour {
     private void RpcSetOpponentCard(int TP, int OP, int TPCardCode, int OPCardCode)
     {
         pusher.SetOpponentCard(TP, OP, TPCardCode, OPCardCode);
+    }
+
+    IEnumerator ReturnToLobby(float timing)
+    {
+        yield return new WaitForSeconds(timing);
+        LobbyManager.s_Singleton.ServerReturnToLobby();
     }
 }

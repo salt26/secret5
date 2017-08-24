@@ -118,7 +118,7 @@ c99104cca6f33db39d236f8efb9aafb4 Assembly-CSharp.dll:Prototype.NetworkLobby.Lobb
 9ec8b688ec9ee78e569c94de4d591801 Assembly-CSharp.dll:Prototype.NetworkLobby.LobbyManager
 0e0671daccfdc07c5a4a410c6329cba4 Assembly-CSharp.dll:Prototype.NetworkLobby.LobbyTopPanel
 6b973c80afbeacaca6a94a2f4f151b57 Assembly-CSharp.dll:Prototype.NetworkLobby.LobbyPlayer
-e5697e4debea333fb91cc10def0a6176 Assembly-CSharp.dll:.PlayerControl
+34bf71eaf876c7177ed1b0558c17951c Assembly-CSharp.dll:.PlayerControl
 05524b8f659e7bfe5756d1335fec24ba Assembly-CSharp.dll:.CardDatabase
 fc1e0f4d8439d9928083474691511a13 UnityEngine.Networking.dll:UnityEngine.Networking.NetworkAnimator
 05524b8f659e7bfe5756d1335fec24ba UnityEngine.Networking.dll:UnityEngine.Networking.NetworkBehaviour

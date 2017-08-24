@@ -33,9 +33,10 @@ public class PlayerControl : NetworkBehaviour
 
     private GameObject Border;
     private SpriteRenderer Face;
+    
+    public GameObject Ice;
 
-    void Awake()
-    {
+    void Awake () {
         bm = BattleManager.bm;
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
@@ -92,7 +93,7 @@ public class PlayerControl : NetworkBehaviour
         PushingCard.localPlayer = this;
         Pusher.localPlayer = this;
         Card.localPlayer = this;
-        ObjectiveHightlight();
+        ObjectiveHighlight();
     }
 
     /*
@@ -194,6 +195,20 @@ public class PlayerControl : NetworkBehaviour
         {
             currentHealth = 0;
             isDead = true;
+        }
+        int HealthChange = displayedHealth - currentHealth;
+
+        if (HealthChange < 0)
+        {
+            StartCoroutine("HealedAnimation"); //힐을 받음
+        }
+        else if (HealthChange > 0 && isDead == false)
+        {
+            StartCoroutine("DamagedAnimation");//데미지를 받음
+        }
+        else if (isDead == true)
+        {
+            StartCoroutine("DeadAnimation");//뒤짐
         }
         displayedHealth = currentHealth;
     }
@@ -368,8 +383,8 @@ public class PlayerControl : NetworkBehaviour
     {
         Border.SetActive(TF);
     }
-
-    private void ObjectiveHightlight()
+    
+    private void ObjectiveHighlight()
     {
         /*
         List<TargetGraph> tg = playerPermutation;
@@ -437,5 +452,80 @@ public class PlayerControl : NetworkBehaviour
     {
         Debug.Log(msg);
         LogDisplay.AddText(msg);
+    }
+
+    IEnumerator HealedAnimation()
+    {
+        Face.sprite = (Sprite)Resources.Load("캐릭터/치유받은_캐릭터");
+        Quaternion Original = Face.transform.localRotation;
+
+        float t = Time.time;
+        while (Time.time - t < (20f / 60f)) 
+        {
+            Face.transform.localRotation = Quaternion.Lerp(Original, Quaternion.Euler(0f, 181f, 0f), (Time.time - t) / (20f / 60f));
+            yield return null;
+        }
+
+        t = Time.time;
+        while (Time.time - t < (20f / 60f)) 
+        {
+            Face.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(0f, 181f, 0f), Original, (Time.time - t) / (20f / 60f));
+            yield return null;
+        }
+
+        Face.transform.localRotation = Original;
+        yield return new WaitForSeconds(40f / 60f);
+        Face.sprite = (Sprite)Resources.Load("캐릭터/디폴트_캐릭터");
+    }
+
+    IEnumerator DamagedAnimation()
+    {
+        Face.sprite = (Sprite)Resources.Load("캐릭터/데미지받은_캐릭터");
+        Vector3 Original = Face.transform.localPosition;
+        for (int i = 0; i < 5; i++)
+        {
+            Face.transform.localPosition = Original + new Vector3(0.2f, 0f, 0f);
+            yield return new WaitForSeconds(5f / 60f);
+            Face.transform.localPosition = Original + new Vector3(-0.2f, 0f, 0f);
+            yield return new WaitForSeconds(5f / 60f);
+        }
+        Face.transform.localPosition = Original;
+        yield return new WaitForSeconds(40f / 60f);
+        Face.sprite = (Sprite)Resources.Load("캐릭터/디폴트_캐릭터");
+    }
+
+    IEnumerator DeadAnimation()
+    {
+        Face.sprite = (Sprite)Resources.Load("캐릭터/죽은_캐릭터");
+        yield return new WaitForSeconds(30f / 30f);
+        //폭발애니메이...
+        
+        
+    }
+
+    //대전화면에서 빙결이 일어나는 애니메이션
+    IEnumerator FreezeAnimation()
+    {
+        Ice.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
+        Ice.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 150);
+        Ice.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("이펙트/대전화면_빙결/얼음0");
+        yield return new WaitForSeconds(2f / 3f);
+        Ice.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("이펙트/대전화면_빙결/얼음2");
+        yield return new WaitForSeconds(2f / 3f);
+        Ice.GetComponent<SpriteRenderer>().sprite = (Sprite)Resources.Load("이펙트/대전화면_빙결/얼음4");
+        yield return new WaitForSeconds(2f / 3f);
+        float t = Time.time;
+        while (Time.time - t < (90f / 60f))
+        {
+            Ice.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(255, 255, 255, 150), new Color(255, 255, 255, 0), (Time.time - t) / (90f / 60f));
+            yield return null;
+        }
+        Ice.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0);
+    }
+
+    //조작화면에서 빙결이 일어나는 애니메이션
+    IEnumerator IceAnimation()
+    {
+        yield return null;
     }
 }

@@ -27,6 +27,7 @@ public class Pusher : MonoBehaviour{
 
     [SerializeField] bool moved;
     bool selected;
+    bool freezed;
 
     public Image glacier;
     private Image freeze;
@@ -46,6 +47,7 @@ public class Pusher : MonoBehaviour{
         cardUIR = cardUI[2];
         moved = false;
         selected = false;
+        freezed = false;
         opponentPlayerCardCode = -1;
     }
 
@@ -56,6 +58,7 @@ public class Pusher : MonoBehaviour{
             changingCard = true;
             moved = false;
             selected = false;
+            freezed = false;
             opponentPlayerCardCode = -1;
             return;
         }
@@ -69,6 +72,7 @@ public class Pusher : MonoBehaviour{
             changingCard = true;
             moved = false;
             selected = false;
+            freezed = false;
             opponentPlayerCardCode = -1;
             return;
         }
@@ -117,18 +121,20 @@ public class Pusher : MonoBehaviour{
             localPlayer.CmdSetCardToPlay(selectedCard.GetCardCode(), localPlayer.GetPlayerIndex());
 
             Highlighting();
-            LogDisplay.AddText("AfterSmallMove");
+            //LogDisplay.AddText("AfterSmallMove");
             StartCoroutine("AfterSmallMove");
         }
 
-        if (localPlayer.HasFreezed())
+        if (localPlayer.HasFreezed() && !freezed)
         {
             freeze = (Image)Instantiate(glacier, GetComponentInParent<Canvas>().transform);
             freeze.rectTransform.localPosition = new Vector3(-3f, -145f);
+            freezed = true;
         }
         else if (!localPlayer.HasFreezed() && freeze != null)
         {
             Destroy(freeze);
+            freezed = false;
         }
     }
 
@@ -138,11 +144,11 @@ public class Pusher : MonoBehaviour{
         {
             yield return null;
         }
-        LogDisplay.AddText("ExchangeComplete is " + ExchangeComplete + ".");
+        //LogDisplay.AddText("ExchangeComplete is " + ExchangeComplete + ".");
         while (opponentPlayerCardCode == -1) {
             yield return null;
         }
-        LogDisplay.AddText("opponentPlayerCardCode is " + opponentPlayerCardCode + ".");
+        //LogDisplay.AddText("opponentPlayerCardCode is " + opponentPlayerCardCode + ".");
         if (selectedCardInfo != null)
         {
             if (opponentPlayerCardCode == 3)
@@ -161,7 +167,7 @@ public class Pusher : MonoBehaviour{
         }
         else if (selectedCardInfo == null)
         {
-            LogDisplay.AddText("selectedCardInfo is null.");
+            //LogDisplay.AddText("selectedCardInfo is null.");
         }
 
     }
@@ -230,8 +236,8 @@ public class Pusher : MonoBehaviour{
             RL = "Right";
         else if (LR == "Right")
             RL = "Left";
-        else
-            Debug.Log("Error In Deceive Card Process");
+        //else
+            //Debug.Log("Error In Deceive Card Process");
 
         Vector3 DCardPosition = GameObject.FindGameObjectWithTag(RL).transform.position;
         Vector3 DCarddet = new Vector3(DCardPosition.x, Screen.height * 3 / 2);

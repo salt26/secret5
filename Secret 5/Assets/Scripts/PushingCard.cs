@@ -107,8 +107,8 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
             else
             {
-                Debug.Log("Card is not appropriate.");
-                LogDisplay.AddText("Card is not appropriate.");
+                //Debug.Log("Card is not appropriate.");
+                //LogDisplay.AddText("Card is not appropriate.");
             }
         }
         else

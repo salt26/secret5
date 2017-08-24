@@ -101,6 +101,7 @@ public class PlayerControl : NetworkBehaviour
 
     void FixedUpdate()
     {
+        /*
         if (isLocalPlayer && Input.GetMouseButtonDown(1))
         {
             LogDisplay.ClearText(); // TODO 임시 코드
@@ -110,6 +111,11 @@ public class PlayerControl : NetworkBehaviour
                 m += " " + bm.GetCardCode()[i];
             }
             Log(m);
+        }
+        */
+        if (isLocalPlayer)
+        {
+            StatusUpdate();
         }
         if (isLocalPlayer && Input.GetMouseButtonDown(0))
         {
@@ -164,7 +170,7 @@ public class PlayerControl : NetworkBehaviour
         if (!isDead)
         {
             isFreezed = true;
-            Log(playerName + " is freezed.");
+            //Log(playerName + " is freezed.");
         }
     }
 
@@ -189,17 +195,17 @@ public class PlayerControl : NetworkBehaviour
 
         if (HealthChange < 0)
         {
-            bm.RpcPrintLog(playerName + " is Healed.");
+            //bm.RpcPrintLog(playerName + " is Healed.");
             RpcHealed(); //힐을 받음
         }
         else if (HealthChange > 0 && isDead == false)
         {
-            bm.RpcPrintLog(playerName + " is Damaged.");
+            //bm.RpcPrintLog(playerName + " is Damaged.");
             RpcDamaged(); //데미지를 받음
         }
         else if (isDead == true)
         {
-            bm.RpcPrintLog(playerName + " is Dead.");
+            //bm.RpcPrintLog(playerName + " is Dead.");
             RpcDead(); //뒤짐
         }
         displayedHealth = currentHealth;
@@ -223,17 +229,17 @@ public class PlayerControl : NetworkBehaviour
                 if (objectTarget == null) 
                 {
                     objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerControl>();
-                    Instantiate(targetMark, objectTarget.transform);
+                    Instantiate(targetMark, hit.collider.gameObject.GetComponentInParent<PlayerControl>().transform);
                     isMarked = true;
-                    Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
+                    //Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
                 }
                 else if (!objectTarget.Equals(hit.collider.gameObject.GetComponentInParent<PlayerControl>()))
                 {
                     Destroy(GameObject.Find("TargetMark(Clone)"));
                     objectTarget = hit.collider.gameObject.GetComponentInParent<PlayerControl>();
-                    Instantiate(targetMark, objectTarget.transform);
+                    Instantiate(targetMark, hit.collider.gameObject.GetComponentInParent<PlayerControl>().transform);
                     isMarked = true;
-                    Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
+                    //Log("Set " + hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + " to a target.");
 
                 }
             }
@@ -412,16 +418,77 @@ public class PlayerControl : NetworkBehaviour
             }
             yield return null;
         } while (!b);
-        Log(bm.players[t[0]].GetName() + " is my objective.");
+        //Log(bm.players[t[0]].GetName() + " is my objective.");
         bm.players[t[0]].SetHighlight(true);
-        Log(bm.players[t[1]].GetName() + " is my objective, too.");
+        //Log(bm.players[t[1]].GetName() + " is my objective, too.");
         bm.players[t[1]].SetHighlight(true);
     }
-
+    /*
     private void Log(string msg)
     {
         Debug.Log(msg);
         LogDisplay.AddText(msg);
+    }
+    */
+
+    private void StatusUpdate()
+    {
+        int ts = bm.GetTurnStep();
+        bool isTP = (Equals(bm.GetTurnPlayer()));
+        bool isOP = (Equals(bm.GetObjectPlayer()));
+        string s = "";
+
+        if (ts == 0)
+        {
+            StatusUI.SetText("대전 시작");
+        }
+        else if (ts == 2 && isTP && objectTarget == null)
+        {
+            StatusUI.SetText("교환하고 싶은 상대의 캐릭터를 누르세요.");
+        }
+        else if (ts == 2 && isTP && objectTarget != null)
+        {
+            StatusUI.SetText("교환하고 싶은, 하단의 카드 하나를 위로 드래그해서 내세요.");
+        }
+        else if (ts == 2)
+        {
+            StatusUI.SetText(bm.GetTurnPlayer().GetName() + "의 턴");
+        }
+        else if (ts == 3 && isTP)
+        {
+            StatusUI.SetText("상대에게 교환 요청을 보냈습니다. 기다리세요.");
+        }
+        else if (ts == 3 && isOP)
+        {
+            StatusUI.SetText("교환 요청을 받았습니다. 교환하고 싶은, 하단의 카드 하나를 위로 드래그해서 내세요.");
+        }
+        else if (ts == 3)
+        {
+            StatusUI.SetText(bm.GetTurnPlayer().GetName() + "이(가) " + bm.GetObjectPlayer().GetName() + "에게 교환을 요청했습니다.");
+        }
+        else if (ts == 4 || ts == 9)
+        {
+            StatusUI.SetText("교환중...");
+        }
+        else if ((ts == 5 || ts == 11))
+        {
+            StatusUI.SetText("빙결되어 이번 턴에 교환할 수 없습니다.");
+        }
+        else if (ts == 8)
+        {
+            for (int j = 0; j < 5; j++)
+            {
+                if (bm.GetIsWin()[j])
+                {
+                    s += bm.GetPlayers()[j].GetName() + " ";
+                }
+            }
+            StatusUI.SetText("대전 종료!\n" + s + "승리");
+        }
+        else
+        {
+            StatusUI.ClearText();
+        }
     }
 
     [ClientRpc]
@@ -450,7 +517,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator HealedAnimation()
     {
-        Log("HealedAnimation");
+        //Log("HealedAnimation");
         Face.sprite = Resources.Load("캐릭터/치유받은_캐릭터", typeof(Sprite)) as Sprite;
         Quaternion Original = Face.transform.localRotation;
 
@@ -475,7 +542,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator DamagedAnimation()
     {
-        Log("DamagedAnimation");
+        //Log("DamagedAnimation");
         Face.sprite = Resources.Load("캐릭터/데미지받은_캐릭터", typeof(Sprite)) as Sprite;
         Vector3 Original = Face.transform.localPosition;
         for (int i = 0; i < 5; i++)
@@ -492,7 +559,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator DeadAnimation()
     {
-        Log("DeadAnimation");
+        //Log("DeadAnimation");
         Face.sprite = Resources.Load("캐릭터/죽은_캐릭터", typeof(Sprite)) as Sprite;
         yield return new WaitForSeconds(30f / 30f);
         //폭발애니메이...
@@ -503,9 +570,9 @@ public class PlayerControl : NetworkBehaviour
     //대전화면에서 빙결이 일어나는 애니메이션
     IEnumerator FreezeAnimation()
     {
-        Log("FreezeAnimation");
+        //Log("FreezeAnimation");
         Ice.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
-        Ice.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 150);
+        Ice.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.6f);
         Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음0", typeof(Sprite)) as Sprite;
         yield return new WaitForSeconds(4f / 3f);
         Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음2", typeof(Sprite)) as Sprite;
@@ -515,10 +582,10 @@ public class PlayerControl : NetworkBehaviour
         float t = Time.time;
         while (Time.time - t < (90f / 60f))
         {
-            Ice.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(255, 255, 255, 150), new Color(255, 255, 255, 0), (Time.time - t) / (90f / 60f));
+            Ice.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(1f, 1f, 1f, 0.6f), new Color(1f, 1f, 1f, 0f), (Time.time - t) / (90f / 60f));
             yield return null;
         }
-        Ice.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 0);
+        Ice.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
         CmdAfterFreezed();
     }
 

@@ -95,8 +95,8 @@ public class BattleManager : NetworkBehaviour
         }
         turnPlayer = Random.Range(0, 5);
 
-        RpcPrintLog("Battle starts.");
-        RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
+        //RpcPrintLog("Battle starts.");
+        //RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
 
         turnStep = 1;
     }
@@ -105,7 +105,7 @@ public class BattleManager : NetworkBehaviour
     {
         Network.RemoveRPCs(player);
         Network.DestroyPlayerObjects(player);
-        RpcPrintLog("A player has disconnected. Battle ends.");
+        //RpcPrintLog("A player has disconnected. Battle ends.");
         StartCoroutine(ReturnToLobby(3f));
     }
 
@@ -140,12 +140,12 @@ public class BattleManager : NetworkBehaviour
             if (players[turnPlayer].HasFreezed())
             {
                 turnStep = 5;
-                RpcPrintLog("turnStep 5(freezed)");
+                //RpcPrintLog("turnStep 5(freezed)");
             }
             else
             {
                 turnStep = 2;
-                RpcPrintLog("turnStep 2(select a player to exchange with, and select a card to play)");
+                //RpcPrintLog("turnStep 2(select a player to exchange with, and select a card to play)");
             }
         }
         else if (turnStep == 2)
@@ -158,7 +158,7 @@ public class BattleManager : NetworkBehaviour
             if (turnPlayerCard != -1 && objectPlayerCard != -1)
             {
                 turnStep = 4;
-                RpcPrintLog("turnStep 4(preprocessing)");
+                //RpcPrintLog("turnStep 4(preprocessing)");
             }
         }
         else if (turnStep == 4)
@@ -167,7 +167,7 @@ public class BattleManager : NetworkBehaviour
             RpcSetOpponentCard(turnPlayer, objectPlayer, turnPlayerCard, objectPlayerCard);
             if (exchange.GetTurnNum() == 0)
             {
-                RpcPrintLog("Exception throwed while making an exchange!");
+                //RpcPrintLog("Exception throwed while making an exchange!");
                 turnStep = 10;
                 return;
             }
@@ -226,6 +226,7 @@ public class BattleManager : NetworkBehaviour
                             isWin[j] = false;
                         }
                         isWin[i] = true;
+                        RpcPlayerWinIndex(i);
                         isEnd = true;
                         break;
                     }
@@ -234,27 +235,30 @@ public class BattleManager : NetworkBehaviour
                         || players[GetTarget(i)[1]].HasDead())
                     {
                         isWin[i] = true;
+                        RpcPlayerWinIndex(i);
                         isEnd = true;
                     }
                 }
             }
             if (isEnd)
             {
+                /*
                 for (int i = 0; i < 5; i++)
                 {
                     if (isWin[i]) RpcPrintLog(players[i].GetName() + " wins!");
                 }
                 RpcPrintLog("Battle ends.");
+                */
                 StartCoroutine(ReturnToLobby(5f));
                 turnStep = 8;
             }
             else
             {
-                RpcPrintLog("Turn ends.");
+                //RpcPrintLog("Turn ends.");
                 turnPlayer += 1;
                 if (turnPlayer >= 5) turnPlayer = 0;
                 turnStep = 1;
-                RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
+                //RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
             }
         }
         else if (turnStep == 9)
@@ -277,7 +281,7 @@ public class BattleManager : NetworkBehaviour
         if (turnStep != 2 || objectTargetIndex < 0 || objectTargetIndex >= 5) return;
         objectPlayer = objectTargetIndex;
         turnStep = 3;
-        RpcPrintLog("turnStep 3(select a card to play)");
+        //RpcPrintLog("turnStep 3(select a card to play)");
     }
 
     public void SetCardToPlay(int cardCode, int playerIndex)
@@ -286,12 +290,12 @@ public class BattleManager : NetworkBehaviour
         if (playerIndex == turnPlayer && turnPlayerCard == -1)
         {
             turnPlayerCard = cardCode;
-            RpcPrintLog(players[playerIndex].GetName() + " sets " + GetCard(cardCode).GetCardName() + " card to play.");
+            //RpcPrintLog(players[playerIndex].GetName() + " sets " + GetCard(cardCode).GetCardName() + " card to play.");
         }
         else if (playerIndex == objectPlayer && objectPlayerCard == -1)
         {
             objectPlayerCard = cardCode;
-            RpcPrintLog(players[playerIndex].GetName() + " sets " + GetCard(cardCode).GetCardName() + " card to play.");
+            //RpcPrintLog(players[playerIndex].GetName() + " sets " + GetCard(cardCode).GetCardName() + " card to play.");
         }
     }
 
@@ -324,6 +328,11 @@ public class BattleManager : NetworkBehaviour
         return turnStep;
     }
 
+    public SyncListBool GetIsWin()
+    {
+        return isWin;
+    }
+
     /// <summary>
     /// 카드들의 목록을 반환합니다. 주의: 이 리스트의 순서는 카드 배치 순서를 반영하지 않습니다! 카드 배치 순서를 얻고 싶다면 GetCardCode()를 사용하십시오.
     /// </summary>
@@ -347,7 +356,7 @@ public class BattleManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log("a");
+            //Debug.Log("a");
             return null;
         }
     }
@@ -364,7 +373,7 @@ public class BattleManager : NetworkBehaviour
         objectPlayerCard = -1;
 
         turnStep = 6;
-        Debug.Log("turnStep 6(postprocessing)");
+        //Debug.Log("turnStep 6(postprocessing)");
     }
 
     /// <summary>
@@ -373,13 +382,13 @@ public class BattleManager : NetworkBehaviour
     public void AfterFreezed()
     {
         if (turnStep != 11) return;
-        RpcPrintLog("AfterFreezed");
+        //RpcPrintLog("AfterFreezed");
 
         turnStep = 6;
 
         // 턴을 진행한 플레이어가 빙결된 상태였으면 해동된다.
         players[turnPlayer].Thawed();
-        Debug.Log("turnStep 6(postprocessing)");
+        //Debug.Log("turnStep 6(postprocessing)");
     }
 
 
@@ -449,6 +458,7 @@ public class BattleManager : NetworkBehaviour
         return cardcode;
     }
 
+    /*
     // TODO 임시 코드
     [ClientRpc]
     public void RpcPrintLog(string msg)
@@ -456,6 +466,7 @@ public class BattleManager : NetworkBehaviour
         LogDisplay.AddText(msg);
         Debug.Log(msg);
     }
+    */
 
     /// <summary>
     /// 인자로 주어진 플레이어가 잡아야 하는 목표의 번호 리스트를 반환합니다.
@@ -507,6 +518,12 @@ public class BattleManager : NetworkBehaviour
         int temp = cardcode[tpc];
         cardcode[tpc] = cardcode[opc];
         cardcode[opc] = temp;
+    }
+
+    [ClientRpc]
+    private void RpcPlayerWinIndex(int i)
+    {
+        isWin[i] = true;
     }
 
     [ClientRpc]

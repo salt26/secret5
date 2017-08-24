@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class LogDisplay : MonoBehaviour {
-
+    /*
     static public Text text;
 
     private void Awake()
@@ -21,4 +21,5 @@ public class LogDisplay : MonoBehaviour {
     {
         text.text = "";
     }
+    */
 }

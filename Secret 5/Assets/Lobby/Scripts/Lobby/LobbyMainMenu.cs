@@ -11,6 +11,7 @@ namespace Prototype.NetworkLobby
 
         public RectTransform lobbyServerList;
         public RectTransform lobbyPanel;
+        public RectTransform helpPanel;
 
         public InputField ipInput;
         public InputField matchNameInput;
@@ -35,7 +36,7 @@ namespace Prototype.NetworkLobby
         {
             lobbyManager.ChangeTo(lobbyPanel);
 
-            lobbyManager.networkAddress = ipInput.text;
+            lobbyManager.networkAddress = "127.0.0.1"; //ipInput.text;
             lobbyManager.StartClient();
 
             lobbyManager.backDelegate = lobbyManager.StopClientClbk;
@@ -76,6 +77,17 @@ namespace Prototype.NetworkLobby
             lobbyManager.StartMatchMaker();
             lobbyManager.backDelegate = lobbyManager.SimpleBackClbk;
             lobbyManager.ChangeTo(lobbyServerList);
+        }
+
+        public void OnClickHelpButton()
+        {
+            lobbyManager.ChangeTo(helpPanel);
+            lobbyManager.backDelegate = lobbyManager.SimpleBackClbk;
+        }
+
+        public void OnClickQuitGame()
+        {
+            Application.Quit();
         }
 
         void onEndEditIP(string text)

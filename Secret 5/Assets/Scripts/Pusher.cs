@@ -18,7 +18,6 @@ public class Pusher : MonoBehaviour{
     private Card cardL;
     private Card cardR;
     [SerializeField] private Card selectedCard;
-    //private Exchange exchange;
     private int opponentPlayerCardCode = -1;
 
     static public PlayerControl localPlayer = null;
@@ -51,7 +50,6 @@ public class Pusher : MonoBehaviour{
     {
         if (localPlayer == null)
         {
-            //LogDisplay.AddText("Pusher: localPlayer is null.");
             changingCard = true;
             moved = false;
             selected = false;
@@ -65,7 +63,6 @@ public class Pusher : MonoBehaviour{
         }
         else if (bm.GetTurnStep() <= 0)
         {
-            //LogDisplay.AddText("Pusher: localPlayer is " + localPlayer.GetName() + ", bm turnStep is " + bm.GetTurnStep() + ".");
             changingCard = true;
             moved = false;
             selected = false;
@@ -94,14 +91,10 @@ public class Pusher : MonoBehaviour{
                 cardL = bm.GetCardInPosition(8);
                 cardR = bm.GetCardInPosition(9);
                 break;
-        } //cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
+        }
 
         if (changingCard == true)
         {
-            /*
-            Debug.Log("Pusher: changingCard is true.");
-            LogDisplay.AddText("Pusher: changingCard is true.");
-            */
             cardUIL.GetComponent<Image>().sprite = cardL.GetComponentInChildren<Finder>().GetComponent<SpriteRenderer>().sprite;
             cardUIR.GetComponent<Image>().sprite = cardR.GetComponentInChildren<Finder>().GetComponent<SpriteRenderer>().sprite;
             changingCard = false;
@@ -113,7 +106,7 @@ public class Pusher : MonoBehaviour{
             if (moved == false)
             {
                 moved = true;
-                StartCoroutine(process.Dequeue());//위로 올라가게 함
+                StartCoroutine(process.Dequeue()); // 위로 올라가게 함
             }
 
             selectedCard = selectedCardInfo.GetCard();
@@ -130,7 +123,6 @@ public class Pusher : MonoBehaviour{
     {
         while (!ExchangeComplete)
         {
-            //Debug.Log("ExchangeComplete is " + ExchangeComplete + ".");
             yield return null;
         }
         LogDisplay.AddText("ExchangeComplete is " + ExchangeComplete + ".");
@@ -144,12 +136,9 @@ public class Pusher : MonoBehaviour{
                 MoveDeceive(GameObject.FindGameObjectWithTag(selectedCardInfo.GetLR()).transform.position, selectedCardInfo.GetOriginalPosition(), selectedCardInfo.GetLR());
             else
                 MoveCardDown(GameObject.FindGameObjectWithTag(selectedCardInfo.GetLR()).transform.position, selectedCardInfo.GetOriginalPosition(), selectedCardInfo.GetLR());
-            //if (bm.GetCameraPlayer() == bm.GetObjectPlayer() && bm.GetPlayerSelectedCard(bm.GetTurnPlayer()).GetCardName() == "Deceive")
-            // TODO 속임 고쳐야됨
-
 
             StartCoroutine(process.Dequeue()); // 아래로 내려가게 함
-            // TODO 카드의 이펙트
+
             selectedCardInfo = null;
             selectedCard = null;
             moved = false;

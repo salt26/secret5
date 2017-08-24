@@ -20,8 +20,7 @@ public class BattleManager : NetworkBehaviour
     public List<PlayerControl> players = new List<PlayerControl>(){
             null, null, null, null, null
         };
-    //private List<TargetGraph> playerPermutation = new List<TargetGraph>();
-    public SyncListInt playerPermutation = new SyncListInt(); // TODO private로 바꾸기
+    private SyncListInt playerPermutation = new SyncListInt();
     // playerPermutation은 각 PlayerControl의 인덱스 값(int)을 갖는 배열입니다.
     // players[playerPermutation[0]]의 목표는 players[playerPermutation[1]] 또는 players[playerPermutation[2]]를 잡는 것입니다.
     // 1의 목표는 2 또는 4를 잡는 것입니다. (반복은 생략)
@@ -29,8 +28,7 @@ public class BattleManager : NetworkBehaviour
     // 3의 목표는 4 또는 0을 잡는 것입니다.
     // 4의 목표는 0 또는 3을 잡는 것입니다.
 
-    public SyncListBool isWin = new SyncListBool(); // 인덱스는 players의 인덱스 기준, 그 플레이어가 승리하면 true // TODO private로 바꾸기
-    //private List<bool> isWin = new List<bool>();
+    private SyncListBool isWin = new SyncListBool(); // 인덱스는 players의 인덱스 기준, 그 플레이어가 승리하면 true
     [SyncVar] private int turnPlayer = 0; // 현재 자신의 턴을 진행하는 플레이어 번호
     [SyncVar] private int turnStep;   // 턴의 단계 (0: 대전 시작, 1: 턴 시작, 2: 턴 진행자의 교환 상대 선택과 교환할 카드 선택,
                                       //           3: 교환당하는 자의 교환할 카드 선택, 4: 교환 중(카드를 낼 때와 받을 때 효과 발동),
@@ -39,7 +37,6 @@ public class BattleManager : NetworkBehaviour
     [SyncVar] private int turnPlayerCard = -1;            // 턴을 진행한 플레이어가 낸 카드
     [SyncVar] private int objectPlayerCard = -1;          // 교환당하는 플레이어가 낸 카드
     private Exchange exchange;
-    //private int cameraPlayer = 0;
 
     private int tpcIndex;
     private int opcIndex;
@@ -50,7 +47,7 @@ public class BattleManager : NetworkBehaviour
 
     private static CardDatabase cd;
 
-    public SyncListInt cardcode = new SyncListInt(); // TODO private로 바꾸기
+    private SyncListInt cardcode = new SyncListInt();
     // cardcode의 인덱스는 어떤 플레이어의 손패에 카드가 있는지를 나타낸다.
     // 0 ~ 1: players[0]의 손패, 2 ~ 3: players[1]의 손패, 4 ~ 5: players[2]의 손패,
     // 6 ~ 7: players[3]의 손패, 8 ~ 9: players[4]의 손패
@@ -76,28 +73,7 @@ public class BattleManager : NetworkBehaviour
     IEnumerator StartGame()
     {
         yield return new WaitWhile(() => !IsPlayerEmpty());
-
-        /*
-        List<PlayerControl> tempPlayers = new List<PlayerControl>
-        {
-            players[0],
-            players[1],
-            players[2],
-            players[3],
-            players[4]
-        };
-
-        // 목표 그래프에 5명의 플레이어를 랜덤한 순서로 배치한다.
-        for (int i = 0; i < 5; i++)
-        {
-            isWin.Add(false);
-            playerPermutation.Add(new TargetGraph(i));
-            int r = Random.Range(0, tempPlayers.Count);
-            playerPermutation[i].player = tempPlayers[r];
-            tempPlayers.RemoveAt(r);
-            //NetworkServer.Spawn(players[i].gameObject);
-        }
-        */
+        
         List<int> temp = RandomListGenerator(5);
         for (int i = 0; i < 5; i++)
         {
@@ -116,23 +92,11 @@ public class BattleManager : NetworkBehaviour
         for (int i = 0; i < 10; i++)
         {
             cards[cardcode[i]].GetComponent<Card>().RpcMoveCard(100 + i);
-            // cards[i].GetComponent<Card>().MoveCard(100 + i); // 이전 코드
-            // TODO 개별 클라이언트마다 카드 앞면으로 뒤집기
         }
         turnPlayer = Random.Range(0, 5);
-        //cameraPlayer = turnPlayer;
 
         RpcPrintLog("Battle starts.");
-        /*
-        for (int j = 0; j < 5; j++)
-        {
-            RpcPrintLog(players[j].GetName() + "'s objective is to eliminate "
-                + players[GetTarget(j)[0]].GetName() + " and "
-                + players[GetTarget(j)[1]].GetName());
-        }
-        */
         RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
-        //SetCameraVisible(cameraPlayer);
 
         turnStep = 1;
     }
@@ -145,6 +109,19 @@ public class BattleManager : NetworkBehaviour
         StartCoroutine(ReturnToLobby(3f));
     }
 
+    /*
+    // called when a player is removed for a client
+    public override void OnServerRemovePlayer(NetworkConnection conn, short playerControllerId)
+    {
+        PlayerController player;
+        if (conn.GetPlayer(playerControllerId, out player))
+        {
+            if (player.NetworkIdentity != null && player.NetworkIdentity.gameObject != null)
+                NetworkServer.Destroy(player.NetworkIdentity.gameObject);
+        }
+    }
+    */
+
     private void Awake()
     {
         bm = this;
@@ -152,94 +129,11 @@ public class BattleManager : NetworkBehaviour
         turnStep = 0;
         cd = GetComponent<CardDatabase>();
     }
-    /*
-        turnStep = 0;
-        cd = GetComponent<CardDatabase>();
-        pushingcard = GameObject.Find("CardPanel").GetComponentsInChildren<PushingCard>();
-
-        List<PlayerControl> tempPlayers = new List<PlayerControl>();
-
-        /*
-        players.Add(Instantiate(player, new Vector3(0f, 0f, 0f), Quaternion.identity).GetComponent<PlayerControl>());
-        players.Add(Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f)).GetComponent<PlayerControl>());
-        players.Add(Instantiate(player, new Vector3(2f, 0f, 6.155f), Quaternion.Euler(0f, -144f, 0f)).GetComponent<PlayerControl>());
-        players.Add(Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f)).GetComponent<PlayerControl>());
-        players.Add(Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f)).GetComponent<PlayerControl>());
-        players[0].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
-        players[0].SetPlayerNum(1);
-        players[0].SetName("Player 1");
-        tempPlayers.Add(players[0]);
-
-        players[1].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
-        players[1].SetPlayerNum(2);
-        players[1].SetName("Player 2");
-        tempPlayers.Add(players[1]);
-
-        players[2].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
-        players[2].SetPlayerNum(3);
-        players[2].SetName("Player 3");
-        tempPlayers.Add(players[2]);
-
-        players[3].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
-        players[3].SetPlayerNum(4);
-        players[3].SetName("Player 4");
-        tempPlayers.Add(players[3]);
-
-        players[4].gameObject.GetComponentInChildren<Camera>().targetDisplay = 0;
-        players[4].SetPlayerNum(5);
-        players[4].SetName("Player 5");
-        tempPlayers.Add(players[4]);
-
-        // 목표 그래프에 5명의 플레이어를 랜덤한 순서로 배치한다.
-        for (int i = 0; i < 5; i++)
-        {
-            isWin.Add(false);
-            playerPermutation.Add(new TargetGraph(i));
-            int r = Random.Range(0, tempPlayers.Count);
-            playerPermutation[i].player = tempPlayers[r];
-            tempPlayers.RemoveAt(r);
-            //NetworkServer.Spawn(players[0].gameObject);
-        }
-    }
-    void Start ()
-    {
-        CardPermutation();
-        for (int i = 0; i < 10; i++)
-        {
-            cards[i].GetComponent<Card>().MoveCard(100 + i);
-        }
-        turnPlayer = Random.Range(0, 5);
-        cameraPlayer = turnPlayer;
-
-        turnStep = 1;
-        Debug.Log("Battle starts.");
-        Debug.Log("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
-        SetCameraVisible(cameraPlayer);
-    }
-    */
 
     void FixedUpdate()
     {
         if (!isServer) return;
-        /*
-        if (Input.GetMouseButtonDown(1))
-        {
-            Ray ray = players[cameraPlayer].GetComponentInChildren<Camera>().ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
-            {
-                Debug.DrawLine(ray.origin, hit.point, Color.green, 3f);
-                if (hit.collider.gameObject.GetComponentInParent<PlayerControl>() != null
-                    && !hit.collider.gameObject.GetComponentInParent<PlayerControl>().Equals(players[cameraPlayer]))
-                {
-                    cameraPlayer = hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetPlayerNum() - 1;
-                    SetCameraVisible(cameraPlayer);
-                    Debug.Log(hit.collider.gameObject.GetComponentInParent<PlayerControl>().GetName() + "'s camera.");
-                    pusher.SetCardChange();
-                }
-            }
-        }
-        */
+
         if (turnStep == 1)
         {
             // 빙결된 상태이면 교환을 할 수 없다.
@@ -277,84 +171,17 @@ public class BattleManager : NetworkBehaviour
                 turnStep = 10;
                 return;
             }
-            //RpcPrintLog("Create Exchange");
             tpcIndex = cardcode.IndexOf(exchange.GetTurnPlayerCard().GetCardCode());
             opcIndex = cardcode.IndexOf(exchange.GetObjectPlayerCard().GetCardCode());
-
-            /* 애니메이션
-            cards[tpcIndex].GetComponent<Animator>().SetInteger("Destination", opcIndex);
-            cards[opcIndex].GetComponent<Animator>().SetInteger("Destination", tpcIndex);
-            if (cameraPlayer == tpcIndex / 2)
-            {
-                cards[tpcIndex].GetComponent<Animator>().SetBool("Play", true);
-                cards[tpcIndex].GetComponent<Animator>().SetBool("Receive", false);
-                cards[opcIndex].GetComponent<Animator>().SetBool("Play", false);
-                cards[opcIndex].GetComponent<Animator>().SetBool("Receive", true);
-            }
-            else if (cameraPlayer == opcIndex / 2)
-            {
-                cards[tpcIndex].GetComponent<Animator>().SetBool("Play", false);
-                cards[tpcIndex].GetComponent<Animator>().SetBool("Receive", true);
-                cards[opcIndex].GetComponent<Animator>().SetBool("Play", true);
-                cards[opcIndex].GetComponent<Animator>().SetBool("Receive", false);
-            }
-            else
-            {
-                cards[tpcIndex].GetComponent<Animator>().SetBool("Play", false);
-                cards[tpcIndex].GetComponent<Animator>().SetBool("Receive", false);
-                cards[opcIndex].GetComponent<Animator>().SetBool("Play", false);
-                cards[opcIndex].GetComponent<Animator>().SetBool("Receive", false);
-            }
-            cards[tpcIndex].GetComponent<Animator>().SetTrigger("Exchange");
-            cards[opcIndex].GetComponent<Animator>().SetTrigger("Exchange");
-            */
-
-            // 카드 위치 변경 및 카드 이동 애니메이션 재생
-            /*
-            foreach (PlayerControl p in players)
-            {
-                if (p.GetPlayerIndex() == tpcIndex / 2)
-                {
-                    // TODO 아마도 Rpc를 쓰면 모든 클라이언트에서 재생되지 않을까?
-                    cards[cardcode[tpcIndex]].GetComponent<Card>().RpcFlipCard(tpcIndex, true);
-                }
-                else if (p.GetPlayerIndex() == opcIndex / 2)
-                {
-                    cards[cardcode[opcIndex]].GetComponent<Card>().RpcFlipCard(opcIndex, true);
-                }
-            }
-            */
-
+            
             cards[cardcode[tpcIndex]].GetComponent<Card>().RpcMoveCard(tpcIndex * 10 + opcIndex);
             cards[cardcode[opcIndex]].GetComponent<Card>().RpcMoveCard(opcIndex * 10 + tpcIndex);
-
-            /*
-            foreach (PlayerControl p in players)
-            {
-                if (p.GetPlayerIndex() == tpcIndex / 2)
-                {
-                    cards[cardcode[opcIndex]].GetComponent<Card>().RpcFlipCard(tpcIndex, false);
-                }
-                else if (p.GetPlayerIndex() == opcIndex / 2)
-                {
-                    cards[cardcode[tpcIndex]].GetComponent<Card>().RpcFlipCard(opcIndex, false);
-                }
-            }
-            */
-
+            
             // 손패 교환
             int temp = cardcode[tpcIndex];
             cardcode[tpcIndex] = cardcode[opcIndex];
             cardcode[opcIndex] = temp;
             RpcExchangeCardIndex(tpcIndex, opcIndex);
-
-
-            string m = "cardcode";
-            for (int i = 0; i < 10; i++)
-            {
-                m += " " + cardcode[i];
-            }
-            RpcPrintLog(m);
 
             turnStep = 9;
 
@@ -464,38 +291,6 @@ public class BattleManager : NetworkBehaviour
         }
     }
 
-    /*
-    [Client]
-    public void SetCameraVisible(int cp)
-    {
-        Debug.Log(cp);
-        foreach (PlayerControl p in players)
-        {
-            p.gameObject.GetComponentInChildren<Camera>().enabled = false;
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            cards[i].GetComponent<Card>().RpcFlipCardImmediate(i, true);
-        }
-        cards[cp * 2].GetComponent<Card>().RpcFlipCardImmediate(cp * 2, false);
-        cards[cp * 2 + 1].GetComponent<Card>().RpcFlipCardImmediate(cp * 2 + 1, false);
-
-        players[cp].gameObject.GetComponentInChildren<Camera>().enabled = true;
-        for (int i = 0; i < playerPermutation.Count; i++)
-        {
-            if (playerPermutation[i].player.Equals(players[cp]))
-            {
-                Debug.Log(players[cp].GetName() + "'s objective is to eliminate "
-                    + playerPermutation[playerPermutation[i].GetTargetIndex()[0]].player.GetName() + " and "
-                    + playerPermutation[playerPermutation[i].GetTargetIndex()[1]].player.GetName());
-                break;
-            }
-        }
-    }
-    */
-
-
     public List<Card> GetPlayerHand(PlayerControl player)
     {
         List<Card> hand = new List<Card>();
@@ -524,22 +319,6 @@ public class BattleManager : NetworkBehaviour
     {
         return turnStep;
     }
-
-    /*
-    public PlayerControl GetCameraPlayer()
-    {
-        return players[cameraPlayer];
-    }
-    */
-    /*
-    public void DecideClick()
-    {
-        foreach (PlayerControl p in players)
-        {
-            p.DecideClicked();
-        }
-    }
-    */
 
     /// <summary>
     /// 카드들의 목록을 반환합니다. 주의: 이 리스트의 순서는 카드 배치 순서를 반영하지 않습니다! 카드 배치 순서를 얻고 싶다면 GetCardCode()를 사용하십시오.
@@ -630,15 +409,6 @@ public class BattleManager : NetworkBehaviour
     /// <returns></returns>
     public Card GetCard(int cardCode)
     {
-        /*
-        foreach (GameObject c in cards)
-        {
-            if (c.GetComponent<Card>().GetCardCode() == cardCode)
-            {
-                return c.GetComponent<Card>();
-            }
-        }
-        */
         if (cardCode < 0 || cardCode >= 10)
             return null;
         return cards[cardCode].GetComponent<Card>();
@@ -660,6 +430,7 @@ public class BattleManager : NetworkBehaviour
         return cardcode;
     }
 
+    // TODO 임시 코드
     [ClientRpc]
     public void RpcPrintLog(string msg)
     {

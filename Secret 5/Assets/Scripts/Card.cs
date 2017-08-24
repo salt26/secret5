@@ -168,8 +168,7 @@ public class Card : NetworkBehaviour {
         float t;
         Quaternion fr = GetRotationFront(pos);
         Quaternion br = GetRotationBack(pos);
-
-        //if (GetComponent<Transform>().rotation.eulerAngles.x < 0)
+        
         if (toBack) // 앞면일 때 뒷면으로
         {
             t = Time.time;
@@ -293,7 +292,7 @@ public class Card : NetworkBehaviour {
         }
         else if (start / 2 == dest / 2)
         {
-            return GetRotationFront(start); // TODO 셔플 시 앞면, 뒷면 어떻게 처리할지
+            return GetRotationFront(start);
         }
 
         if (start == 0 && dest == 2) return Quaternion.Euler(90f, 153f, 90f);

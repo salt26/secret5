@@ -387,14 +387,13 @@ namespace Prototype.NetworkLobby
             ServerChangeScene(playScene);
         }
 
-        /*
-        // TODO
-        public override void OnServerAddPlayer(NetworkConnection conn, short playerControllerId)
+        // When client is disconnected, server executes this and all players return to lobby.
+        public override void OnServerDisconnect(NetworkConnection conn)
         {
-            var player = Instantiate(playerPrefab, GetStartPosition().position, GetStartPosition().rotation);
-            NetworkServer.AddPlayerForConnection(conn, player, playerControllerId);
+            base.OnServerDisconnect(conn);
+            if (SceneManager.GetActiveScene().name == "Battle")
+                s_Singleton.ServerReturnToLobby();
         }
-        */
 
         // ----------------- Client callbacks ------------------
 

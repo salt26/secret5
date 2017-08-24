@@ -95,27 +95,10 @@ public class PlayerControl : NetworkBehaviour
         Card.localPlayer = this;
         ObjectiveHighlight();
     }
-
-    /*
-    public override void OnStartLocalPlayer()
-    {
-        currentHealth = maxHealth;
-        displayedHealth = currentHealth;
-        Debug.Log("OnStartLocalPlayer " + playerName);
-        HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
-        bm = GameObject.Find("BattleManager").GetComponent<BattleManager>();
-        if (bm == null) Debug.Log("BM is null.");
-        if (character != null)
-        {
-            GameObject c = Instantiate(character, GetComponent<Transform>().position, Quaternion.identity, GetComponent<Transform>());
-            NetworkServer.Spawn(c);
-        }
-    }
-    */
+    
 
     void FixedUpdate()
     {
-        if (!ClientScene.ready) Log("ClientScene.ready is false.");
         if (isLocalPlayer && Input.GetMouseButtonDown(1))
         {
             LogDisplay.ClearText(); // TODO 임시 코드
@@ -132,11 +115,12 @@ public class PlayerControl : NetworkBehaviour
             if (bm.GetObjectPlayer() != null)
                 Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName() + ", bm.GetObjectPlayer(): " + bm.GetObjectPlayer().GetName());
             else Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName());
-            */
+            *//*
             if (bm.GetTurnStep() == 2 && objectTarget != null && bm.GetTurnPlayer().Equals(this))
                 PlayerToSelectCard();
             if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && bm.GetObjectPlayer().Equals(this))
                 PlayerToSelectCard();
+                */
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
             {
                 PlayerToSelectTarget();
@@ -217,7 +201,6 @@ public class PlayerControl : NetworkBehaviour
     public void PlayerToSelectTarget()
     {
         if (!isLocalPlayer) return;
-        //if (!bm.GetCameraPlayer().Equals(this)) return; // 임시 코드
 
         // 내 턴이 아니면 패스
         if (!bm.GetTurnPlayer().Equals(this)) return;
@@ -225,7 +208,6 @@ public class PlayerControl : NetworkBehaviour
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
         {
-            //Log("Click " + hit.collider.name + ".");
             Debug.DrawLine(ray.origin, hit.point, Color.blue, 3f);
             if (hit.collider.gameObject.GetComponentInParent<PlayerControl>() != null
                 && !hit.collider.gameObject.GetComponentInParent<PlayerControl>().Equals(this))
@@ -240,11 +222,11 @@ public class PlayerControl : NetworkBehaviour
     }
 
     // 임시 코드
+    /*
     [ClientCallback]
     public void PlayerToSelectCard()
     {
         if (!isLocalPlayer) return;
-        //if (!bm.GetCameraPlayer().Equals(this)) return; // 임시 코드
 
         // 내가 교환에 참여한 플레이어가 아니면 패스
         if (!bm.GetTurnPlayer().Equals(this) && !bm.GetObjectPlayer().Equals(this))
@@ -264,18 +246,13 @@ public class PlayerControl : NetworkBehaviour
                 || hit.collider.gameObject.GetComponentInParent<Card>().Equals(hand[1])))
             {
                 /*
-                if (!playCard.Equals(hit.collider.gameObject.GetComponent<Card>()))
-                {
-                    playCard = hit.collider.gameObject.GetComponent<Card>();
-                    
-                }
-                */
                 Log("Set " + hit.collider.gameObject.GetComponentInParent<Card>().GetCardName() + " card to play.");
                 DecideClicked();
                 CmdSetCardToPlay(hit.collider.gameObject.GetComponentInParent<Card>().GetCardCode(), GetPlayerIndex());
             }
         }
     }
+    */
 
     [ClientCallback]
     public void DecideClicked()
@@ -284,7 +261,6 @@ public class PlayerControl : NetworkBehaviour
         {
             return;
         }
-        //if (!bm.GetCameraPlayer().Equals(this)) return; // 임시 코드
         if (!isLocalPlayer) return;
         // 내 턴이 아니면 패스
         else if (!bm.GetTurnPlayer().Equals(this))
@@ -386,22 +362,6 @@ public class PlayerControl : NetworkBehaviour
     
     private void ObjectiveHighlight()
     {
-        /*
-        List<TargetGraph> tg = playerPermutation;
-        for (int i = 0; i < tg.Count; i++)
-        {
-            if (tg[i].player.Equals(players[CameraNumber]))
-            {
-                for (int j = 0; j < 5; j++)
-                {
-                    if (players[j] == tg[tg[i].GetTargetIndex()[0]].player || players[j] == tg[tg[i].GetTargetIndex()[1]].player)
-                        players[j].SetHighlight(true);
-                    else
-                        players[j].SetHighlight(false);
-                }
-            }
-        }
-        */
         StartCoroutine("Highlight");
     }
 
@@ -431,21 +391,6 @@ public class PlayerControl : NetworkBehaviour
         bm.players[t[0]].SetHighlight(true);
         Log(bm.players[t[1]].GetName() + " is my objective, too.");
         bm.players[t[1]].SetHighlight(true);
-        /*
-        for (int i = 0; i < 5; i++)
-        {
-            if (t[0] == i || t[1] == i)
-            {
-                Log(bm.players[i].GetName() + " is my objective.");
-                bm.players[i].SetHighlight(true);
-            }
-            else
-            {
-                Log(bm.players[i].GetName() + " is NOT my objective.");
-                bm.players[i].SetHighlight(false);
-            }
-        }
-        */
     }
 
     private void Log(string msg)

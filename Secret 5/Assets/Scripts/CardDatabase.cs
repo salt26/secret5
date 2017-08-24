@@ -38,16 +38,7 @@ public class CardDatabase : MonoBehaviour {
         ci = new CardInfo("Freeze", "빙결", "이 카드를 받을 때 다음 한 번의 내 턴이 교환 없이 끝납니다. 이 카드의 효과를 받은 사실은 다음 내 턴이 시작될 때 모두에게 공개됩니다.");
         cardInfo.Add(ci);
     }
-
-    /*
-    private void Attack(PlayerControl playedPlayer, PlayerControl receivedPlayer)
-    {
-        // TODO
-        // 카드에 효과가 달려있으면 안될 것 같은데?
-        // 교환을 처리하는 하나의 함수에서 양쪽의 카드를 보면서 일괄 처리해야 할듯.
-        // 그러고 나서 이 카드의 효과를 발동시켜야 한다고 판단되면 이 함수를 호출하게 하자.
-    }
-    */
+    
 
     /// <summary>
     /// 인자로 주어진 카드의 영어 이름이 데이터베이스에 존재하는지 확인하는 함수입니다.
@@ -105,12 +96,6 @@ public class CardInfo
     private string cardName;        // 카드의 영어 이름(내부적으로 사용하는 이름)
     private string cardNameText;    // 카드의 한글 이름
     private string cardDetailText;  // 카드의 효과 설명 텍스트
-    /*
-    private int cardEffectType;     // 0: 받을 때 효과, 1: 낼 때 효과, 2: 내 턴이 끝날 때 효과
-    public delegate void PlayCard(PlayerControl playedPlayer, PlayerControl receivedPlayer); 
-                                    // 카드의 효과를 수행하는 함수 대리자
-    public PlayCard Play;           // 외부에서 카드의 효과를 수행할 때 ci.Play(cardName); 과 같은 방법으로 호출하면 된다.
-    */
 
     public CardInfo(string name, string nameText, string detailText/*, int effectType*/)
     {
@@ -134,11 +119,4 @@ public class CardInfo
     {
         return cardDetailText;
     }
-
-    /*
-    public int GetEffectType()
-    {
-        return cardEffectType;
-    }
-    */
 }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    private BattleManager bm;
+    private static BattleManager bm;
 
     private Pusher pusher;
 
@@ -18,9 +19,13 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Card cardL;
     private Card cardR;
 
-    private void Start()
+    private void Awake()
     {
         bm = BattleManager.bm;
+    }
+
+    private void Start()
+    {
         pusher = GetComponentInParent<Pusher>();
         cardOriginal = transform.position;
     }
@@ -29,7 +34,15 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     {
         if (localPlayer == null)
         {
-            Debug.Log("localPlayer is null.");
+            return;
+        }
+        else if (bm == null)
+        {
+            bm = BattleManager.bm;
+            return;
+        }
+        else if (bm.GetTurnStep() <= 0)
+        {
             return;
         }
         switch (localPlayer.GetPlayerNum())
@@ -94,7 +107,8 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
             }
             else
             {
-                Debug.Log("Card is not appropriate");
+                Debug.Log("Card is not appropriate.");
+                LogDisplay.AddText("Card is not appropriate.");
             }
         }
         else

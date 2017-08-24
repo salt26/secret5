@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 public class Pusher : MonoBehaviour{
 
@@ -9,40 +10,66 @@ public class Pusher : MonoBehaviour{
 
     private Vector3 cardOriginal;
 
-    private Image[] cardUI;
-    private Image cardUIL;
-    private Image cardUIR;
+    [SerializeField] private Image[] cardUI;
+    [SerializeField] private Image cardUIL;
+    [SerializeField] private Image cardUIR;
 
     private SelectedInfo selectedCardInfo;
     private Card cardL;
     private Card cardR;
     [SerializeField] private Card selectedCard;
-    private Exchange exchange;
+    //private Exchange exchange;
+    private int opponentPlayerCardCode = -1;
 
     static public PlayerControl localPlayer = null;
 
     [SerializeField] bool ExchangeComplete;
-    bool changingCard;
+    [SerializeField] bool changingCard = true;
 
-    bool moved;
+    [SerializeField] bool moved;
+    bool selected;
 
     private Queue<IEnumerator> process = new Queue<IEnumerator>();
 
-    private void Start()
+    private void Awake()
     {
         bm = BattleManager.bm;
+    }
+
+    private void Start()
+    {
         changingCard = true;
         cardUI = GetComponentsInChildren<Image>();
         cardUIL = cardUI[1];
         cardUIR = cardUI[2];
         moved = false;
+        selected = false;
+        opponentPlayerCardCode = -1;
     }
 
     private void FixedUpdate()
     {
         if (localPlayer == null)
         {
-            Debug.Log("localPlayer is null.");
+            //LogDisplay.AddText("Pusher: localPlayer is null.");
+            changingCard = true;
+            moved = false;
+            selected = false;
+            opponentPlayerCardCode = -1;
+            return;
+        }
+        else if (bm == null)
+        {
+            bm = BattleManager.bm;
+            return;
+        }
+        else if (bm.GetTurnStep() <= 0)
+        {
+            //LogDisplay.AddText("Pusher: localPlayer is " + localPlayer.GetName() + ", bm turnStep is " + bm.GetTurnStep() + ".");
+            changingCard = true;
+            moved = false;
+            selected = false;
+            opponentPlayerCardCode = -1;
             return;
         }
         switch (localPlayer.GetPlayerNum())
@@ -67,18 +94,23 @@ public class Pusher : MonoBehaviour{
                 cardL = bm.GetCardInPosition(8);
                 cardR = bm.GetCardInPosition(9);
                 break;
-        }//cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
+        } //cameraNumber를 가져와서 카메라에 대응되는 카드를 들고 있도록 만드는 코드입니다.
 
         if (changingCard == true)
         {
+            /*
+            Debug.Log("Pusher: changingCard is true.");
+            LogDisplay.AddText("Pusher: changingCard is true.");
+            */
             cardUIL.GetComponent<Image>().sprite = cardL.GetComponentInChildren<Finder>().GetComponent<SpriteRenderer>().sprite;
             cardUIR.GetComponent<Image>().sprite = cardR.GetComponentInChildren<Finder>().GetComponent<SpriteRenderer>().sprite;
             changingCard = false;
-        }//큰 카드와 작은 카드가 같은 스프라이트를 가지게 하는 코드입니다.
+        } //큰 카드와 작은 카드가 같은 스프라이트를 가지게 하는 코드입니다.
 
-        if(selectedCardInfo != null)
+        if (selectedCardInfo != null && !selected)
         {
-            if(moved == false)
+            selected = true;
+            if (moved == false)
             {
                 moved = true;
                 StartCoroutine(process.Dequeue());//위로 올라가게 함
@@ -89,16 +121,26 @@ public class Pusher : MonoBehaviour{
             localPlayer.CmdSetCardToPlay(selectedCard.GetCardCode(), localPlayer.GetPlayerIndex());
 
             Highlighting();
-
-            AfterSmallMove();
+            LogDisplay.AddText("AfterSmallMove");
+            StartCoroutine("AfterSmallMove");
         }
     }
 
-    public void AfterSmallMove()
+    public IEnumerator AfterSmallMove()
     {
-        if (ExchangeComplete == true && selectedCardInfo != null)
+        while (!ExchangeComplete)
         {
-            if (exchange.GetObjectPlayerCard().GetCardCode() == 3)
+            //Debug.Log("ExchangeComplete is " + ExchangeComplete + ".");
+            yield return null;
+        }
+        LogDisplay.AddText("ExchangeComplete is " + ExchangeComplete + ".");
+        while (opponentPlayerCardCode == -1) {
+            yield return null;
+        }
+        LogDisplay.AddText("opponentPlayerCardCode is " + opponentPlayerCardCode + ".");
+        if (selectedCardInfo != null)
+        {
+            if (opponentPlayerCardCode == 3)
                 MoveDeceive(GameObject.FindGameObjectWithTag(selectedCardInfo.GetLR()).transform.position, selectedCardInfo.GetOriginalPosition(), selectedCardInfo.GetLR());
             else
                 MoveCardDown(GameObject.FindGameObjectWithTag(selectedCardInfo.GetLR()).transform.position, selectedCardInfo.GetOriginalPosition(), selectedCardInfo.GetLR());
@@ -111,11 +153,13 @@ public class Pusher : MonoBehaviour{
             selectedCardInfo = null;
             selectedCard = null;
             moved = false;
+            selected = false;
             ExchangeComplete = false;
+            opponentPlayerCardCode = -1;
         }
         else if (selectedCardInfo == null)
         {
-            Debug.Log("selectedCardInfo is null.");
+            LogDisplay.AddText("selectedCardInfo is null.");
         }
 
     }
@@ -225,8 +269,19 @@ public class Pusher : MonoBehaviour{
         selectedCardInfo = card;
     }
 
-    public void Setexchange(Exchange ex)
+    public void SetOpponentCard(int TP, int OP, int TPCardCode, int OPCardCode)
     {
-        exchange = ex;
+        if (TPCardCode < 0 || TPCardCode >= 10 || OPCardCode < 0 || OPCardCode >= 10) return;
+        if (TP < 0 || TP >= 5 || OP < 0 || OP >= 5) return;
+        if (localPlayer == null) return;
+
+        if (localPlayer.GetPlayerIndex() == TP)
+        {
+            opponentPlayerCardCode = OPCardCode;
+        }
+        else if (localPlayer.GetPlayerIndex() == OP)
+        {
+            opponentPlayerCardCode = TPCardCode;
+        }
     }
 }

@@ -110,34 +110,12 @@ public class PlayerControl : NetworkBehaviour
 
     void FixedUpdate()
     {
-        /*
-        if (isLocalPlayer && Input.GetMouseButtonDown(1))
-        {
-            LogDisplay.ClearText(); // TODO 임시 코드
-            string m = "cardcode";
-            for (int i = 0; i < 10; i++)
-            {
-                m += " " + bm.GetCardCode()[i];
-            }
-            Log(m);
-        }
-        */
         if (isLocalPlayer)
         {
             StatusUpdate();
         }
-        if (isLocalPlayer && Input.GetMouseButtonDown(0))
+        if (isLocalPlayer && Input.touchCount == 1)
         {
-            /*
-            if (bm.GetObjectPlayer() != null)
-                Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName() + ", bm.GetObjectPlayer(): " + bm.GetObjectPlayer().GetName());
-            else Log("Mouse Clicked. bm.GetTurnStep(): " + bm.GetTurnStep() + ", bm.GetTurnPlayer(): " + bm.GetTurnPlayer().GetName());
-            *//*
-            if (bm.GetTurnStep() == 2 && objectTarget != null && bm.GetTurnPlayer().Equals(this))
-                PlayerToSelectCard();
-            if (bm.GetTurnStep() == 3 && bm.GetObjectPlayer() != null && bm.GetObjectPlayer().Equals(this))
-                PlayerToSelectCard();
-                */
             if (bm.GetTurnStep() == 2 && bm.GetTurnPlayer().Equals(this))
             {
                 PlayerToSelectTarget();
@@ -227,7 +205,7 @@ public class PlayerControl : NetworkBehaviour
 
         // 내 턴이 아니면 패스
         if (!bm.GetTurnPlayer().Equals(this)) return;
-        Ray ray = GetComponentInChildren<Camera>().ScreenPointToRay(Input.mousePosition);
+        Ray ray = GetComponentInChildren<Camera>().ScreenPointToRay(Input.GetTouch(0).position);
         RaycastHit hit;
         if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 8)))
         {
@@ -254,39 +232,6 @@ public class PlayerControl : NetworkBehaviour
             }
         }
     }
-
-    // 임시 코드
-    /*
-    [ClientCallback]
-    public void PlayerToSelectCard()
-    {
-        if (!isLocalPlayer) return;
-
-        // 내가 교환에 참여한 플레이어가 아니면 패스
-        if (!bm.GetTurnPlayer().Equals(this) && !bm.GetObjectPlayer().Equals(this))
-        {
-            return;
-        }
-        //Debug.Log("PlayerToSelectCard");
-        List<Card> hand = bm.GetPlayerHand(this);
-        Ray ray = GetComponentInChildren<Camera>().ScreenPointToRay(Input.mousePosition);
-        RaycastHit hit;
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity, (1 << 9)))
-        {
-            //Log("Click " + hit.collider.name + ".");
-            Debug.DrawLine(ray.origin, hit.point, Color.red, 3f);
-            if (hit.collider.gameObject.GetComponentInParent<Card>() != null
-                && (hit.collider.gameObject.GetComponentInParent<Card>().Equals(hand[0])
-                || hit.collider.gameObject.GetComponentInParent<Card>().Equals(hand[1])))
-            {
-                /*
-                Log("Set " + hit.collider.gameObject.GetComponentInParent<Card>().GetCardName() + " card to play.");
-                DecideClicked();
-                CmdSetCardToPlay(hit.collider.gameObject.GetComponentInParent<Card>().GetCardCode(), GetPlayerIndex());
-            }
-        }
-    }
-    */
 
     [ClientCallback]
     public void DecideClicked()

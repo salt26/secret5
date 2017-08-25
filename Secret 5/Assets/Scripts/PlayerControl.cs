@@ -30,6 +30,7 @@ public class PlayerControl : NetworkBehaviour
     [SerializeField] private GameObject playerCamera;
 
     private static BattleManager bm;
+    //private static Alert alert;
 
     private GameObject Border;
     private SpriteRenderer Face;
@@ -38,14 +39,22 @@ public class PlayerControl : NetworkBehaviour
     public GameObject targetMark;
     private bool isMarked; //마크가 되었는지 여부
 
+    private bool isAlerted0;
+    private bool isAlerted1;
+    private bool isAlerted3;
+
     void Awake () {
         bm = BattleManager.bm;
+        //alert = Alert.alert;
         HealthBar = GetComponentInChildren<Finder>().GetComponent<Image>().rectTransform;
         Border = GetComponentsInChildren<SpriteRenderer>()[1].gameObject;
         Face = GetComponentsInChildren<SpriteRenderer>()[0];
         Border.SetActive(false);
         currentHealth = maxHealth;
         displayedHealth = currentHealth;
+        isAlerted0 = false;
+        isAlerted1 = false;
+        isAlerted3 = false;
         if (transform.position.z < 1f)
         {
             playerNum = 1;
@@ -430,6 +439,15 @@ public class PlayerControl : NetworkBehaviour
         LogDisplay.AddText(msg);
     }
     */
+    /*
+    public void CAlert(int i)
+    {
+        if (!isLocalPlayer) return;
+        if (i == 0 && Equals(bm.GetTurnPlayer())) alert.CreateAlert(i);
+        else if (i == 1 && Equals(bm.GetObjectPlayer())) alert.CreateAlert(i);
+        else if (i == 2 || i == 3) alert.CreateAlert(i);
+    }
+    */
 
     private void StatusUpdate()
     {
@@ -444,6 +462,11 @@ public class PlayerControl : NetworkBehaviour
         }
         else if (ts == 2 && isTP && objectTarget == null)
         {
+            if (!isAlerted0)
+            {
+                Alert.alert.CreateAlert(0);
+                isAlerted0 = true;
+            }
             StatusUI.SetText("교환하고 싶은 상대의 캐릭터를 누르세요.");
         }
         else if (ts == 2 && isTP && objectTarget != null)
@@ -453,6 +476,7 @@ public class PlayerControl : NetworkBehaviour
         else if (ts == 2)
         {
             StatusUI.SetText(bm.GetTurnPlayer().GetName() + "의 턴");
+            isAlerted1 = false;
         }
         else if (ts == 3 && isTP)
         {
@@ -460,6 +484,11 @@ public class PlayerControl : NetworkBehaviour
         }
         else if (ts == 3 && isOP)
         {
+            if (!isAlerted1)
+            {
+                Alert.alert.CreateAlert(1);
+                isAlerted1 = true;
+            }
             StatusUI.SetText("교환 요청을 받았습니다. 교환하고 싶은, 하단의 카드 하나를 위로 드래그해서 내세요.");
         }
         else if (ts == 3)
@@ -469,6 +498,7 @@ public class PlayerControl : NetworkBehaviour
         else if (ts == 4 || ts == 9)
         {
             StatusUI.SetText("교환중...");
+            isAlerted0 = false;
         }
         else if ((ts == 5 || ts == 11))
         {
@@ -484,6 +514,11 @@ public class PlayerControl : NetworkBehaviour
                 }
             }
             StatusUI.SetText("대전 종료!\n" + s + "승리");
+            if (!isAlerted3)
+            {
+                Alert.alert.CreateAlert(3);
+                isAlerted3 = true;
+            }
         }
         else
         {

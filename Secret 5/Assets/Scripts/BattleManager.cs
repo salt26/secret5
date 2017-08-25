@@ -537,6 +537,16 @@ public class BattleManager : NetworkBehaviour
     {
         pusher.SetOpponentCard(TP, OP, TPCardCode, OPCardCode);
     }
+    /*
+    [ClientRpc]
+    private void RpcAlert(int i)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            players[j].CAlert(i);
+        }
+    }
+    */
 
     IEnumerator ReturnToLobby(float timing)
     {

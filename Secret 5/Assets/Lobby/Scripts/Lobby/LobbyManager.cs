@@ -65,7 +65,8 @@ namespace Prototype.NetworkLobby
             DontDestroyOnLoad(gameObject);
 
             SetServerInfo("Offline", "None");
-            
+
+            StartCoroutine("AutoServer");
         }
 
         public override void OnLobbyClientSceneChanged(NetworkConnection conn)
@@ -394,6 +395,18 @@ namespace Prototype.NetworkLobby
             base.OnServerDisconnect(conn);
             if (SceneManager.GetActiveScene().name == "Battle")
                 s_Singleton.ServerReturnToLobby();
+        }
+
+        IEnumerator AutoServer()
+        {
+            yield return new WaitForSeconds(60f);
+
+            ChangeTo(null);
+            StartServer();
+
+            backDelegate = StopServerClbk;
+
+            SetServerInfo("Dedicated Server", networkAddress);
         }
 
         // ----------------- Client callbacks ------------------

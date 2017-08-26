@@ -36,7 +36,20 @@ namespace Prototype.NetworkLobby
         {
             lobbyManager.ChangeTo(lobbyPanel);
 
-            lobbyManager.networkAddress = "127.0.0.1"; //ipInput.text;
+            lobbyManager.networkAddress = "uriel.upnl.org"; //ipInput.text;
+            lobbyManager.StartClient();
+
+            lobbyManager.backDelegate = lobbyManager.StopClientClbk;
+            lobbyManager.DisplayIsConnecting();
+
+            lobbyManager.SetServerInfo("Connecting...", lobbyManager.networkAddress);
+        }
+
+        public void OnClickJoinLocal()
+        {
+            lobbyManager.ChangeTo(lobbyPanel);
+
+            lobbyManager.networkAddress = "localhost"; //ipInput.text;
             lobbyManager.StartClient();
 
             lobbyManager.backDelegate = lobbyManager.StopClientClbk;
@@ -48,6 +61,8 @@ namespace Prototype.NetworkLobby
         public void OnClickDedicated()
         {
             lobbyManager.ChangeTo(null);
+
+            lobbyManager.networkAddress = "localhost"; //ipInput.text;
             lobbyManager.StartServer();
 
             lobbyManager.backDelegate = lobbyManager.StopServerClbk;

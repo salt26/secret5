@@ -65,7 +65,8 @@ namespace Prototype.NetworkLobby
             DontDestroyOnLoad(gameObject);
 
             SetServerInfo("Offline", "None");
-            
+
+            if (Application.platform == RuntimePlatform.LinuxPlayer) StartCoroutine("RunServer");
         }
 
         public override void OnLobbyClientSceneChanged(NetworkConnection conn)
@@ -111,8 +112,7 @@ namespace Prototype.NetworkLobby
                 ChangeTo(null);
 
                 Destroy(GameObject.Find("MainMenuUI(Clone)"));
-
-                //backDelegate = StopGameClbk;
+                
                 topPanel.isInGame = true;
                 topPanel.ToggleVisibility(false);
             }
@@ -396,6 +396,19 @@ namespace Prototype.NetworkLobby
                 s_Singleton.ServerReturnToLobby();
         }
 
+        IEnumerator RunServer()
+        {
+            yield return new WaitForSeconds(60f);
+
+            ChangeTo(null);
+
+            networkAddress = "localhost"; //ipInput.text;
+            StartServer();
+
+            backDelegate = StopServerClbk;
+
+            SetServerInfo("Dedicated Server", networkAddress);
+        }
         // ----------------- Client callbacks ------------------
 
         public override void OnClientConnect(NetworkConnection conn)

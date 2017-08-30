@@ -5,7 +5,7 @@ using System.Collections;
 namespace Prototype.NetworkLobby
 {
     //Main menu, mainly only a bunch of callback called by the UI (setup throught the Inspector)
-    public class LobbyMainMenu : MonoBehaviour 
+    public class LobbyMainMenu : MonoBehaviour
     {
         public LobbyManager lobbyManager;
 
@@ -29,11 +29,23 @@ namespace Prototype.NetworkLobby
 
         public void OnClickHost()
         {
+            if (Time.time < lobbyManager.startTime + 90f)
+            {
+                lobbyManager.infoPanel.Display("Please wait while loading.\n"
+                    + (int)(lobbyManager.startTime + 90f - Time.time) + " seconds left.", "Close", null);
+                return;
+            }
             lobbyManager.StartHost();
         }
 
         public void OnClickJoin()
         {
+            if (Time.time < lobbyManager.startTime + 45f)
+            {
+                lobbyManager.infoPanel.Display("Please wait while loading.\n"
+                    + (int)(lobbyManager.startTime + 45f - Time.time) + " seconds left.", "Close", null);
+                return;
+            }
             lobbyManager.ChangeTo(lobbyPanel);
 
             lobbyManager.networkAddress = "uriel.upnl.org"; //ipInput.text;
@@ -47,6 +59,12 @@ namespace Prototype.NetworkLobby
 
         public void OnClickJoinLocal()
         {
+            if (Time.time < lobbyManager.startTime + 45f)
+            {
+                lobbyManager.infoPanel.Display("Please wait while loading.\n"
+                    + (int)(lobbyManager.startTime + 45f - Time.time) + " seconds left.", "Close", null);
+                return;
+            }
             lobbyManager.ChangeTo(lobbyPanel);
 
             lobbyManager.networkAddress = "localhost"; //ipInput.text;
@@ -60,6 +78,12 @@ namespace Prototype.NetworkLobby
 
         public void OnClickDedicated()
         {
+            if (Time.time < lobbyManager.startTime + 90f)
+            {
+                lobbyManager.infoPanel.Display("Please wait while loading.\n"
+                    + (int)(lobbyManager.startTime + 90f - Time.time) + " seconds left.", "Close", null);
+                return;
+            }
             lobbyManager.ChangeTo(null);
 
             lobbyManager.networkAddress = "localhost"; //ipInput.text;
@@ -77,8 +101,8 @@ namespace Prototype.NetworkLobby
                 matchNameInput.text,
                 (uint)lobbyManager.maxPlayers,
                 true,
-				"", "", "", 0, 0,
-				lobbyManager.OnMatchCreate);
+                "", "", "", 0, 0,
+                lobbyManager.OnMatchCreate);
 
             lobbyManager.backDelegate = lobbyManager.StopHost;
             lobbyManager._isMatchmaking = true;

@@ -93,7 +93,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (this.transform.position.y >= Screen.height * 13 / 16)
+        if (this.transform.position.y >= Screen.height * 10 / 16)
         {
             if (CompareTag("Left"))
             {
@@ -140,7 +140,7 @@ public class SelectedInfo
     {
         return LR;
     }
-    
+
     public Vector3 GetOriginalPosition()
     {
         return OriginalPosition;

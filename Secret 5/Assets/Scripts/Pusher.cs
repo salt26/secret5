@@ -4,7 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 
-public class Pusher : MonoBehaviour{
+public class Pusher : MonoBehaviour
+{
 
     private static BattleManager bm;
 
@@ -128,7 +129,7 @@ public class Pusher : MonoBehaviour{
         if (localPlayer.HasFreezed() && !freezed)
         {
             freeze = (Image)Instantiate(glacier, GetComponentInParent<Canvas>().transform);
-            freeze.rectTransform.localPosition = new Vector3(-3f, -145f);
+            //freeze.rectTransform.localPosition = new Vector3(-3f, -145f);
             freezed = true;
         }
         else if (!localPlayer.HasFreezed() && freeze != null)
@@ -145,7 +146,8 @@ public class Pusher : MonoBehaviour{
             yield return null;
         }
         //LogDisplay.AddText("ExchangeComplete is " + ExchangeComplete + ".");
-        while (opponentPlayerCardCode == -1) {
+        while (opponentPlayerCardCode == -1)
+        {
             yield return null;
         }
         //LogDisplay.AddText("opponentPlayerCardCode is " + opponentPlayerCardCode + ".");
@@ -171,12 +173,12 @@ public class Pusher : MonoBehaviour{
         }
 
     }
-    
+
     private void Highlighting()
     {
         if (bm.GetTurnStep() == 3 && bm.GetTurnPlayer() == localPlayer && selectedCard != null)
         {
-                selectedCard.SetHighLight(true);
+            selectedCard.SetHighLight(true);
         }
         else
             for (int i = 0; i < 10; i++)
@@ -209,7 +211,7 @@ public class Pusher : MonoBehaviour{
     {
         process.Enqueue(MovingCardDown(start, dest, LF));
     }
-    
+
     IEnumerator MovingCardDown(Vector3 CardPosition, Vector3 det, string LR)
     {
         float t = Time.time;
@@ -237,11 +239,11 @@ public class Pusher : MonoBehaviour{
         else if (LR == "Right")
             RL = "Left";
         //else
-            //Debug.Log("Error In Deceive Card Process");
+        //Debug.Log("Error In Deceive Card Process");
 
         Vector3 DCardPosition = GameObject.FindGameObjectWithTag(RL).transform.position;
         Vector3 DCarddet = new Vector3(DCardPosition.x, Screen.height * 3 / 2);
-        
+
         while (Time.time - t < 3f / 3f)
         {
             GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(SelectedCardPosition, SelectedCarddet, (Time.time - t) / (3f / 3f));

@@ -43,6 +43,8 @@ public class PlayerControl : NetworkBehaviour
     private bool isAlerted1;
     private bool isAlerted3;
 
+    private bool isStart;
+
     void Awake () {
         bm = BattleManager.bm;
         //alert = Alert.alert;
@@ -55,6 +57,7 @@ public class PlayerControl : NetworkBehaviour
         isAlerted0 = false;
         isAlerted1 = false;
         isAlerted3 = false;
+        isStart = false;
         if (transform.position.z < 1f)
         {
             playerNum = 1;
@@ -82,6 +85,7 @@ public class PlayerControl : NetworkBehaviour
             }
         }
         bm.players[playerNum - 1] = this;
+        Log("Awake " + playerName);
     }
 
     void Start()
@@ -89,6 +93,9 @@ public class PlayerControl : NetworkBehaviour
         if (bm == null) Debug.Log("BM is null.");
         Renderer[] rends = GetComponentsInChildren<Renderer>();
         rends[0].material.color = color;
+        Log("Start " + playerName);
+        if (isLocalPlayer)
+            CmdReady();
         /*
         if (GetPlayerIndex() != -1)
             bm.SetCameraVisible(GetPlayerIndex());
@@ -100,6 +107,7 @@ public class PlayerControl : NetworkBehaviour
     public override void OnStartLocalPlayer()
     {
         base.OnStartLocalPlayer();
+        Log("OnStartLocalPlayer");
         playerCamera.SetActive(true);
         PushingCard.localPlayer = this;
         Pusher.localPlayer = this;
@@ -110,18 +118,23 @@ public class PlayerControl : NetworkBehaviour
 
     void FixedUpdate()
     {
-        /*
+        if (!isStart)
+        {
+            isStart = true;
+            Log("FixedUpdate " + playerName);
+        }
         if (isLocalPlayer && Input.GetMouseButtonDown(1))
         {
-            LogDisplay.ClearText(); // TODO 임시 코드
+            ConsoleLogUI.ClearText(); // TODO 임시 코드
+            /*
             string m = "cardcode";
             for (int i = 0; i < 10; i++)
             {
                 m += " " + bm.GetCardCode()[i];
             }
             Log(m);
+            */
         }
-        */
         if (isLocalPlayer)
         {
             StatusUpdate();
@@ -340,6 +353,12 @@ public class PlayerControl : NetworkBehaviour
         bm.AfterFreezed();
     }
 
+    [Command]
+    public void CmdReady()
+    {
+        bm.PlayerReady(GetPlayerIndex());
+    }
+
     public void SetName(string name)
     {
         playerName = name;
@@ -432,13 +451,13 @@ public class PlayerControl : NetworkBehaviour
         //Log(bm.players[t[1]].GetName() + " is my objective, too.");
         bm.players[t[1]].SetHighlight(true);
     }
-    /*
+
     private void Log(string msg)
     {
         Debug.Log(msg);
-        LogDisplay.AddText(msg);
+        ConsoleLogUI.AddText(msg);
     }
-    */
+
     /*
     public void CAlert(int i)
     {

@@ -54,26 +54,35 @@ public class BattleManager : NetworkBehaviour
     // cardcode[i]의 값은 cardCode가 i인 Card의 cards에서의 인덱스와 일치한다.
     // 다시 말해, cardcode의 인덱스는 카드의 위치, cardcode의 값은 카드의 종류이다.
 
+    private List<int> playerReady = new List<int>();
+
+    private void Awake()
+    {
+        bm = this;
+
+        turnStep = 0;
+        cd = GetComponent<CardDatabase>();
+    }
+
     public override void OnStartServer()
     {
         base.OnStartServer();
         StartCoroutine("StartGame");
     }
 
-    private bool IsPlayerEmpty()
+    private bool IsPlayerReady()
     {
         for (int i = 0; i < 5; i++)
         {
-            if (players[i] == null)
-                return true;
+            if (playerReady.IndexOf(i) == -1) return false;
         }
-        return false;
+        return true;
     }
 
     IEnumerator StartGame()
     {
-        yield return new WaitWhile(() => !IsPlayerEmpty());
-        
+        yield return new WaitWhile(() => !IsPlayerReady());
+
         List<int> temp = RandomListGenerator(5);
         for (int i = 0; i < 5; i++)
         {
@@ -87,7 +96,15 @@ public class BattleManager : NetworkBehaviour
         }
         CardPermutation();
 
-        yield return new WaitForSeconds(1f);
+        long cv = 0;
+        for (int i = 0; i < 10; i++)
+        {
+            cv += cardcode[i] * (long)(Mathf.Pow(10, 9 - i));
+        }
+        RpcPrintLog("" + cv);
+        RpcSetCardIndex(cv);
+
+        yield return new WaitForSeconds(3f);
 
         for (int i = 0; i < 10; i++)
         {
@@ -95,18 +112,20 @@ public class BattleManager : NetworkBehaviour
         }
         turnPlayer = Random.Range(0, 5);
 
+        /*
+        // TODO 임시 코드
+        string m = "cardcode";
+        for (int i = 0; i < 10; i++)
+        {
+            m += " " + bm.GetCardCode()[i];
+        }
+        RpcPrintLog(m);
+        */
+
         //RpcPrintLog("Battle starts.");
         //RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
 
         turnStep = 1;
-    }
-    
-    private void OnPlayerDisconnected(NetworkPlayer player)
-    {
-        Network.RemoveRPCs(player);
-        Network.DestroyPlayerObjects(player);
-        //RpcPrintLog("A player has disconnected. Battle ends.");
-        StartCoroutine(ReturnToLobby(3f));
     }
 
     /*
@@ -121,14 +140,6 @@ public class BattleManager : NetworkBehaviour
         }
     }
     */
-
-    private void Awake()
-    {
-        bm = this;
-
-        turnStep = 0;
-        cd = GetComponent<CardDatabase>();
-    }
 
     void FixedUpdate()
     {
@@ -173,15 +184,25 @@ public class BattleManager : NetworkBehaviour
             }
             tpcIndex = cardcode.IndexOf(exchange.GetTurnPlayerCard().GetCardCode());
             opcIndex = cardcode.IndexOf(exchange.GetObjectPlayerCard().GetCardCode());
-            
+
             cards[cardcode[tpcIndex]].GetComponent<Card>().RpcMoveCard(tpcIndex * 10 + opcIndex);
             cards[cardcode[opcIndex]].GetComponent<Card>().RpcMoveCard(opcIndex * 10 + tpcIndex);
-            
+
             // 손패 교환
             int temp = cardcode[tpcIndex];
             cardcode[tpcIndex] = cardcode[opcIndex];
             cardcode[opcIndex] = temp;
             RpcExchangeCardIndex(tpcIndex, opcIndex);
+
+            /*
+            // TODO 임시 코드
+            string m = "cardcode";
+            for (int i = 0; i < 10; i++)
+            {
+                m += " " + bm.GetCardCode()[i];
+            }
+            RpcPrintLog(m);
+            */
 
             turnStep = 9;
 
@@ -391,6 +412,10 @@ public class BattleManager : NetworkBehaviour
         //Debug.Log("turnStep 6(postprocessing)");
     }
 
+    public void PlayerReady(int playerIndex)
+    {
+        playerReady.Add(playerIndex);
+    }
 
     private List<int> RandomListGenerator(int n)
     {
@@ -458,16 +483,6 @@ public class BattleManager : NetworkBehaviour
         return cardcode;
     }
 
-    /*
-    // TODO 임시 코드
-    [ClientRpc]
-    public void RpcPrintLog(string msg)
-    {
-        LogDisplay.AddText(msg);
-        Debug.Log(msg);
-    }
-    */
-
     /// <summary>
     /// 인자로 주어진 플레이어가 잡아야 하는 목표의 번호 리스트를 반환합니다.
     /// 잘못된 입력이 주어지지 않는다면, 반환되는 리스트의 크기는 2입니다.
@@ -512,6 +527,14 @@ public class BattleManager : NetworkBehaviour
         return players;
     }
 
+    // TODO 임시 코드
+    [ClientRpc]
+    public void RpcPrintLog(string msg)
+    {
+        ConsoleLogUI.AddText(msg);
+        Debug.Log(msg);
+    }
+
     [ClientRpc]
     private void RpcExchangeCardIndex(int tpc, int opc)
     {
@@ -536,6 +559,16 @@ public class BattleManager : NetworkBehaviour
     private void RpcSetOpponentCard(int TP, int OP, int TPCardCode, int OPCardCode)
     {
         pusher.SetOpponentCard(TP, OP, TPCardCode, OPCardCode);
+    }
+
+    [ClientRpc]
+    private void RpcSetCardIndex(long values)
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            cardcode[i] = (int)((values % (long)Mathf.Pow(10, 10 - i)) / (long)Mathf.Pow(10, 9 - i));
+            ConsoleLogUI.AddText("cardcode[" + i + "] = " + cardcode[i]);
+        }
     }
     /*
     [ClientRpc]

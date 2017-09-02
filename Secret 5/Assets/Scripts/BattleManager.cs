@@ -101,10 +101,10 @@ public class BattleManager : NetworkBehaviour
         {
             cv += cardcode[i] * (long)(Mathf.Pow(10, 9 - i));
         }
-        RpcPrintLog("" + cv);
+        //RpcPrintLog("" + cv);
         RpcSetCardIndex(cv);
 
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(2f);
 
         for (int i = 0; i < 10; i++)
         {
@@ -144,6 +144,15 @@ public class BattleManager : NetworkBehaviour
     void FixedUpdate()
     {
         if (!isServer) return;
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (turnStep > 0 && players[i] == null) {
+                // 중간에 클라이언트 한 명의 접속이 끊긴 경우 대전을 종료한다.
+                StartCoroutine(ReturnToLobby(5f));
+                turnStep = 12;
+            }
+        }
 
         if (turnStep == 1)
         {
@@ -270,7 +279,7 @@ public class BattleManager : NetworkBehaviour
                 }
                 RpcPrintLog("Battle ends.");
                 */
-                StartCoroutine(ReturnToLobby(5f));
+                StartCoroutine(ReturnToLobby(8f));
                 turnStep = 8;
             }
             else
@@ -281,6 +290,10 @@ public class BattleManager : NetworkBehaviour
                 turnStep = 1;
                 //RpcPrintLog("turnStep 1(" + players[turnPlayer].GetName() + " turn starts)");
             }
+        }
+        else if (turnStep == 8)
+        {
+            // 승자가 결정되어 대전이 정상적으로 종료되는 경우
         }
         else if (turnStep == 9)
         {
@@ -293,6 +306,10 @@ public class BattleManager : NetworkBehaviour
         else if (turnStep == 11)
         {
             // 빙결 애니메이션이 끝나면 플레이어가 해동되고 turnStep 6이 됩니다.
+        }
+        else if (turnStep == 12)
+        {
+            // 클라이언트 한 명의 접속이 끊겨 대전이 비정상적으로 종료되는 경우
         }
 
     }
@@ -527,6 +544,7 @@ public class BattleManager : NetworkBehaviour
         return players;
     }
 
+    /*
     // TODO 임시 코드
     [ClientRpc]
     public void RpcPrintLog(string msg)
@@ -534,6 +552,7 @@ public class BattleManager : NetworkBehaviour
         ConsoleLogUI.AddText(msg);
         Debug.Log(msg);
     }
+    */
 
     [ClientRpc]
     private void RpcExchangeCardIndex(int tpc, int opc)
@@ -567,7 +586,7 @@ public class BattleManager : NetworkBehaviour
         for (int i = 0; i < 10; i++)
         {
             cardcode[i] = (int)((values % (long)Mathf.Pow(10, 10 - i)) / (long)Mathf.Pow(10, 9 - i));
-            ConsoleLogUI.AddText("cardcode[" + i + "] = " + cardcode[i]);
+            //ConsoleLogUI.AddText("cardcode[" + i + "] = " + cardcode[i]);
         }
     }
     /*

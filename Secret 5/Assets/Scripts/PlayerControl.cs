@@ -41,6 +41,7 @@ public class PlayerControl : NetworkBehaviour
 
     private bool isAlerted0;
     private bool isAlerted1;
+    private bool isAlerted2;
     private bool isAlerted3;
 
     private bool isStart;
@@ -56,6 +57,7 @@ public class PlayerControl : NetworkBehaviour
         displayedHealth = currentHealth;
         isAlerted0 = false;
         isAlerted1 = false;
+        isAlerted2 = false;
         isAlerted3 = false;
         isStart = false;
         if (transform.position.z < 1f)
@@ -85,7 +87,7 @@ public class PlayerControl : NetworkBehaviour
             }
         }
         bm.players[playerNum - 1] = this;
-        Log("Awake " + playerName);
+        //Log("Awake " + playerName);
     }
 
     void Start()
@@ -93,9 +95,7 @@ public class PlayerControl : NetworkBehaviour
         if (bm == null) Debug.Log("BM is null.");
         Renderer[] rends = GetComponentsInChildren<Renderer>();
         rends[0].material.color = color;
-        Log("Start " + playerName);
-        if (isLocalPlayer)
-            CmdReady();
+        //Log("Start " + playerName);
         /*
         if (GetPlayerIndex() != -1)
             bm.SetCameraVisible(GetPlayerIndex());
@@ -107,7 +107,7 @@ public class PlayerControl : NetworkBehaviour
     public override void OnStartLocalPlayer()
     {
         base.OnStartLocalPlayer();
-        Log("OnStartLocalPlayer");
+        //Log("OnStartLocalPlayer");
         playerCamera.SetActive(true);
         PushingCard.localPlayer = this;
         Pusher.localPlayer = this;
@@ -121,20 +121,22 @@ public class PlayerControl : NetworkBehaviour
         if (!isStart)
         {
             isStart = true;
-            Log("FixedUpdate " + playerName);
+            //Log("FixedUpdate " + playerName);
+            if (isLocalPlayer)
+                CmdReady();
         }
+        /*
         if (isLocalPlayer && Input.GetMouseButtonDown(1))
         {
             ConsoleLogUI.ClearText(); // TODO 임시 코드
-            /*
             string m = "cardcode";
             for (int i = 0; i < 10; i++)
             {
                 m += " " + bm.GetCardCode()[i];
             }
             Log(m);
-            */
         }
+        */
         if (isLocalPlayer)
         {
             StatusUpdate();
@@ -452,11 +454,13 @@ public class PlayerControl : NetworkBehaviour
         bm.players[t[1]].SetHighlight(true);
     }
 
+    /*
     private void Log(string msg)
     {
         Debug.Log(msg);
         ConsoleLogUI.AddText(msg);
     }
+    */
 
     /*
     public void CAlert(int i)
@@ -521,7 +525,7 @@ public class PlayerControl : NetworkBehaviour
         }
         else if ((ts == 5 || ts == 11))
         {
-            StatusUI.SetText("빙결되어 이번 턴에 교환할 수 없습니다.");
+            StatusUI.SetText(bm.GetTurnPlayer().GetName() + "이(가) 빙결되어 이번 턴에 교환할 수 없습니다.");
         }
         else if (ts == 8)
         {
@@ -532,12 +536,21 @@ public class PlayerControl : NetworkBehaviour
                     s += bm.GetPlayers()[j].GetName() + " ";
                 }
             }
-            StatusUI.SetText("대전 종료!\n" + s + "승리");
+            StatusUI.SetText("대전 종료!\n" + s + "승리!");
             if (!isAlerted3)
             {
                 Alert.alert.CreateAlert(3);
                 isAlerted3 = true;
             }
+        }
+        else if (ts == 12)
+        {
+            if (!isAlerted2)
+            {
+                Alert.alert.CreateAlert(2);
+                isAlerted2 = true;
+            }
+            StatusUI.SetText("누군가가 게임을 나갔습니다. 대전을 진행할 수 없으므로 종료합니다.");
         }
         else
         {

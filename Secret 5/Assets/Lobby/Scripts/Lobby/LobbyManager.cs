@@ -392,6 +392,7 @@ namespace Prototype.NetworkLobby
             ServerChangeScene(playScene);
         }
 
+        /*
         // When client is disconnected, server executes this and all players return to lobby.
         public override void OnServerDisconnect(NetworkConnection conn)
         {
@@ -401,6 +402,7 @@ namespace Prototype.NetworkLobby
                 s_Singleton.ServerReturnToLobby();
             }
         }
+        */
 
         IEnumerator RunServer()
         {

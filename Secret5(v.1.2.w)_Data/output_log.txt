@@ -1,0 +1,126 @@
+Initialize engine version: 2017.1.0f3 (472613c02cf7)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce 940M (ID=0x1347)
+    Vendor:   NVIDIA
+    VRAM:     2019 MB
+    Driver:   21.21.13.7270
+Begin MonoManager ReloadAssembly
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Timeline.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Timeline.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\System.dll (this message is harmless)
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\System.Core.dll (this message is harmless)
+- Completed reload, in  0.082 seconds
+<RI> Initializing input.
+XInput1_3.dll not found. Trying XInput9_1_0.dll instead...
+<RI> Input initialized.
+<RI> Initialized touch support.
+Initialize engine version: 2017.1.0f3 (472613c02cf7)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: NVIDIA GeForce 940M (ID=0x1347)
+    Vendor:   NVIDIA
+    VRAM:     2019 MB
+    Driver:   21.21.13.7270
+Begin MonoManager ReloadAssembly
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Timeline.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Timeline.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Analytics.dll (this message is harmless)
+Loading D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\UnityEngine.Analytics.dll into Unity Child Domain
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\System.dll (this message is harmless)
+Platform assembly: D:\안단태\대학교\동아리\유피넬\유피넬 프로젝트\시크릿 5\Old builds\Secret5(v.1.2.w)_Data\Managed\System.Core.dll (this message is harmless)
+- Completed reload, in  0.060 seconds
+UnloadTime: 2.650455 ms
+<RI> Initializing input.
+XInput1_3.dll not found. Trying XInput9_1_0.dll instead...
+<RI> Input initialized.
+<RI> Initialized touch support.
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 1a24 -> priority: 1 
+  Thread -> id: 1338 -> priority: 1 
+UnloadTime: 1.622188 ms
+Setting up 2 worker threads for Enlighten.
+  Thread -> id: 29b8 -> priority: 1 
+  Thread -> id: 2e5c -> priority: 1 
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.877334 ms
+
+Unloading 2 unused Assets to reduce memory usage. Loaded Objects now: 1340.
+Total: 1.774934 ms (FindLiveObjects: 0.117333 ms CreateObjectMapping: 0.067840 ms MarkObjects: 1.581228 ms  DeleteObjects: 0.008106 ms)
+
+Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 1.844481 ms
+
+Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 1769.
+Total: 1.798828 ms (FindLiveObjects: 0.139093 ms CreateObjectMapping: 0.103680 ms MarkObjects: 1.541974 ms  DeleteObjects: 0.013226 ms)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 4.382723 ms
+
+Unloading 17 unused Assets to reduce memory usage. Loaded Objects now: 1359.
+Total: 1.656748 ms (FindLiveObjects: 0.106240 ms CreateObjectMapping: 0.069120 ms MarkObjects: 1.429334 ms  DeleteObjects: 0.051626 ms)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+DontDestroyOnLoad only work for root GameObjects or components on root GameObjects.
+ 
+(Filename:  Line: 481)
+
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+UnloadTime: 0.801707 ms
+UnloadTime: 0.430507 ms
+
+Unloading 1 unused Assets to reduce memory usage. Loaded Objects now: 1848.
+Total: 5.933231 ms (FindLiveObjects: 0.392960 ms CreateObjectMapping: 0.427093 ms MarkObjects: 5.099951 ms  DeleteObjects: 0.012800 ms)
+
+
+Unloading 1 unused Assets to reduce memory usage. Loaded Objects now: 1848.
+Total: 1.888854 ms (FindLiveObjects: 0.143360 ms CreateObjectMapping: 0.116906 ms MarkObjects: 1.618774 ms  DeleteObjects: 0.009386 ms)
+

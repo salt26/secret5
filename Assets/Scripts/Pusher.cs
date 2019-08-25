@@ -199,11 +199,14 @@ public class Pusher : MonoBehaviour
         float x = CardPosition.y;
 
         float t = Time.time;
+        /*
         while ((Time.time - t) < ((2f / 3f) * (s * 3 / 2 - x) / (s * 11 / 16)))
         {
             GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(CardPosition, det, (Time.time - t) / ((2f / 3f) * (s * 3 / 2 - x) / (s * 11 / 16)));
             yield return null;
         }
+        */
+        yield return null;
         GameObject.FindGameObjectWithTag(LR).transform.position = det;
     }
 
@@ -216,11 +219,14 @@ public class Pusher : MonoBehaviour
     {
         float t = Time.time;
         changingCard = true;
+        /*
         while (Time.time - t < 3f / 3f)
         {
             GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(CardPosition, det, (Time.time - t) / (3f / 3f));
             yield return null;
         }
+        */
+        yield return null;
         GameObject.FindGameObjectWithTag(LR).transform.position = det;
     }
 
@@ -244,22 +250,28 @@ public class Pusher : MonoBehaviour
         Vector3 DCardPosition = GameObject.FindGameObjectWithTag(RL).transform.position;
         Vector3 DCarddet = new Vector3(DCardPosition.x, Screen.height * 3 / 2);
 
+        /*
         while (Time.time - t < 3f / 3f)
         {
             GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(SelectedCardPosition, SelectedCarddet, (Time.time - t) / (3f / 3f));
             GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCardPosition, DCarddet, (Time.time - t) / (3f / 3f));
             yield return null;
         }
+        */
+        yield return null;
         GameObject.FindGameObjectWithTag(LR).transform.position = SelectedCarddet;
         GameObject.FindGameObjectWithTag(RL).transform.position = DCarddet;
 
         t = Time.time;
         changingCard = true;
+        /*
         while (Time.time - t < 3f / 3f)
         {
             GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCarddet, DCardPosition, (Time.time - t) / (3f / 3f));
             yield return null;
         }
+        */
+        yield return null;
         GameObject.FindGameObjectWithTag(RL).transform.position = DCardPosition;
 
     }

@@ -653,6 +653,7 @@ public class PlayerControl : NetworkBehaviour
         Quaternion Original = Face.transform.localRotation;
 
         float t = Time.time;
+        /*
         while (Time.time - t < (20f / 60f))
         {
             Face.transform.localRotation = Quaternion.Lerp(Original, Quaternion.Euler(0f, 181f, 0f), (Time.time - t) / (20f / 60f));
@@ -665,9 +666,10 @@ public class PlayerControl : NetworkBehaviour
             Face.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(0f, 181f, 0f), Original, (Time.time - t) / (20f / 60f));
             yield return null;
         }
+        */
 
         Face.transform.localRotation = Original;
-        yield return new WaitForSeconds(40f / 60f);
+        yield return null; // new WaitForSeconds(40f / 60f);
         Face.sprite = Resources.Load("캐릭터/디폴트_캐릭터", typeof(Sprite)) as Sprite;
     }
 
@@ -676,15 +678,17 @@ public class PlayerControl : NetworkBehaviour
         //Log("DamagedAnimation");
         Face.sprite = Resources.Load("캐릭터/데미지받은_캐릭터", typeof(Sprite)) as Sprite;
         Vector3 Original = Face.transform.localPosition;
+        /*
         for (int i = 0; i < 5; i++)
         {
             Face.transform.localPosition = Original + new Vector3(0.2f, 0f, 0f);
-            yield return new WaitForSeconds(5f / 60f);
+            yield return null; // new WaitForSeconds(5f / 60f);
             Face.transform.localPosition = Original + new Vector3(-0.2f, 0f, 0f);
-            yield return new WaitForSeconds(5f / 60f);
+            yield return null; // new WaitForSeconds(5f / 60f);
         }
+        */
         Face.transform.localPosition = Original;
-        yield return new WaitForSeconds(40f / 60f);
+        yield return null; // new WaitForSeconds(40f / 60f);
         Face.sprite = Resources.Load("캐릭터/디폴트_캐릭터", typeof(Sprite)) as Sprite;
     }
 
@@ -692,7 +696,7 @@ public class PlayerControl : NetworkBehaviour
     {
         //Log("DeadAnimation");
         Face.sprite = Resources.Load("캐릭터/죽은_캐릭터", typeof(Sprite)) as Sprite;
-        yield return new WaitForSeconds(30f / 30f);
+        yield return null; // new WaitForSeconds(30f / 30f);
         //폭발애니메이...
         
         
@@ -705,17 +709,19 @@ public class PlayerControl : NetworkBehaviour
         Ice.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
         Ice.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.75f);
         Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음0", typeof(Sprite)) as Sprite;
-        yield return new WaitForSeconds(4f / 3f);
+        yield return null; // new WaitForSeconds(4f / 3f);
         Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음2", typeof(Sprite)) as Sprite;
-        yield return new WaitForSeconds(4f / 3f);
+        yield return null; // new WaitForSeconds(4f / 3f);
         Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음4", typeof(Sprite)) as Sprite;
-        yield return new WaitForSeconds(4f / 3f);
+        yield return null; // new WaitForSeconds(4f / 3f);
         float t = Time.time;
+        /*
         while (Time.time - t < (90f / 60f))
         {
             Ice.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(1f, 1f, 1f, 0.75f), new Color(1f, 1f, 1f, 0f), (Time.time - t) / (90f / 60f));
             yield return null;
         }
+        */
         Ice.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
         //Log("In client, " + GetName() + " isAI? " + isAI + ", then why not thawed?");
         //if (isServer) bm.RpcPrintLog("In server, " + GetName() + " isAI? " + isAI + ", then why not thawed?");
@@ -731,7 +737,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator AITurnDelay()
     {
-        yield return new WaitForSeconds(Random.Range(1.5f, 3f));
+        yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f));
         AIThinking(null);   // 여기서 objectTarget과 playCardAI를 설정함.
         int i = bm.GetPlayers().IndexOf(objectTarget);
         bm.SetObjectPlayer(i);
@@ -744,7 +750,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator AIExchangeDelay()
     {
-        yield return new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
+        yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
         AIThinking(bm.GetTurnPlayer());
         bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
         playCardAI = null;

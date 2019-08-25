@@ -184,7 +184,7 @@ public class BattleManager : NetworkBehaviour
         //RpcPrintLog("" + cv);
         RpcSetCardIndex(cv);
 
-        yield return new WaitForSeconds(2f);
+        yield return null; // new WaitForSeconds(2f);
 
         for (int i = 0; i < 10; i++)
         {
@@ -730,7 +730,7 @@ public class BattleManager : NetworkBehaviour
 
     IEnumerator ReturnToLobby(float timing)
     {
-        yield return new WaitForSeconds(timing);
+        yield return null; // new WaitForSeconds(timing);
         loadingPanel.SetActive(true);
         LobbyManager.s_Singleton.ServerReturnToLobby();
     }

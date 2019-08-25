@@ -820,6 +820,62 @@ public class PlayerControl : NetworkBehaviour
     }
 
     /// <summary>
+    /// 인공지능이 강화학습으로 생각하여 교환할 대상과 교환할 카드를 결정하게 하는 함수입니다. 인자로 null이 아닌 값을 주면 교환할 카드만 정합니다.
+    /// </summary>
+    /// <param name="opponent">교환을 요청해온 상대</param>
+    private void AIThinkingRL(PlayerControl opponent)
+    {
+        List<int> playerClass = AIObjectRelation();
+
+        /* TODO 임시 코드 */
+        string m = "";
+        for (int i = 0; i < 5; i++)
+        {
+            m += playerClass[i] + " ";
+        }
+        bm.RpcPrintLog(m);
+
+
+        List<string> hand = AIHandEstimation();
+        // TODO 손패 상황 목록을 받으면 특정 상대와 교환할 때 어떤 카드를 받게 될지 추정하기
+        // TODO 특정 상대에게 특정 카드를 줄 때의 결과를 생각하여 행동 점수를 매기고, 점수에 해당하는 수만큼 상자에 제비뽑기를 넣어 랜덤으로 하나 뽑기
+        List<Card> myHand = bm.GetPlayerHand(this);
+        List<string> decisionBox = new List<string>(); // 이 목록에 제비뽑기를 넣고 나중에 하나 뽑아 나온 행동을 한다.
+        if (opponent == null)
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                if (i == GetPlayerIndex()) continue;
+                AIScoreBehaviorRL(hand, decisionBox);
+            }
+            // TODO 랜덤 말고 인공지능으로 고치기
+            /*
+            do
+            {
+                objectTarget = bm.GetPlayers()[Random.Range(0, 5)];
+            } while (objectTarget == null || objectTarget.Equals(this));
+            */
+        }
+        else
+        {
+            int i = opponent.GetPlayerIndex();
+            AIScoreBehaviorRL(hand, decisionBox);
+        }
+        // TODO 랜덤 말고 인공지능으로 고치기
+        string lottery = decisionBox[Random.Range(0, decisionBox.Count)];
+        bm.RpcPrintLog("lottery is " + lottery + ".");
+        if (opponent == null)
+        {
+            objectTarget = bm.GetPlayers()[int.Parse(lottery[0].ToString())];
+        }
+        lottery = lottery.Substring(1);
+        if (myHand[0].GetCardName() == lottery) playCardAI = myHand[0];
+        else if (myHand[1].GetCardName() == lottery) playCardAI = myHand[1];
+        else Debug.LogError("lottery is invalid.");
+        // playCardAI = myHand[Random.Range(0, 2)];
+    }
+
+    /// <summary>
     /// 인공지능이 자신을 목표로 하는 플레이어들을 추정하게 하는 함수입니다. 플레이어들을 분류한 정보를 목록으로 반환합니다.
     /// </summary>
     private List<int> AIObjectRelation()
@@ -831,7 +887,7 @@ public class PlayerControl : NetworkBehaviour
         }
         enemyPoint[GetPlayerIndex()] = -1;  // 자신은 자신의 천적이 아니다.
 
-        foreach(Exchange ex in bm.GetExchanges())
+        foreach (Exchange ex in bm.GetExchanges())
         {
             if (ex.GetIsFreezed()) continue;
 
@@ -1760,6 +1816,109 @@ public class PlayerControl : NetworkBehaviour
         for (int i = 0; i < score; i++)
         {
             box.Add(opponentPlayerIndex + myCard);
+        }
+    }
+
+    /// <summary>
+    /// 강화학습 모듈에 게임의 상태를 전달하고, 모듈로부터 행동 점수를 받아옵니다.
+    /// </summary>
+    /// <param name="myCard"></param>
+    /// <param name="opponentCard"></param>
+    /// <param name="hand"></param>
+    /// <param name="opponentPlayerIndex"></param>
+    /// <param name="playerClass"></param>
+    /// <param name="box"></param>
+    private void AIScoreBehaviorRL(List<string> hand, List<string> box)
+    {
+        if (hand.Count != 10)
+        {
+            Debug.Log("The number of cards in hand is not equal to 10.");
+            return;
+        }
+
+        List<float> score = new List<float>();
+        //string voidCard = myCard;   // 만약 상대가 속임을 쓴다고 예측했다면, 내가 원래 내려던 카드를 기억한다.
+        List<int> objectRelation = AIObjectRelation();
+
+        string stateSpace = bm.GetStateSpace(this, hand, objectRelation);
+        
+        LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace);
+
+        string actionScore = LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
+        List<int> maxActionIndex = new List<int>();
+        float maxAction = Mathf.NegativeInfinity;
+        string[] s = actionScore.Split(' ');
+
+        if (bm.GetTurnPlayer().Equals(this))
+        {
+            for (int i = 0; i < s.Length; i++)
+            {
+                float f = float.Parse(s[i]);
+                score.Add(f);
+                if (f > maxAction)
+                {
+                    maxActionIndex = new List<int>();
+                    maxActionIndex.Add(i);
+                }
+                else if (f == maxAction)
+                {
+                    maxActionIndex.Add(i);
+                }
+            }
+            int chosenIndex = maxActionIndex[Random.Range(0, maxActionIndex.Count)];
+            string chosenAction = "";
+            for (int i = 0; i < 8; i++)
+            {
+                if (i == chosenIndex)
+                {
+                    chosenAction += "1 ";
+                }
+                else
+                {
+                    chosenAction += "0 ";
+                }
+            }
+            chosenAction = chosenAction.TrimEnd(' ');
+            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction);
+            box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
+        }
+        else
+        {
+            int opponentIndex = bm.GetTurnPlayer().GetPlayerIndex();
+            for (int i = 0; i < s.Length; i++)
+            {
+                float f = float.Parse(s[i]);
+                score.Add(f);
+
+                if ((i / 2 + GetPlayerIndex() + 1) % 5 != opponentIndex) continue;
+
+                if (f > maxAction)
+                {
+                    maxActionIndex = new List<int>();
+                    maxActionIndex.Add(i);
+                }
+                else if (f == maxAction)
+                {
+                    maxActionIndex.Add(i);
+                }
+            }
+            int chosenIndex = maxActionIndex[Random.Range(0, maxActionIndex.Count)];    // argmax with random
+            string chosenAction = "";
+            for (int i = 0; i < 8; i++)
+            {
+                if (i == chosenIndex)
+                {
+                    chosenAction += "1 ";
+                }
+                else
+                {
+                    chosenAction += "0 ";
+                }
+            }
+            chosenAction = chosenAction.TrimEnd(' ');
+            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction);     // performed_action
+            box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
+            Debug.Log("AI choose " + box[0] + " action.");
         }
     }
 }

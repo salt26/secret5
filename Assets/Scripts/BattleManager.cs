@@ -626,6 +626,80 @@ public class BattleManager : NetworkBehaviour
     }
 
     /// <summary>
+    /// 강화학습을 하기 위해 player 기준에서 바라보는 현재 게임의 상태를 80개의 float 목록으로 반환합니다.
+    /// </summary>
+    /// <param name="player">강화학습하는 인공지능 플레이어</param>
+    /// <param name="hand">player가 추정한 각 플레이어의 손패</param>
+    /// <returns></returns>
+    public string GetStateSpace(PlayerControl player, List<string> hand, List<int> objectRelation)
+    {
+        string stateSpace = "";
+        for (int i = 0; i < 5; i++)
+        {
+            // 자신부터 시작, 인덱스 1씩 증가
+            int index = (player.GetPlayerIndex() + i) % 5;
+            // 해당 플레이어 체력 / 6
+            stateSpace += (bm.GetPlayers()[index].GetHealth() / 6f) + " ";
+            for (int j = 0; j < 2; j++)
+            {
+                // 해당 플레이어 손패 2장
+                int index2 = ((player.GetPlayerIndex() + i) % 5) * 2 + j;
+                switch (hand[index2])
+                {
+                    case "Attack":
+                        stateSpace += "1 0 0 0 0 0 ";
+                        break;
+                    case "Heal":
+                        stateSpace += "0 1 0 0 0 0 ";
+                        break;
+                    case "Bomb":
+                        stateSpace += "0 0 1 0 0 0 ";
+                        break;
+                    case "Deceive":
+                        stateSpace += "0 0 0 1 0 0 ";
+                        break;
+                    case "Avoid":
+                        stateSpace += "0 0 0 0 1 0 ";
+                        break;
+                    case "Freeze":
+                        stateSpace += "0 0 0 0 0 1 ";
+                        break;
+                    default:
+                        stateSpace += "0 0 0 0 0 0 ";
+                        break;
+                }
+            }
+            switch (objectRelation[index])
+            {
+                // 해당 플레이어가 내 목표인가? / 내가 해당 플레이어의 목표인가?
+                case 1:
+                    stateSpace += "1 0 ";
+                    break;
+                case 2:
+                    stateSpace += "0 1 ";
+                    break;
+                case 3:
+                    stateSpace += "1 1 ";
+                    break;
+                default:
+                    stateSpace += "0 0 ";
+                    break;
+            }
+            // 해당 플레이어의 턴인가?
+            if (bm.GetTurnPlayer().Equals(bm.GetPlayers()[index]))
+            {
+                stateSpace += "1 ";
+            }
+            else
+            {
+                stateSpace += "0 ";
+            }
+        }
+        stateSpace = stateSpace.TrimEnd(' ');
+        return stateSpace;
+    }
+
+    /// <summary>
     /// 인자로 주어진 cardCode와 같은 코드를 갖는 카드를 반환합니다.
     /// </summary>
     /// <param name="cardCode"></param>

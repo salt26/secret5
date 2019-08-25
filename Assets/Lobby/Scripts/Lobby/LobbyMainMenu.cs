@@ -42,6 +42,7 @@ namespace Prototype.NetworkLobby
             lobbyManager.prematchCountdown = 0f;
             lobbyManager.networkAddress = "localhost"; //ipInput.text;
             lobbyManager.StartHost();
+            lobbyManager.IPCs.Add(new IPC());
         }
 
         public void OnClickJoin()

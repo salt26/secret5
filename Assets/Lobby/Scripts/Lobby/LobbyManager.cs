@@ -5,6 +5,7 @@ using UnityEngine.Networking;
 using UnityEngine.Networking.Types;
 using UnityEngine.Networking.Match;
 using System.Collections;
+using System.Collections.Generic;
 
 
 namespace Prototype.NetworkLobby
@@ -55,6 +56,9 @@ namespace Prototype.NetworkLobby
 
         [HideInInspector]
         public float startTime;
+
+        public List<IPC> IPCs = new List<IPC>();
+        private int episode = 0;
 
         void Start()
         {
@@ -237,7 +241,20 @@ namespace Prototype.NetworkLobby
 
         public void ServerReturnToLobbyAndRestart()
         {
-            StartCoroutine(Restart());
+            episode++;
+            Debug.Log(episode);
+            if (episode < 1000)
+            {
+                StartCoroutine(Restart());
+            }
+            else
+            {
+                foreach (IPC ipc in IPCs)
+                {
+                    ipc.EndPython();
+                }
+                s_Singleton.ServerReturnToLobby();
+            }
         }
 
         IEnumerator Restart()

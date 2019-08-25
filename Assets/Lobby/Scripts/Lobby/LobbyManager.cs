@@ -235,6 +235,22 @@ namespace Prototype.NetworkLobby
             netMsg.conn.Disconnect();
         }
 
+        public void ServerReturnToLobbyAndRestart()
+        {
+            StartCoroutine(Restart());
+        }
+
+        IEnumerator Restart()
+        {
+            s_Singleton.ServerReturnToLobby();
+            yield return new WaitForSeconds(0.5f);
+            foreach (LobbyPlayer p in s_Singleton.lobbyPanel.GetComponent<LobbyPlayerList>().Players)
+            {
+                p.OnClientReady(true);
+                p.OnReadyClicked();
+            }
+        }
+
         //===================
 
         public override void OnStartHost()

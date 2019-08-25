@@ -17,6 +17,14 @@ namespace Prototype.NetworkLobby
         protected VerticalLayoutGroup _layout;
         protected List<LobbyPlayer> _players = new List<LobbyPlayer>();
 
+        public List<LobbyPlayer> Players
+        {
+            get
+            {
+                return _players;
+            }
+        }
+
         public void OnEnable()
         {
             _instance = this;

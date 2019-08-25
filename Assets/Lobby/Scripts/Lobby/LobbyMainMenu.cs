@@ -39,7 +39,7 @@ namespace Prototype.NetworkLobby
             */
             lobbyManager.minPlayers = 1;
             lobbyManager.maxPlayers = 1;
-            lobbyManager.prematchCountdown = 3f;
+            lobbyManager.prematchCountdown = 0f;
             lobbyManager.networkAddress = "localhost"; //ipInput.text;
             lobbyManager.StartHost();
         }

@@ -121,6 +121,12 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p1);
             p1.GetComponent<PlayerControl>().RpcSetAI(true);
         }
+        else
+        {
+            players[0].GetComponent<PlayerControl>().SetAI(true);
+            players[0].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[0].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+        }
         if (playerReady.IndexOf(1) == -1)
         {
             var p2 = Instantiate(player, new Vector3(3.236f, 0f, 2.351f), Quaternion.Euler(0f, -72f, 0f));
@@ -130,6 +136,12 @@ public class BattleManager : NetworkBehaviour
             p2.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p2);
             p2.GetComponent<PlayerControl>().RpcSetAI(true);
+        }
+        else
+        {
+            players[1].GetComponent<PlayerControl>().SetAI(true);
+            players[1].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[1].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
         }
         if (playerReady.IndexOf(2) == -1)
         {
@@ -141,6 +153,12 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p3);
             p3.GetComponent<PlayerControl>().RpcSetAI(true);
         }
+        else
+        {
+            players[2].GetComponent<PlayerControl>().SetAI(true);
+            players[2].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[2].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+        }
         if (playerReady.IndexOf(3) == -1)
         {
             var p4 = Instantiate(player, new Vector3(-2f, 0f, 6.155f), Quaternion.Euler(0f, 144f, 0f));
@@ -151,6 +169,12 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p4);
             p4.GetComponent<PlayerControl>().RpcSetAI(true);
         }
+        else
+        {
+            players[3].GetComponent<PlayerControl>().SetAI(true);
+            players[3].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[3].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+        }
         if (playerReady.IndexOf(4) == -1)
         {
             var p5 = Instantiate(player, new Vector3(-3.236f, 0f, 2.351f), Quaternion.Euler(0f, 72f, 0f));
@@ -160,6 +184,12 @@ public class BattleManager : NetworkBehaviour
             p5.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p5);
             p5.GetComponent<PlayerControl>().RpcSetAI(true);
+        }
+        else
+        {
+            players[4].GetComponent<PlayerControl>().SetAI(true);
+            players[4].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[4].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
         }
 
         List<int> temp = RandomListGenerator(5);
@@ -732,6 +762,6 @@ public class BattleManager : NetworkBehaviour
     {
         yield return null; // new WaitForSeconds(timing);
         loadingPanel.SetActive(true);
-        LobbyManager.s_Singleton.ServerReturnToLobby();
+        LobbyManager.s_Singleton.ServerReturnToLobbyAndRestart();
     }
 }

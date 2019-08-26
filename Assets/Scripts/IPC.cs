@@ -4,16 +4,14 @@ using System.Diagnostics;
 using System.Collections.Generic;
 
 /// <summary> 
-/// Used to show simple C# and Python interprocess communication 
-/// Author      : Ozcan ILIKHAN 
-/// Created     : 02/26/2015 
-/// Last Update : 04/30/2015 
+/// Used to show simple C# and Python interprocess communication
 /// </summary> 
 public class IPC
 {
     public Process myProcess;
     public StreamReader myStreamReader;
     public StreamWriter myStreamWriter;
+    public int playerIndex;             // 누구의 강화학습 모델인가
 
     public IPC()
     {
@@ -65,7 +63,7 @@ public class IPC
         {
             myString = myStreamReader.ReadLine();
 
-        } while (myString.Length > 1 && !myString.Substring(0, 1).Equals("#"));
+        } while (myString == null || myString.Length < 1 || myString.Substring(0, 1).Equals("#"));
 
         return myString;
 

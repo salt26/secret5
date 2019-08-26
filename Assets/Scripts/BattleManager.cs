@@ -119,13 +119,14 @@ public class BattleManager : NetworkBehaviour
             p1.GetComponent<PlayerControl>().color = new Color(0.816f, 0.216f, 0.059f);
             p1.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p1);
-            p1.GetComponent<PlayerControl>().RpcSetAI(true);
+            p1.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
         else
         {
-            players[0].GetComponent<PlayerControl>().SetAI(true);
-            players[0].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[0].GetComponent<PlayerControl>().SetAI(true, true);
+            players[0].GetComponent<PlayerControl>().RpcSetAI(true, true);
             players[0].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+            LobbyManager.s_Singleton.IPCs[0].playerIndex = 0;
         }
         if (playerReady.IndexOf(1) == -1)
         {
@@ -135,13 +136,14 @@ public class BattleManager : NetworkBehaviour
             p2.GetComponent<PlayerControl>().color = new Color(0.875f, 0.867f, 0.529f);
             p2.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p2);
-            p2.GetComponent<PlayerControl>().RpcSetAI(true);
+            p2.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
         else
         {
-            players[1].GetComponent<PlayerControl>().SetAI(true);
-            players[1].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[1].GetComponent<PlayerControl>().SetAI(true, true);
+            players[1].GetComponent<PlayerControl>().RpcSetAI(true, true);
             players[1].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+            LobbyManager.s_Singleton.IPCs[0].playerIndex = 1;
         }
         if (playerReady.IndexOf(2) == -1)
         {
@@ -151,13 +153,14 @@ public class BattleManager : NetworkBehaviour
             p3.GetComponent<PlayerControl>().color = new Color(0.106f, 0.69f, 0.208f);
             p3.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p3);
-            p3.GetComponent<PlayerControl>().RpcSetAI(true);
+            p3.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
         else
         {
-            players[2].GetComponent<PlayerControl>().SetAI(true);
-            players[2].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[2].GetComponent<PlayerControl>().SetAI(true, true);
+            players[2].GetComponent<PlayerControl>().RpcSetAI(true, true);
             players[2].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+            LobbyManager.s_Singleton.IPCs[0].playerIndex = 2;
         }
         if (playerReady.IndexOf(3) == -1)
         {
@@ -167,13 +170,14 @@ public class BattleManager : NetworkBehaviour
             p4.GetComponent<PlayerControl>().color = new Color(0.424f, 0.376f, 1f);
             p4.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p4);
-            p4.GetComponent<PlayerControl>().RpcSetAI(true);
+            p4.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
         else
         {
-            players[3].GetComponent<PlayerControl>().SetAI(true);
-            players[3].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[3].GetComponent<PlayerControl>().SetAI(true, true);
+            players[3].GetComponent<PlayerControl>().RpcSetAI(true, true);
             players[3].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+            LobbyManager.s_Singleton.IPCs[0].playerIndex = 3;
         }
         if (playerReady.IndexOf(4) == -1)
         {
@@ -183,13 +187,14 @@ public class BattleManager : NetworkBehaviour
             p5.GetComponent<PlayerControl>().color = new Color(0.369f, 0.106f, 0.427f);
             p5.GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             NetworkServer.Spawn(p5);
-            p5.GetComponent<PlayerControl>().RpcSetAI(true);
+            p5.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
         else
         {
-            players[4].GetComponent<PlayerControl>().SetAI(true);
-            players[4].GetComponent<PlayerControl>().RpcSetAI(true);
+            players[4].GetComponent<PlayerControl>().SetAI(true, true);
+            players[4].GetComponent<PlayerControl>().RpcSetAI(true, true);
             players[4].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
+            LobbyManager.s_Singleton.IPCs[0].playerIndex = 4;
         }
 
         List<int> temp = RandomListGenerator(5);
@@ -379,6 +384,75 @@ public class BattleManager : NetworkBehaviour
                 RpcAddExchangeLog(exchange.gameObject);
             }
 
+            bool hasIPCPlayerExchanged = false;
+            if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex() ||
+                LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetObjectPlayer().GetPlayerIndex())
+            {
+                PlayerControl player = GetPlayers()[LobbyManager.s_Singleton.IPCs[0].playerIndex];
+                string nextStateSpace = GetStateSpace(player, player.AIHandEstimation(), player.AIObjectRelation());
+                Debug.Log("next state: " + nextStateSpace);
+                LobbyManager.s_Singleton.IPCs[0].SendRequest(nextStateSpace);   // 다음 상태를 IPC로 전달
+
+                int reward = 0;
+                if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex())
+                {
+                    reward += exchange.GetTurnPlayerHealthVariation();          // 본인의 체력 변화량 +1당 +1점
+                    if (player.HasDead())
+                    {
+                        reward -= 30;                                           // 본인 사망 시 -30점
+                    }
+
+                    if (GetTarget(LobbyManager.s_Singleton.IPCs[0].playerIndex).Contains(exchange.GetObjectPlayer().GetPlayerIndex()))
+                    {
+                        // 상대가 본인의 목표
+                        reward -= exchange.GetObjectPlayerHealthVariation();    // 본인의 목표인 상대의 체력 변화량 +1당 -1점
+                        if (!player.HasDead() && exchange.GetObjectPlayer().HasDead())
+                        {
+                            reward += 30;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +30점
+                        }
+                    }
+                    else
+                    {
+                        // 상대가 본인의 목표가 아님
+                        reward += exchange.GetObjectPlayerHealthVariation();    // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +1점
+                        if (exchange.GetObjectPlayer().HasDead())
+                        {
+                            reward -= 30;                                       // 본인의 목표가 아닌 상대 사망 시 -30점
+                        }
+                    }
+                }
+                else if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetObjectPlayer().GetPlayerIndex())
+                {
+                    reward += exchange.GetObjectPlayerHealthVariation();        // 본인의 체력 변화량 +1당 +1점
+                    if (player.HasDead())
+                    {
+                        reward -= 30;                                           // 본인 사망 시 -30점
+                    }
+
+                    if (GetTarget(LobbyManager.s_Singleton.IPCs[0].playerIndex).Contains(exchange.GetTurnPlayer().GetPlayerIndex()))
+                    {
+                        // 상대가 본인의 목표
+                        reward -= exchange.GetTurnPlayerHealthVariation();      // 본인의 목표인 상대의 체력 변화량 +1당 -1점
+                        if (!player.HasDead() && exchange.GetTurnPlayer().HasDead())
+                        {
+                            reward += 30;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +30점
+                        }
+                    }
+                    else
+                    {
+                        // 상대가 본인의 목표가 아님
+                        reward += exchange.GetTurnPlayerHealthVariation();      // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +1점
+                        if (exchange.GetTurnPlayer().HasDead())
+                        {
+                            reward -= 30;                                       // 본인의 목표가 아닌 상대 사망 시 -30점
+                        }
+                    }
+                }
+                Debug.Log("reward: " + reward);
+                LobbyManager.s_Singleton.IPCs[0].SendRequest(reward.ToString());    // 보상을 IPC로 전달
+                hasIPCPlayerExchanged = true;
+            }
+
             // 대전 규칙: 한 명이라도 사망하면 게임이 끝나고, 게임이 끝나는 시점에 "자신의 목표 중 사망자의 수"가 가장 많은 플레이어들이 승리한다.
             for (int i = 0; i < 5; i++)
             {
@@ -416,12 +490,25 @@ public class BattleManager : NetworkBehaviour
                 }
                 RpcPrintLog("Battle ends.");
                 */
+                LobbyManager.s_Singleton.IPCs[0].SendRequest("True");    // 게임 종료 여부를 IPC로 전달
+                if (GetIsWin()[LobbyManager.s_Singleton.IPCs[0].playerIndex])
+                {
+                    Debug.Log("Win!");
+                }
+                else
+                {
+                    Debug.Log("Lose!");
+                }
                 StartCoroutine(ReturnToLobby(10f));
                 turnStep = 8;
             }
             else
             {
                 //RpcPrintLog("Turn ends.");
+                if (hasIPCPlayerExchanged)
+                {
+                    LobbyManager.s_Singleton.IPCs[0].SendRequest("False");    // 게임 종료 여부를 IPC로 전달
+                }
                 turnPlayer += 1;
                 if (turnPlayer >= 5) turnPlayer = 0;
                 turnStep = 1;

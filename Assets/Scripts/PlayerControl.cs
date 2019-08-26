@@ -25,6 +25,7 @@ public class PlayerControl : NetworkBehaviour
     private bool hasDecidedPlayCard = false;        // 교환 시 교환할 카드를 선택했는지 여부
     private PlayerControl objectTarget;             // 내가 선택한 교환 대상
     private Card playCardAI;                        // 인공지능이 낼 카드
+    private bool isRL = false;                      // 인공지능이 강화학습을 사용하는지 여부
 
     private RectTransform HealthBar;                // HP UI
     [SerializeField] private GameObject playerCamera;
@@ -47,6 +48,14 @@ public class PlayerControl : NetworkBehaviour
     private bool isStart;
     private bool isThinking;    // 인공지능의 생각 전 딜레이 동안 true가 됨
     private bool isCardDragging;  // 큰 카드를 드래그하는 동안 true가 됨
+
+    public bool IsRL
+    {
+        get
+        {
+            return isAI && isRL;
+        }
+    }
 
     void Awake () {
         // bm은 Awake에서 아직 로딩되지 않았을 수 있음. 즉, BattleManager.Awake가 PlayerControl.Awake보다 늦게 실행될 수 있음. 
@@ -414,9 +423,10 @@ public class PlayerControl : NetworkBehaviour
         return playerNum;
     }
 
-    public void SetAI(bool AI)
+    public void SetAI(bool AI, bool RL = false)
     {
         isAI = AI;
+        isRL = RL;
     }
 
     public void SetCardDragging(bool drag)
@@ -611,9 +621,10 @@ public class PlayerControl : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void RpcSetAI(bool AI)
+    public void RpcSetAI(bool AI, bool RL)
     {
         isAI = AI;
+        isRL = RL;
         GetComponent<NetworkIdentity>().localPlayerAuthority = false;
     }
 
@@ -738,7 +749,8 @@ public class PlayerControl : NetworkBehaviour
     IEnumerator AITurnDelay()
     {
         yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f));
-        AIThinking(null);   // 여기서 objectTarget과 playCardAI를 설정함.
+        if (IsRL) AIThinkingRL(null);
+        else AIThinking(null);   // 여기서 objectTarget과 playCardAI를 설정함.
         int i = bm.GetPlayers().IndexOf(objectTarget);
         bm.SetObjectPlayer(i);
         objectTarget = null;
@@ -751,7 +763,8 @@ public class PlayerControl : NetworkBehaviour
     IEnumerator AIExchangeDelay()
     {
         yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
-        AIThinking(bm.GetTurnPlayer());
+        if (IsRL) AIThinkingRL(bm.GetTurnPlayer());
+        else AIThinking(bm.GetTurnPlayer());
         bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
         playCardAI = null;
         yield return null;
@@ -878,8 +891,9 @@ public class PlayerControl : NetworkBehaviour
     /// <summary>
     /// 인공지능이 자신을 목표로 하는 플레이어들을 추정하게 하는 함수입니다. 플레이어들을 분류한 정보를 목록으로 반환합니다.
     /// </summary>
-    private List<int> AIObjectRelation()
+    public List<int> AIObjectRelation()
     {
+        if (!isAI) return null;
         List<int> enemyPoint = new List<int>(); // 인덱스는 플레이어 인덱스이고, 그 값이 높을수록 그 플레이어가 자신의 천적일 가능성이 높다.
         for (int i = 0; i < 5; i++)
         {
@@ -1001,8 +1015,9 @@ public class PlayerControl : NetworkBehaviour
     /// <summary>
     /// 인공지능이 각 플레이어가 어떤 카드를 손패에 들고 있는지 추정하게 하는 함수입니다.
     /// </summary>
-    private List<string> AIHandEstimation()
+    public List<string> AIHandEstimation()
     {
+        if (!isAI) return null;
         // TODO 각 플레이어가 했던 마지막 교환의 결과를 바탕으로 현재 손패의 카드 분배 상황을 추정해서 목록으로 반환하기
         List<Card> myHand = bm.GetPlayerHand(this);
         List<Exchange> exc = bm.GetExchanges();
@@ -1841,8 +1856,11 @@ public class PlayerControl : NetworkBehaviour
         List<int> objectRelation = AIObjectRelation();
 
         string stateSpace = bm.GetStateSpace(this, hand, objectRelation);
-        
-        LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace);
+
+        Debug.Log("current state: " + stateSpace);
+
+        LobbyManager.s_Singleton.IPCs[0].SendRequest("False");          // 게임 종료 여부를 IPC로 전달
+        LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace);       // 인공지능 플레이어가 바라본 현재 상태를 IPC로 전달
 
         string actionScore = LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
         List<int> maxActionIndex = new List<int>();

@@ -132,7 +132,12 @@ def main():
             step_count = 0
 
             while not done:
+                done = list(map(bool, sys.stdin.readline().split()))
+                if done:
+                    break
+                print("# " + str(done))
                 state = list(map(float, sys.stdin.readline().split()))  # secret5.state()
+                print("# " + str(state))
                 if np.random.rand(1) < e:
                     action = [1, 1, 1, 1, 1, 1, 1, 1]  # env.action_space.sample()
                 else:
@@ -141,12 +146,16 @@ def main():
                 # Get new state and reward from environment
                 string_out = []
                 for a in action:
-                    string_out.append('a')
+                    string_out.append(str(a))
                 print(''.join(string_out))
                 performed_action = list(map(int, sys.stdin.readline().split()))  # secret5.step(action)
+                print("# " + str(performed_action))
                 next_state = list(map(float, sys.stdin.readline().split()))
-                reward = list(map(float, sys.stdin.readline().split()))
+                print("# " + str(next_state))
+                reward = list(map(int, sys.stdin.readline().split()))
+                print("# " + str(reward))
                 done = list(map(bool, sys.stdin.readline().split()))
+                print("# " + str(done))
                 """
                 if done:  # penalty
                     reward = -100

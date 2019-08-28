@@ -854,26 +854,7 @@ public class PlayerControl : NetworkBehaviour
         // TODO 특정 상대에게 특정 카드를 줄 때의 결과를 생각하여 행동 점수를 매기고, 점수에 해당하는 수만큼 상자에 제비뽑기를 넣어 랜덤으로 하나 뽑기
         List<Card> myHand = bm.GetPlayerHand(this);
         List<string> decisionBox = new List<string>(); // 이 목록에 제비뽑기를 넣고 나중에 하나 뽑아 나온 행동을 한다.
-        if (opponent == null)
-        {
-            for (int i = 0; i < 5; i++)
-            {
-                if (i == GetPlayerIndex()) continue;
-                AIScoreBehaviorRL(hand, decisionBox);
-            }
-            // TODO 랜덤 말고 인공지능으로 고치기
-            /*
-            do
-            {
-                objectTarget = bm.GetPlayers()[Random.Range(0, 5)];
-            } while (objectTarget == null || objectTarget.Equals(this));
-            */
-        }
-        else
-        {
-            int i = opponent.GetPlayerIndex();
-            AIScoreBehaviorRL(hand, decisionBox);
-        }
+        AIScoreBehaviorRL(hand, decisionBox);
         // TODO 랜덤 말고 인공지능으로 고치기
         string lottery = decisionBox[Random.Range(0, decisionBox.Count)];
         bm.RpcPrintLog("lottery is " + lottery + ".");
@@ -1859,7 +1840,7 @@ public class PlayerControl : NetworkBehaviour
 
         Debug.Log("current state: " + stateSpace);
 
-        LobbyManager.s_Singleton.IPCs[0].SendRequest("False");          // 게임 종료 여부를 IPC로 전달
+        LobbyManager.s_Singleton.IPCs[0].SendRequest("0");              // 게임 종료 여부를 IPC로 전달
         LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace);       // 인공지능 플레이어가 바라본 현재 상태를 IPC로 전달
 
         string actionScore = LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();

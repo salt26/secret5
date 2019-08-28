@@ -5,6 +5,8 @@ import random
 import tensorflow as tf
 from collections import deque
 import sys
+import time
+import traceback
 
 # env = gym.make('CartPole-v0')
 # env._max_episode_steps = 10001
@@ -116,77 +118,84 @@ def main():
     # store the previous observations in replay memory
     replay_buffer = deque()
 
-    with tf.Session() as sess:
-        mainDQN = DQN(sess, input_size, output_size, name="main")
-        targetDQN = DQN(sess, input_size, output_size, name="target")
-        tf.global_variables_initializer().run()
+    try:
+        with tf.Session() as sess:
+            mainDQN = DQN(sess, input_size, output_size, name="main")
+            targetDQN = DQN(sess, input_size, output_size, name="target")
+            tf.global_variables_initializer().run()
 
-        # initial copy q_net -> target_net
-        copy_ops = get_copy_var_ops(dest_scope_name="target", src_scope_name="main")
+            # initial copy q_net -> target_net
+            copy_ops = get_copy_var_ops(dest_scope_name="target", src_scope_name="main")
 
-        sess.run(copy_ops)
+            sess.run(copy_ops)
+            input()
 
-        for episode in range(max_episodes):
-            e = 1. / ((episode / 10) + 1)
-            done = False
-            step_count = 0
+            for episode in range(max_episodes):
+                e = 1. / ((episode / 10) + 1)
+                done = False
+                step_count = 0
 
-            while not done:
-                done = list(map(bool, sys.stdin.readline().split()))
-                if done:
-                    break
-                print("# " + str(done))
-                state = list(map(float, sys.stdin.readline().split()))  # secret5.state()
-                print("# " + str(state))
-                if np.random.rand(1) < e:
-                    action = [1, 1, 1, 1, 1, 1, 1, 1]  # env.action_space.sample()
-                else:
-                    action = mainDQN.predict(state).tolist() # np.argmax(mainDQN.predict(state))
+                while not done:
+                    string = input()
+                    print("# hello: " + string)
+                    done = map(int, string)
+                    print("# done: " + str(done))
+                    if done == 1:
+                        break
+                    state = list(map(float, input().split()))  # secret5.state()
+                    print("# state: " + str(state))
+                    if np.random.rand(1) < e:
+                        action = [1, 1, 1, 1, 1, 1, 1, 1]  # env.action_space.sample()
+                    else:
+                        action = mainDQN.predict(state).tolist() # np.argmax(mainDQN.predict(state))
 
-                # Get new state and reward from environment
-                string_out = []
-                for a in action:
-                    string_out.append(str(a))
-                print(''.join(string_out))
-                performed_action = list(map(int, sys.stdin.readline().split()))  # secret5.step(action)
-                print("# " + str(performed_action))
-                next_state = list(map(float, sys.stdin.readline().split()))
-                print("# " + str(next_state))
-                reward = list(map(int, sys.stdin.readline().split()))
-                print("# " + str(reward))
-                done = list(map(bool, sys.stdin.readline().split()))
-                print("# " + str(done))
-                """
-                if done:  # penalty
-                    reward = -100
-                """
+                    # Get new state and reward from environment
+                    string_out = []
+                    for a in action:
+                        string_out.append(str(a))
+                    print(' '.join(string_out))
+                    performed_action = list(map(int, input().split()))  # secret5.step(action)
+                    print("# action: " + str(performed_action))
+                    next_state = list(map(float, input().split()))
+                    print("# next_state: " + str(next_state))
+                    reward = list(map(int, input().split()))
+                    print("# reward: " + str(reward))
+                    done = list(map(int, input().split()))
+                    print("# done: " + str(done))
+                    """
+                    if done:  # penalty
+                        reward = -100
+                    """
 
-                # Save the experiance to our buffer
-                replay_buffer.append((state, performed_action, reward, next_state, done))
-                if len(replay_buffer) > REPLAY_MEMORY:
-                    replay_buffer.popleft()
+                    # Save the experiance to our buffer
+                    replay_buffer.append((state, performed_action, reward, next_state, done))
+                    if len(replay_buffer) > REPLAY_MEMORY:
+                        replay_buffer.popleft()
 
-                step_count += 1
-                """
-                if step_count > 10000:  # Good enough. Let's move on
-                    break
-                """
+                    step_count += 1
+                    """
+                    if step_count > 10000:  # Good enough. Let's move on
+                        break
+                    """
 
-            print("# Episode: {}    steps: {}".format(episode, step_count))
-            if step_count > 10000:
-                pass  # break
+                print("# Episode: {}    steps: {}".format(episode, step_count))
+                if step_count > 10000:
+                    pass  # break
 
-            if episode % 10 == 1:  # train every 10 episode
-                # Get a random batch of experiences.
-                for _ in range(50):
-                    minibatch = random.sample(replay_buffer, 10)
-                    loss, _ = replay_train(mainDQN, targetDQN, minibatch)
+                if episode % 10 == 1:  # train every 10 episode
+                    # Get a random batch of experiences.
+                    for _ in range(50):
+                        minibatch = random.sample(replay_buffer, 10)
+                        loss, _ = replay_train(mainDQN, targetDQN, minibatch)
 
-                print("# Loss: ", loss)
-                # Copy q_net -> target_net
-                sess.run(copy_ops)
+                    print("# Loss: ", loss)
+                    # Copy q_net -> target_net
+                    sess.run(copy_ops)
 
-        # bot_play(mainDQN)
+            # bot_play(mainDQN)
+    except Exception:
+        traceback.print_exc()
+        time.sleep(8)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Threading;
 
 /// <summary> 
 /// Used to show simple C# and Python interprocess communication
@@ -12,6 +13,8 @@ public class IPC
     public StreamReader myStreamReader;
     public StreamWriter myStreamWriter;
     public int playerIndex;             // 누구의 강화학습 모델인가
+
+    Thread myThread;
 
     public IPC()
     {
@@ -49,12 +52,11 @@ public class IPC
 
         myStreamReader = myProcess.StandardOutput;
         myStreamWriter = myProcess.StandardInput;
-
+        myStreamWriter.WriteLine("hello");
     }
 
     public string ReceiveRequest()
     {
-
         // Read the standard output of the app we called.  
         // in order to avoid deadlock we will read output first 
         // and then wait for process terminate: 
@@ -62,9 +64,11 @@ public class IPC
         do
         {
             myString = myStreamReader.ReadLine();
+            UnityEngine.Debug.Log("Raw received: " + myString);
 
-        } while (myString == null || myString.Length < 1 || myString.Substring(0, 1).Equals("#"));
+        } while (!myProcess.HasExited && (myString == null || myString.Length < 1 || myString.Substring(0, 1).Equals("#")));
 
+        UnityEngine.Debug.Log("Received: " + myString);
         return myString;
 
         /*if you need to read multiple lines, you might use: 
@@ -76,6 +80,7 @@ public class IPC
 
     public void SendRequest(string message)
     {
+        UnityEngine.Debug.Log("Sent: " + message);
         myStreamWriter.WriteLine(message);
     }
 

@@ -386,7 +386,8 @@ public class BattleManager : NetworkBehaviour
 
             bool hasIPCPlayerExchanged = false;
             if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex() ||
-                LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetObjectPlayer().GetPlayerIndex())
+                LobbyManager.s_Singleton.IPCs[0].playerIndex == 
+                exchange.GetObjectPlayer().GetPlayerIndex())
             {
                 PlayerControl player = GetPlayers()[LobbyManager.s_Singleton.IPCs[0].playerIndex];
                 string nextStateSpace = GetStateSpace(player, player.AIHandEstimation(), player.AIObjectRelation());
@@ -490,7 +491,7 @@ public class BattleManager : NetworkBehaviour
                 }
                 RpcPrintLog("Battle ends.");
                 */
-                LobbyManager.s_Singleton.IPCs[0].SendRequest("True");    // 게임 종료 여부를 IPC로 전달
+                LobbyManager.s_Singleton.IPCs[0].SendRequest("1");    // 게임 종료 여부를 IPC로 전달
                 if (GetIsWin()[LobbyManager.s_Singleton.IPCs[0].playerIndex])
                 {
                     Debug.Log("Win!");
@@ -507,7 +508,7 @@ public class BattleManager : NetworkBehaviour
                 //RpcPrintLog("Turn ends.");
                 if (hasIPCPlayerExchanged)
                 {
-                    LobbyManager.s_Singleton.IPCs[0].SendRequest("False");    // 게임 종료 여부를 IPC로 전달
+                    LobbyManager.s_Singleton.IPCs[0].SendRequest("0");    // 게임 종료 여부를 IPC로 전달
                 }
                 turnPlayer += 1;
                 if (turnPlayer >= 5) turnPlayer = 0;

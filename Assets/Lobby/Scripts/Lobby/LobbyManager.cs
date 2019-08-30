@@ -243,7 +243,7 @@ namespace Prototype.NetworkLobby
         {
             episode++;
             Debug.Log("Episode " + episode + " is done.");
-            if (episode < 10)
+            if (episode < 2000)
             {
                 StartCoroutine(Restart());
             }

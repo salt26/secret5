@@ -525,16 +525,17 @@ public class BattleManager : NetworkBehaviour
                 }
                 RpcPrintLog("Battle ends.");
                 */
-                LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "1", "End");    // 게임 종료 여부를 IPC로 전달
-                bm.SetIPCMessage("");
                 if (GetIsWin()[LobbyManager.s_Singleton.IPCs[0].playerIndex])
                 {
+                    LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "1", "Win");    // 게임 종료 여부를 IPC로 전달
                     Debug.Log("Win!");
                 }
                 else
                 {
+                    LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "2", "Lose");    // 게임 종료 여부를 IPC로 전달
                     Debug.Log("Lose!");
                 }
+                bm.SetIPCMessage("");
                 StartCoroutine(ReturnToLobby(10f));
                 turnStep = 8;
             }

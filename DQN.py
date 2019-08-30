@@ -114,9 +114,11 @@ def bot_play(mainDQN):
 """
 
 def main():
-    max_episodes = 10
+    max_episodes = 2000
     # store the previous observations in replay memory
     replay_buffer = deque()
+    win_count = 0
+    log_record = []
 
     try:
         with tf.Session() as sess:
@@ -132,13 +134,13 @@ def main():
 
             for episode in range(max_episodes):
                 e = 1. / ((episode / 10) + 1)
-                done = False
+                done = 0
                 step_count = 0
 
-                while not done:
+                while done == 0:
                     done = int(input())
                     print("# done(start): " + str(done))
-                    if done == 1:
+                    if done > 0:
                         break
                     state = list(map(float, input().split(' ')))  # secret5.state()
                     print("# state: " + str(state))
@@ -166,8 +168,12 @@ def main():
                         reward = -100
                     """
 
+                    if done > 0:
+                        done_record = True
+                    else:
+                        done_record = False
                     # Save the experiance to our buffer
-                    replay_buffer.append((state, performed_action, reward, next_state, done))
+                    replay_buffer.append((state, performed_action, reward, next_state, done_record))
                     if len(replay_buffer) > REPLAY_MEMORY:
                         replay_buffer.popleft()
 
@@ -177,7 +183,15 @@ def main():
                         break
                     """
 
-                print("# Episode: {}    steps: {}".format(episode + 1, step_count))
+                if done == 1:
+                    win = True
+                    win_count += 1
+                elif done == 2:
+                    win = False
+
+                log = "Episode: {}    steps: {}    win: {}".format(episode + 1, step_count, win)
+                print("# " + log)
+                log_record.append(log)
                 if step_count > 10000:
                     pass  # break
 
@@ -187,7 +201,9 @@ def main():
                         minibatch = random.sample(replay_buffer, 10)
                         loss, _ = replay_train(mainDQN, targetDQN, minibatch)
 
-                    print("# Loss: ", loss)
+                    log = "Loss: {}".format(loss)
+                    print("# " + log)
+                    log_record.append(log)
                     # Copy q_net -> target_net
                     sess.run(copy_ops)
 
@@ -195,6 +211,10 @@ def main():
     except Exception:
         traceback.print_exc()
         time.sleep(8)
+
+    file = open("record.txt", mode='w', encoding='utf-8')
+    file.write('\n'.join(log_record) + "\nwin rate: {} / {} = {}\n".format(win_count, max_episodes, (float(win_count)/max_episodes)))
+    file.close()
 
 
 if __name__ == "__main__":

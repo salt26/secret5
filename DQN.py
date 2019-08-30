@@ -7,6 +7,7 @@ from collections import deque
 import sys
 import time
 import traceback
+from datetime import datetime
 
 # env = gym.make('CartPole-v0')
 # env._max_episode_steps = 10001
@@ -114,13 +115,19 @@ def bot_play(mainDQN):
 """
 
 def main():
-    max_episodes = 2000
+    max_episodes = 30
     # store the previous observations in replay memory
     replay_buffer = deque()
+
     win_count = 0
     log_record = []
+    last_log_length = 0
 
     try:
+        file = open("record.txt", mode='w', encoding='utf-8')
+        file.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
+        file.close()
+
         with tf.Session() as sess:
             mainDQN = DQN(sess, input_size, output_size, name="main")
             targetDQN = DQN(sess, input_size, output_size, name="target")
@@ -136,6 +143,7 @@ def main():
                 e = 1. / ((episode / 10) + 1)
                 done = 0
                 step_count = 0
+                reward_sum = 0
 
                 while done == 0:
                     done = int(input())
@@ -167,6 +175,7 @@ def main():
                     if done:  # penalty
                         reward = -100
                     """
+                    reward_sum += reward
 
                     if done > 0:
                         done_record = True
@@ -189,7 +198,7 @@ def main():
                 elif done == 2:
                     win = False
 
-                log = "Episode: {}    steps: {}    win: {}".format(episode + 1, step_count, win)
+                log = "Episode: {}    steps: {}    reward sum: {}    win: {}".format(episode + 1, step_count, reward_sum, win)
                 print("# " + log)
                 log_record.append(log)
                 if step_count > 10000:
@@ -201,9 +210,15 @@ def main():
                         minibatch = random.sample(replay_buffer, 10)
                         loss, _ = replay_train(mainDQN, targetDQN, minibatch)
 
-                    log = "Loss: {}".format(loss)
+                    log = "Loss: {}    win rate: {} / {} = {}".format(loss, win_count, episode + 1, (float(win_count)/(episode + 1)))
                     print("# " + log)
                     log_record.append(log)
+
+                    file = open("record.txt", mode='at', encoding='utf-8')
+                    file.write('\n'.join(log_record[last_log_length:]) + '\n')
+                    file.close()
+                    last_log_length = len(log_record)
+
                     # Copy q_net -> target_net
                     sess.run(copy_ops)
 
@@ -212,8 +227,10 @@ def main():
         traceback.print_exc()
         time.sleep(8)
 
-    file = open("record.txt", mode='w', encoding='utf-8')
-    file.write('\n'.join(log_record) + "\nwin rate: {} / {} = {}\n".format(win_count, max_episodes, (float(win_count)/max_episodes)))
+    file = open("record.txt", mode='at', encoding='utf-8')
+    file.write('\n'.join(log_record[last_log_length:]) + "\nwin rate: {} / {} = {}\n".format(win_count, max_episodes,
+                                                                           (float(win_count)/max_episodes)))
+    file.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
     file.close()
 
 

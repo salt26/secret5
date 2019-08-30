@@ -15,6 +15,7 @@ public class IPC
     public int playerIndex;             // 누구의 강화학습 모델인가
 
     Thread myThread;
+    string buffer;
 
     public IPC()
     {
@@ -53,6 +54,7 @@ public class IPC
         myStreamReader = myProcess.StandardOutput;
         myStreamWriter = myProcess.StandardInput;
         myStreamWriter.WriteLine("hello");
+        buffer = "";
     }
 
     public string ReceiveRequest()
@@ -64,11 +66,11 @@ public class IPC
         do
         {
             myString = myStreamReader.ReadLine();
-            UnityEngine.Debug.Log("Raw received: " + myString);
+            UnityEngine.Debug.Log("< Raw: " + myString);
 
         } while (!myProcess.HasExited && (myString == null || myString.Length < 1 || myString.Substring(0, 1).Equals("#")));
 
-        UnityEngine.Debug.Log("Received: " + myString);
+        UnityEngine.Debug.Log("< : " + myString);
         return myString;
 
         /*if you need to read multiple lines, you might use: 
@@ -78,10 +80,19 @@ public class IPC
         //Console.WriteLine("Value received from script: " + myString);
     }
 
-    public void SendRequest(string message)
+    public void SendRequest(string message, bool isBuffered)
     {
-        UnityEngine.Debug.Log("Sent: " + message);
-        myStreamWriter.WriteLine(message);
+        if (isBuffered)
+        {
+            buffer += message + "\n";
+        }
+        else
+        {
+            buffer += message;
+            UnityEngine.Debug.Log("> : " + buffer);
+            myStreamWriter.WriteLine(buffer);
+            buffer = "";
+        }
     }
 
     public void EndPython()

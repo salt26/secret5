@@ -386,13 +386,13 @@ public class BattleManager : NetworkBehaviour
 
             bool hasIPCPlayerExchanged = false;
             if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex() ||
-                LobbyManager.s_Singleton.IPCs[0].playerIndex == 
-                exchange.GetObjectPlayer().GetPlayerIndex())
+                (!exchange.GetIsFreezed() && 
+                LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetObjectPlayer().GetPlayerIndex()))
             {
                 PlayerControl player = GetPlayers()[LobbyManager.s_Singleton.IPCs[0].playerIndex];
                 string nextStateSpace = GetStateSpace(player, player.AIHandEstimation(), player.AIObjectRelation());
                 Debug.Log("next state: " + nextStateSpace);
-                LobbyManager.s_Singleton.IPCs[0].SendRequest(nextStateSpace);   // 다음 상태를 IPC로 전달
+                LobbyManager.s_Singleton.IPCs[0].SendRequest(nextStateSpace, true);   // 다음 상태를 IPC로 전달
 
                 int reward = 0;
                 if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex())
@@ -403,22 +403,25 @@ public class BattleManager : NetworkBehaviour
                         reward -= 30;                                           // 본인 사망 시 -30점
                     }
 
-                    if (GetTarget(LobbyManager.s_Singleton.IPCs[0].playerIndex).Contains(exchange.GetObjectPlayer().GetPlayerIndex()))
+                    if (!exchange.GetIsFreezed())
                     {
-                        // 상대가 본인의 목표
-                        reward -= exchange.GetObjectPlayerHealthVariation();    // 본인의 목표인 상대의 체력 변화량 +1당 -1점
-                        if (!player.HasDead() && exchange.GetObjectPlayer().HasDead())
+                        if (GetTarget(LobbyManager.s_Singleton.IPCs[0].playerIndex).Contains(exchange.GetObjectPlayer().GetPlayerIndex()))
                         {
-                            reward += 30;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +30점
+                            // 상대가 본인의 목표
+                            reward -= exchange.GetObjectPlayerHealthVariation();    // 본인의 목표인 상대의 체력 변화량 +1당 -1점
+                            if (!player.HasDead() && exchange.GetObjectPlayer().HasDead())
+                            {
+                                reward += 30;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +30점
+                            }
                         }
-                    }
-                    else
-                    {
-                        // 상대가 본인의 목표가 아님
-                        reward += exchange.GetObjectPlayerHealthVariation();    // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +1점
-                        if (exchange.GetObjectPlayer().HasDead())
+                        else
                         {
-                            reward -= 30;                                       // 본인의 목표가 아닌 상대 사망 시 -30점
+                            // 상대가 본인의 목표가 아님
+                            reward += exchange.GetObjectPlayerHealthVariation();    // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +1점
+                            if (exchange.GetObjectPlayer().HasDead())
+                            {
+                                reward -= 30;                                       // 본인의 목표가 아닌 상대 사망 시 -30점
+                            }
                         }
                     }
                 }
@@ -450,7 +453,7 @@ public class BattleManager : NetworkBehaviour
                     }
                 }
                 Debug.Log("reward: " + reward);
-                LobbyManager.s_Singleton.IPCs[0].SendRequest(reward.ToString());    // 보상을 IPC로 전달
+                LobbyManager.s_Singleton.IPCs[0].SendRequest(reward.ToString(), true);    // 보상을 IPC로 전달
                 hasIPCPlayerExchanged = true;
             }
 
@@ -491,7 +494,7 @@ public class BattleManager : NetworkBehaviour
                 }
                 RpcPrintLog("Battle ends.");
                 */
-                LobbyManager.s_Singleton.IPCs[0].SendRequest("1");    // 게임 종료 여부를 IPC로 전달
+                LobbyManager.s_Singleton.IPCs[0].SendRequest("1", false);    // 게임 종료 여부를 IPC로 전달
                 if (GetIsWin()[LobbyManager.s_Singleton.IPCs[0].playerIndex])
                 {
                     Debug.Log("Win!");
@@ -508,7 +511,8 @@ public class BattleManager : NetworkBehaviour
                 //RpcPrintLog("Turn ends.");
                 if (hasIPCPlayerExchanged)
                 {
-                    LobbyManager.s_Singleton.IPCs[0].SendRequest("0");    // 게임 종료 여부를 IPC로 전달
+                    Debug.Log("done: 0");
+                    LobbyManager.s_Singleton.IPCs[0].SendRequest("0", false);    // 게임 종료 여부를 IPC로 전달
                 }
                 turnPlayer += 1;
                 if (turnPlayer >= 5) turnPlayer = 0;

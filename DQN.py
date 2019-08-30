@@ -136,32 +136,31 @@ def main():
                 step_count = 0
 
                 while not done:
-                    string = input()
-                    print("# hello: " + string)
-                    done = map(int, string)
-                    print("# done: " + str(done))
+                    done = int(input())
+                    print("# done(start): " + str(done))
                     if done == 1:
                         break
-                    state = list(map(float, input().split()))  # secret5.state()
+                    state = list(map(float, input().split(' ')))  # secret5.state()
                     print("# state: " + str(state))
                     if np.random.rand(1) < e:
                         action = [1, 1, 1, 1, 1, 1, 1, 1]  # env.action_space.sample()
                     else:
                         action = mainDQN.predict(state).tolist() # np.argmax(mainDQN.predict(state))
 
+                    print("# action: " + str(action))
                     # Get new state and reward from environment
                     string_out = []
                     for a in action:
                         string_out.append(str(a))
                     print(' '.join(string_out))
-                    performed_action = list(map(int, input().split()))  # secret5.step(action)
-                    print("# action: " + str(performed_action))
-                    next_state = list(map(float, input().split()))
+                    performed_action = list(map(int, input().split(' ')))  # secret5.step(action)
+                    print("# performed_action: " + str(performed_action))
+                    next_state = list(map(float, input().split(' ')))
                     print("# next_state: " + str(next_state))
-                    reward = list(map(int, input().split()))
+                    reward = float(input())
                     print("# reward: " + str(reward))
-                    done = list(map(int, input().split()))
-                    print("# done: " + str(done))
+                    done = int(input())
+                    print("# done(end): " + str(done))
                     """
                     if done:  # penalty
                         reward = -100

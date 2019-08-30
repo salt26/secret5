@@ -1840,8 +1840,8 @@ public class PlayerControl : NetworkBehaviour
 
         Debug.Log("current state: " + stateSpace);
 
-        LobbyManager.s_Singleton.IPCs[0].SendRequest("0");              // 게임 종료 여부를 IPC로 전달
-        LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace);       // 인공지능 플레이어가 바라본 현재 상태를 IPC로 전달
+        LobbyManager.s_Singleton.IPCs[0].SendRequest("0", true);              // 게임 종료 여부를 IPC로 전달
+        LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace, false);       // 인공지능 플레이어가 바라본 현재 상태를 IPC로 전달
 
         string actionScore = LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
         List<int> maxActionIndex = new List<int>();
@@ -1878,8 +1878,9 @@ public class PlayerControl : NetworkBehaviour
                 }
             }
             chosenAction = chosenAction.TrimEnd(' ');
-            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction);
+            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction, true);
             box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
+            Debug.Log("AI choose " + box[0] + " action in my turn.");
         }
         else
         {
@@ -1915,9 +1916,9 @@ public class PlayerControl : NetworkBehaviour
                 }
             }
             chosenAction = chosenAction.TrimEnd(' ');
-            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction);     // performed_action
+            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction, true);     // performed_action
             box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
-            Debug.Log("AI choose " + box[0] + " action.");
+            Debug.Log("AI choose " + box[0] + " action in other's turn.");
         }
     }
 }

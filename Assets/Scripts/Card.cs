@@ -136,6 +136,7 @@ public class Card : NetworkBehaviour {
             yield return null;
         }
         */
+        yield return null;
         GetComponent<Transform>().position = dp;
         
         // 주차할 방향으로 회전입니다.

@@ -114,7 +114,7 @@ def bot_play(mainDQN):
 """
 
 def main():
-    max_episodes = 1000
+    max_episodes = 10
     # store the previous observations in replay memory
     replay_buffer = deque()
 

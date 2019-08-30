@@ -160,7 +160,7 @@ public class PlayerControl : NetworkBehaviour
         {
             StatusUpdate();
         }
-        if (isLocalPlayer && Input.GetMouseButton(0) && Input.touchCount <= 1 && !isCardDragging)
+        if (isLocalPlayer && Input.GetMouseButton(0) && Input.touchCount <= 1 && !isCardDragging && !IsRL)
         {
             /*
             if (bm.GetObjectPlayer() != null)
@@ -773,14 +773,36 @@ public class PlayerControl : NetworkBehaviour
         if (BattleManager.NO_DELAY)
             yield return null;
         else
-            yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f));
+            yield return new WaitForSeconds(Random.Range(1.5f, 3f));
         if (IsRL) AIThinkingRL(null);
         else AIThinking(null);   // 여기서 objectTarget과 playCardAI를 설정함.
         yield return null;
         int i = bm.GetPlayers().IndexOf(objectTarget);
         bm.SetObjectPlayer(i);
         objectTarget = null;
-        bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
+        if (this.Equals(Pusher.localPlayer) && this.Equals(PushingCard.localPlayer))
+        {
+            Pusher pusher = GameObject.FindObjectOfType<Pusher>();
+            pusher.SetStartEndDragCooltime();
+            string tag = "";
+            Card card = playCardAI;
+            if (playCardAI.Equals(bm.GetPlayerHand(this)[0]))
+            {
+                tag = "Left";
+            }
+            else
+            {
+                tag = "Right";
+            }
+            Vector3 cardx = GameObject.FindGameObjectWithTag(tag).transform.position;
+            Vector3 cardOriginal = GameObject.FindGameObjectWithTag(tag).GetComponent<PushingCard>().CardOriginal;
+            pusher.MoveCardUp(cardx, new Vector3(cardOriginal.x, Screen.height * 3 / 2), tag);
+            pusher.SetSelectedCard(new SelectedInfo(card, tag, cardOriginal));
+        }
+        else
+        {
+            bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
+        }
         playCardAI = null;
         while (bm.GetTurnStep() == 2 || bm.GetTurnStep() == 3)
             yield return null;
@@ -793,11 +815,34 @@ public class PlayerControl : NetworkBehaviour
         if (BattleManager.NO_DELAY)
             yield return null;
         else
-            yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
+            yield return new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
         if (IsRL) AIThinkingRL(bm.GetTurnPlayer());
         else AIThinking(bm.GetTurnPlayer());
         yield return null;
-        bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
+
+        if (this.Equals(Pusher.localPlayer) && this.Equals(PushingCard.localPlayer))
+        {
+            Pusher pusher = GameObject.FindObjectOfType<Pusher>();
+            pusher.SetStartEndDragCooltime();
+            string tag = "";
+            Card card = playCardAI;
+            if (playCardAI.Equals(bm.GetPlayerHand(this)[0]))
+            {
+                tag = "Left";
+            }
+            else
+            {
+                tag = "Right";
+            }
+            Vector3 cardx = GameObject.FindGameObjectWithTag(tag).transform.position;
+            Vector3 cardOriginal = GameObject.FindGameObjectWithTag(tag).GetComponent<PushingCard>().CardOriginal;
+            pusher.MoveCardUp(cardx, new Vector3(cardOriginal.x, Screen.height * 3 / 2), tag);
+            pusher.SetSelectedCard(new SelectedInfo(card, tag, cardOriginal));
+        }
+        else
+        {
+            bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
+        }
         playCardAI = null;
         while (bm.GetTurnStep() == 2 || bm.GetTurnStep() == 3)
             yield return null;
@@ -1952,7 +1997,7 @@ public class PlayerControl : NetworkBehaviour
             chosenAction = chosenAction.TrimEnd(' ');
             bm.SetIPCMessage(chosenAction);     // performed_action
             box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
-            Debug.Log("AI choose " + box[0] + " action in other's turn.");
+            //Debug.Log("AI choose " + box[0] + " action in other's turn.");
         }
     }
 }

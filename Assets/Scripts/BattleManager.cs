@@ -10,6 +10,7 @@ public class BattleManager : NetworkBehaviour
 
     static public BattleManager bm;
     public const bool NO_DELAY = true;
+    public const bool USING_RL = true;
 
     public GameObject player;
     [SerializeField] private List<GameObject> cards = new List<GameObject>();
@@ -123,7 +124,7 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p1);
             p1.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
-        else
+        else if (USING_RL)
         {
             players[0].GetComponent<PlayerControl>().SetAI(true, true);
             players[0].GetComponent<PlayerControl>().RpcSetAI(true, true);
@@ -141,7 +142,7 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p2);
             p2.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
-        else
+        else if (USING_RL)
         {
             players[1].GetComponent<PlayerControl>().SetAI(true, true);
             players[1].GetComponent<PlayerControl>().RpcSetAI(true, true);
@@ -159,7 +160,7 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p3);
             p3.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
-        else
+        else if (USING_RL)
         {
             players[2].GetComponent<PlayerControl>().SetAI(true, true);
             players[2].GetComponent<PlayerControl>().RpcSetAI(true, true);
@@ -177,7 +178,7 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p4);
             p4.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
-        else
+        else if (USING_RL)
         {
             players[3].GetComponent<PlayerControl>().SetAI(true, true);
             players[3].GetComponent<PlayerControl>().RpcSetAI(true, true);
@@ -195,7 +196,7 @@ public class BattleManager : NetworkBehaviour
             NetworkServer.Spawn(p5);
             p5.GetComponent<PlayerControl>().RpcSetAI(true, false);
         }
-        else
+        else if (USING_RL)
         {
             players[4].GetComponent<PlayerControl>().SetAI(true, true);
             players[4].GetComponent<PlayerControl>().RpcSetAI(true, true);

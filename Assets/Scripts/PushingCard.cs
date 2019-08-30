@@ -19,6 +19,14 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     private Card cardL;
     private Card cardR;
 
+    public Vector3 CardOriginal
+    {
+        get
+        {
+            return cardOriginal;
+        }
+    }
+
     private void Awake()
     {
         bm = BattleManager.bm;
@@ -72,12 +80,14 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (localPlayer.IsRL) return;
         cardx.x = transform.position.x;
         localPlayer.SetCardDragging(true);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
+        if (localPlayer.IsRL) return;
         if ((localPlayer.Equals(bm.GetTurnPlayer()) && localPlayer.GetObjectTarget() != null && bm.GetTurnStep() == 2)
             || (localPlayer.Equals(bm.GetObjectPlayer()) && bm.GetTurnStep() == 3))
         {
@@ -94,6 +104,7 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (localPlayer.IsRL) return;
         localPlayer.SetCardDragging(false);
         if (!pusher.GetEndDragCooltime() && this.transform.position.y >= Screen.height * 8 / 16)
         {

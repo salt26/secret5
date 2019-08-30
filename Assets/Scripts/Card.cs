@@ -106,48 +106,56 @@ public class Card : NetworkBehaviour {
             t = Time.time;
             fr = GetRotationFront(start);
             br = GetRotationBack(start);
-            /*
-            while (Time.time < t + 1f)
+
+            if (!BattleManager.NO_DELAY)
             {
-                GetComponent<Transform>().rotation = Quaternion.Slerp(fr, br, (Time.time - t) / 1f);
-                yield return null;
+                while (Time.time < t + 1f)
+                {
+                    GetComponent<Transform>().rotation = Quaternion.Slerp(fr, br, (Time.time - t) / 1f);
+                    yield return null;
+                }
             }
-            */
             GetComponent<Transform>().rotation = br;
         }
 
         // 움직일 방향으로 회전입니다.
         t = Time.time;
-        /*
-        while (Time.time < t + (25f / 60f))
+        if (!BattleManager.NO_DELAY)
         {
-            GetComponent<Transform>().rotation = Quaternion.Slerp(sr, mr, (Time.time - t) / (25f / 60f));
-            yield return null;
+            while (Time.time < t + (25f / 60f))
+            {
+                GetComponent<Transform>().rotation = Quaternion.Slerp(sr, mr, (Time.time - t) / (25f / 60f));
+                yield return null;
+            }
         }
-        */
         GetComponent<Transform>().rotation = mr;
         
         // 목적지까지 직진입니다.
         t = Time.time;
-        /*
-        while (Time.time < t + (2f / 3f))
+        if (!BattleManager.NO_DELAY)
         {
-            GetComponent<Transform>().position = Vector3.Lerp(sp, dp, (Time.time - t) / (2f / 3f));
+            while (Time.time < t + (2f / 3f))
+            {
+                GetComponent<Transform>().position = Vector3.Lerp(sp, dp, (Time.time - t) / (2f / 3f));
+                yield return null;
+            }
+        }
+        else
+        {
             yield return null;
         }
-        */
-        yield return null;
         GetComponent<Transform>().position = dp;
         
         // 주차할 방향으로 회전입니다.
         t = Time.time;
-        /*
-        while (Time.time < t + (25f / 60f))
+        if (!BattleManager.NO_DELAY)
         {
-            GetComponent<Transform>().rotation = Quaternion.Slerp(mr, dr, (Time.time - t) / (25f / 60f));
-            yield return null;
+            while (Time.time < t + (25f / 60f))
+            {
+                GetComponent<Transform>().rotation = Quaternion.Slerp(mr, dr, (Time.time - t) / (25f / 60f));
+                yield return null;
+            }
         }
-        */
         GetComponent<Transform>().rotation = dr;
 
         // 내가 받은 카드이면 뒷면에서 앞면으로 뒤집습니다.
@@ -156,13 +164,14 @@ public class Card : NetworkBehaviour {
             t = Time.time;
             fr = GetRotationFront(dest);
             br = GetRotationBack(dest);
-            /*
-            while (Time.time < t + 1f)
+            if (!BattleManager.NO_DELAY)
             {
-                GetComponent<Transform>().rotation = Quaternion.Slerp(br, fr, (Time.time - t) / 1f);
-                yield return null;
+                while (Time.time < t + 1f)
+                {
+                    GetComponent<Transform>().rotation = Quaternion.Slerp(br, fr, (Time.time - t) / 1f);
+                    yield return null;
+                }
             }
-            */
             GetComponent<Transform>().rotation = fr;
         }
 

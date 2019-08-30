@@ -9,6 +9,7 @@ public class BattleManager : NetworkBehaviour
 {
 
     static public BattleManager bm;
+    public const bool NO_DELAY = true;
 
     public GameObject player;
     [SerializeField] private List<GameObject> cards = new List<GameObject>();
@@ -59,6 +60,7 @@ public class BattleManager : NetworkBehaviour
     [SerializeField] private GameObject loadingPanel;
     [SerializeField] private GameObject exchangeLog;
     private List<GameObject> exchanges = new List<GameObject>();
+    private string IPCMessage = "";
 
     private void Awake()
     {
@@ -125,6 +127,7 @@ public class BattleManager : NetworkBehaviour
         {
             players[0].GetComponent<PlayerControl>().SetAI(true, true);
             players[0].GetComponent<PlayerControl>().RpcSetAI(true, true);
+            players[0].GetComponent<PlayerControl>().playerName = "RL" + players[0].GetComponent<PlayerControl>().playerName;
             players[0].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             LobbyManager.s_Singleton.IPCs[0].playerIndex = 0;
         }
@@ -142,6 +145,7 @@ public class BattleManager : NetworkBehaviour
         {
             players[1].GetComponent<PlayerControl>().SetAI(true, true);
             players[1].GetComponent<PlayerControl>().RpcSetAI(true, true);
+            players[1].GetComponent<PlayerControl>().playerName = "RL" + players[1].GetComponent<PlayerControl>().playerName;
             players[1].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             LobbyManager.s_Singleton.IPCs[0].playerIndex = 1;
         }
@@ -159,6 +163,7 @@ public class BattleManager : NetworkBehaviour
         {
             players[2].GetComponent<PlayerControl>().SetAI(true, true);
             players[2].GetComponent<PlayerControl>().RpcSetAI(true, true);
+            players[2].GetComponent<PlayerControl>().playerName = "RL" + players[2].GetComponent<PlayerControl>().playerName;
             players[2].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             LobbyManager.s_Singleton.IPCs[0].playerIndex = 2;
         }
@@ -176,6 +181,7 @@ public class BattleManager : NetworkBehaviour
         {
             players[3].GetComponent<PlayerControl>().SetAI(true, true);
             players[3].GetComponent<PlayerControl>().RpcSetAI(true, true);
+            players[3].GetComponent<PlayerControl>().playerName = "RL" + players[3].GetComponent<PlayerControl>().playerName;
             players[3].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             LobbyManager.s_Singleton.IPCs[0].playerIndex = 3;
         }
@@ -193,6 +199,7 @@ public class BattleManager : NetworkBehaviour
         {
             players[4].GetComponent<PlayerControl>().SetAI(true, true);
             players[4].GetComponent<PlayerControl>().RpcSetAI(true, true);
+            players[4].GetComponent<PlayerControl>().playerName = "RL" + players[4].GetComponent<PlayerControl>().playerName;
             players[4].GetComponent<NetworkIdentity>().localPlayerAuthority = false;
             LobbyManager.s_Singleton.IPCs[0].playerIndex = 4;
         }
@@ -219,7 +226,11 @@ public class BattleManager : NetworkBehaviour
         //RpcPrintLog("" + cv);
         RpcSetCardIndex(cv);
 
-        yield return null; // new WaitForSeconds(2f);
+
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(2f);
 
         for (int i = 0; i < 10; i++)
         {
@@ -269,6 +280,7 @@ public class BattleManager : NetworkBehaviour
 
         if (turnStep == 1)
         {
+            Debug.Log("turnStep 1");
             // 빙결된 상태이면 교환을 할 수 없다.
             if (players[turnPlayer].HasFreezed())
             {
@@ -350,6 +362,15 @@ public class BattleManager : NetworkBehaviour
             exchange = ex.GetComponent<Exchange>();
             exchange.SetFreezed(players[turnPlayer]);
             NetworkServer.Spawn(ex);
+            if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex())
+            {
+                PlayerControl player = exchange.GetTurnPlayer();
+                string stateSpace = bm.GetStateSpace(player, player.AIHandEstimation(), player.AIObjectRelation());
+                LobbyManager.s_Singleton.IPCs[0].SendRequest("0\n" + stateSpace, "Freezed");
+                LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
+                // 게임 종료 여부와 인공지능 플레이어가 바라본 현재 상태, 그리고 아무 행동도 수행하지 않았음을 IPC로 전달
+                bm.SetIPCMessage("0 0 0 0 0 0 0 0");
+            }
 
             players[turnPlayer].Freeze();
             players[turnPlayer].RpcFreeze();
@@ -369,6 +390,7 @@ public class BattleManager : NetworkBehaviour
         }
         else if (turnStep == 7)
         {
+            Debug.Log("turnStep 7");
             bool isEnd = false;
             for (int i = 0; i < 5; i++)
             {
@@ -389,10 +411,18 @@ public class BattleManager : NetworkBehaviour
                 (!exchange.GetIsFreezed() && 
                 LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetObjectPlayer().GetPlayerIndex()))
             {
+                if (IPCMessage == null || IPCMessage.Length == 0)
+                {
+                    Debug.LogWarning("IPC performed_action is null");
+                }
+                else
+                {
+                    IPCMessage += "\n";
+                }
                 PlayerControl player = GetPlayers()[LobbyManager.s_Singleton.IPCs[0].playerIndex];
                 string nextStateSpace = GetStateSpace(player, player.AIHandEstimation(), player.AIObjectRelation());
-                Debug.Log("next state: " + nextStateSpace);
-                LobbyManager.s_Singleton.IPCs[0].SendRequest(nextStateSpace, true);   // 다음 상태를 IPC로 전달
+                //Debug.Log("next state: " + nextStateSpace);
+                IPCMessage += nextStateSpace + "\n";   // 다음 상태를 IPC로 전달
 
                 int reward = 0;
                 if (LobbyManager.s_Singleton.IPCs[0].playerIndex == exchange.GetTurnPlayer().GetPlayerIndex())
@@ -452,8 +482,8 @@ public class BattleManager : NetworkBehaviour
                         }
                     }
                 }
-                Debug.Log("reward: " + reward);
-                LobbyManager.s_Singleton.IPCs[0].SendRequest(reward.ToString(), true);    // 보상을 IPC로 전달
+                //Debug.Log("reward: " + reward);
+                IPCMessage += reward.ToString() + "\n";    // 보상을 IPC로 전달
                 hasIPCPlayerExchanged = true;
             }
 
@@ -494,7 +524,7 @@ public class BattleManager : NetworkBehaviour
                 }
                 RpcPrintLog("Battle ends.");
                 */
-                LobbyManager.s_Singleton.IPCs[0].SendRequest("1", false);    // 게임 종료 여부를 IPC로 전달
+                LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "1", "End");    // 게임 종료 여부를 IPC로 전달
                 if (GetIsWin()[LobbyManager.s_Singleton.IPCs[0].playerIndex])
                 {
                     Debug.Log("Win!");
@@ -511,8 +541,8 @@ public class BattleManager : NetworkBehaviour
                 //RpcPrintLog("Turn ends.");
                 if (hasIPCPlayerExchanged)
                 {
-                    Debug.Log("done: 0");
-                    LobbyManager.s_Singleton.IPCs[0].SendRequest("0", false);    // 게임 종료 여부를 IPC로 전달
+                    //Debug.Log("done: 0");
+                    LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "0", "After");    // 게임 종료 여부를 IPC로 전달
                 }
                 turnPlayer += 1;
                 if (turnPlayer >= 5) turnPlayer = 0;
@@ -564,6 +594,12 @@ public class BattleManager : NetworkBehaviour
             objectPlayerCard = cardCode;
             //RpcPrintLog(players[playerIndex].GetName() + " sets " + GetCard(cardCode).GetCardName() + " card to play.");
         }
+    }
+
+    public void SetIPCMessage(string message)
+    {
+        Debug.Log("SetIPCMessage: " + message);
+        IPCMessage = message;
     }
 
     public List<Card> GetPlayerHand(PlayerControl player)
@@ -718,7 +754,7 @@ public class BattleManager : NetworkBehaviour
     }
 
     /// <summary>
-    /// 강화학습을 하기 위해 player 기준에서 바라보는 현재 게임의 상태를 80개의 float 목록으로 반환합니다.
+    /// 강화학습을 하기 위해 player 기준에서 바라보는 현재 게임의 상태를 81개의 float 목록으로 반환합니다.
     /// </summary>
     /// <param name="player">강화학습하는 인공지능 플레이어</param>
     /// <param name="hand">player가 추정한 각 플레이어의 손패</param>
@@ -786,6 +822,15 @@ public class BattleManager : NetworkBehaviour
             {
                 stateSpace += "0 ";
             }
+        }
+
+        if (bm.GetTurnPlayer().Equals(player) && player.HasFreezed())
+        {
+            stateSpace += "1 ";
+        }
+        else
+        {
+            stateSpace += "0 ";
         }
         stateSpace = stateSpace.TrimEnd(' ');
         return stateSpace;
@@ -926,7 +971,10 @@ public class BattleManager : NetworkBehaviour
 
     IEnumerator ReturnToLobby(float timing)
     {
-        yield return null; // new WaitForSeconds(timing);
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(timing);
         loadingPanel.SetActive(true);
         LobbyManager.s_Singleton.ServerReturnToLobbyAndRestart();
     }

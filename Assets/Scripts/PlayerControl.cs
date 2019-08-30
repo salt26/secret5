@@ -664,23 +664,27 @@ public class PlayerControl : NetworkBehaviour
         Quaternion Original = Face.transform.localRotation;
 
         float t = Time.time;
-        /*
-        while (Time.time - t < (20f / 60f))
+        if (!BattleManager.NO_DELAY)
         {
-            Face.transform.localRotation = Quaternion.Lerp(Original, Quaternion.Euler(0f, 181f, 0f), (Time.time - t) / (20f / 60f));
-            yield return null;
-        }
+            while (Time.time - t < (20f / 60f))
+            {
+                Face.transform.localRotation = Quaternion.Lerp(Original, Quaternion.Euler(0f, 181f, 0f), (Time.time - t) / (20f / 60f));
+                yield return null;
+            }
 
-        t = Time.time;
-        while (Time.time - t < (20f / 60f))
-        {
-            Face.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(0f, 181f, 0f), Original, (Time.time - t) / (20f / 60f));
-            yield return null;
+            t = Time.time;
+            while (Time.time - t < (20f / 60f))
+            {
+                Face.transform.localRotation = Quaternion.Lerp(Quaternion.Euler(0f, 181f, 0f), Original, (Time.time - t) / (20f / 60f));
+                yield return null;
+            }
         }
-        */
 
         Face.transform.localRotation = Original;
-        yield return null; // new WaitForSeconds(40f / 60f);
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(40f / 60f);
         Face.sprite = Resources.Load("캐릭터/디폴트_캐릭터", typeof(Sprite)) as Sprite;
     }
 
@@ -689,17 +693,21 @@ public class PlayerControl : NetworkBehaviour
         //Log("DamagedAnimation");
         Face.sprite = Resources.Load("캐릭터/데미지받은_캐릭터", typeof(Sprite)) as Sprite;
         Vector3 Original = Face.transform.localPosition;
-        /*
-        for (int i = 0; i < 5; i++)
+        if (!BattleManager.NO_DELAY)
         {
-            Face.transform.localPosition = Original + new Vector3(0.2f, 0f, 0f);
-            yield return null; // new WaitForSeconds(5f / 60f);
-            Face.transform.localPosition = Original + new Vector3(-0.2f, 0f, 0f);
-            yield return null; // new WaitForSeconds(5f / 60f);
+            for (int i = 0; i < 5; i++)
+            {
+                Face.transform.localPosition = Original + new Vector3(0.2f, 0f, 0f);
+                yield return new WaitForSeconds(5f / 60f);
+                Face.transform.localPosition = Original + new Vector3(-0.2f, 0f, 0f);
+                yield return new WaitForSeconds(5f / 60f);
+            }
         }
-        */
         Face.transform.localPosition = Original;
-        yield return null; // new WaitForSeconds(40f / 60f);
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(40f / 60f);
         Face.sprite = Resources.Load("캐릭터/디폴트_캐릭터", typeof(Sprite)) as Sprite;
     }
 
@@ -707,7 +715,10 @@ public class PlayerControl : NetworkBehaviour
     {
         //Log("DeadAnimation");
         Face.sprite = Resources.Load("캐릭터/죽은_캐릭터", typeof(Sprite)) as Sprite;
-        yield return null; // new WaitForSeconds(30f / 30f);
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(30f / 30f);
         //폭발애니메이...
         
         
@@ -720,19 +731,29 @@ public class PlayerControl : NetworkBehaviour
         Ice.transform.localScale = new Vector3(0.25f, 0.25f, 0.25f);
         Ice.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.75f);
         Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음0", typeof(Sprite)) as Sprite;
-        yield return null; // new WaitForSeconds(4f / 3f);
-        Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음2", typeof(Sprite)) as Sprite;
-        yield return null; // new WaitForSeconds(4f / 3f);
-        Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음4", typeof(Sprite)) as Sprite;
-        yield return null; // new WaitForSeconds(4f / 3f);
-        float t = Time.time;
-        /*
-        while (Time.time - t < (90f / 60f))
-        {
-            Ice.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(1f, 1f, 1f, 0.75f), new Color(1f, 1f, 1f, 0f), (Time.time - t) / (90f / 60f));
+        if (BattleManager.NO_DELAY)
             yield return null;
+        else
+            yield return new WaitForSeconds(4f / 3f);
+        Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음2", typeof(Sprite)) as Sprite;
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(4f / 3f);
+        Ice.GetComponent<SpriteRenderer>().sprite = Resources.Load("이펙트/대전화면_빙결/얼음4", typeof(Sprite)) as Sprite;
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(4f / 3f);
+        float t = Time.time;
+        if (!BattleManager.NO_DELAY)
+        {
+            while (Time.time - t < (90f / 60f))
+            {
+                Ice.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(1f, 1f, 1f, 0.75f), new Color(1f, 1f, 1f, 0f), (Time.time - t) / (90f / 60f));
+                yield return null;
+            }
         }
-        */
         Ice.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0f);
         //Log("In client, " + GetName() + " isAI? " + isAI + ", then why not thawed?");
         //if (isServer) bm.RpcPrintLog("In server, " + GetName() + " isAI? " + isAI + ", then why not thawed?");
@@ -748,26 +769,38 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator AITurnDelay()
     {
-        yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f));
+        Debug.Log("AITurnDelay");
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f));
         if (IsRL) AIThinkingRL(null);
         else AIThinking(null);   // 여기서 objectTarget과 playCardAI를 설정함.
+        yield return null;
         int i = bm.GetPlayers().IndexOf(objectTarget);
         bm.SetObjectPlayer(i);
         objectTarget = null;
         bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
         playCardAI = null;
-        yield return null;
+        while (bm.GetTurnStep() == 2 || bm.GetTurnStep() == 3)
+            yield return null;
         isThinking = false;
     }
 
     IEnumerator AIExchangeDelay()
     {
-        yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
+        Debug.Log("AIExchangeDelay");
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return null; // new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
         if (IsRL) AIThinkingRL(bm.GetTurnPlayer());
         else AIThinking(bm.GetTurnPlayer());
+        yield return null;
         bm.SetCardToPlay(playCardAI.GetCardCode(), GetPlayerIndex());
         playCardAI = null;
-        yield return null;
+        while (bm.GetTurnStep() == 2 || bm.GetTurnStep() == 3)
+            yield return null;
         isThinking = false;
     }
 
@@ -838,6 +871,7 @@ public class PlayerControl : NetworkBehaviour
     /// <param name="opponent">교환을 요청해온 상대</param>
     private void AIThinkingRL(PlayerControl opponent)
     {
+        Debug.Log("AIThinkingRL");
         List<int> playerClass = AIObjectRelation();
 
         /* TODO 임시 코드 */
@@ -1838,10 +1872,10 @@ public class PlayerControl : NetworkBehaviour
 
         string stateSpace = bm.GetStateSpace(this, hand, objectRelation);
 
-        Debug.Log("current state: " + stateSpace);
+        //Debug.Log("current state: " + stateSpace);
 
-        LobbyManager.s_Singleton.IPCs[0].SendRequest("0", true);              // 게임 종료 여부를 IPC로 전달
-        LobbyManager.s_Singleton.IPCs[0].SendRequest(stateSpace, false);       // 인공지능 플레이어가 바라본 현재 상태를 IPC로 전달
+        //LobbyManager.s_Singleton.IPCs[0].SendRequest("0", true);              // 게임 종료 여부를 IPC로 전달
+        LobbyManager.s_Singleton.IPCs[0].SendRequest("0\n" + stateSpace, "Before");       // 게임 종료 여부와 인공지능 플레이어가 바라본 현재 상태를 IPC로 전달
 
         string actionScore = LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
         List<int> maxActionIndex = new List<int>();
@@ -1878,7 +1912,7 @@ public class PlayerControl : NetworkBehaviour
                 }
             }
             chosenAction = chosenAction.TrimEnd(' ');
-            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction, true);
+            bm.SetIPCMessage(chosenAction);             // performed_action
             box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
             Debug.Log("AI choose " + box[0] + " action in my turn.");
         }
@@ -1916,7 +1950,7 @@ public class PlayerControl : NetworkBehaviour
                 }
             }
             chosenAction = chosenAction.TrimEnd(' ');
-            LobbyManager.s_Singleton.IPCs[0].SendRequest(chosenAction, true);     // performed_action
+            bm.SetIPCMessage(chosenAction);     // performed_action
             box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
             Debug.Log("AI choose " + box[0] + " action in other's turn.");
         }

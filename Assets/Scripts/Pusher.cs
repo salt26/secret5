@@ -29,6 +29,7 @@ public class Pusher : MonoBehaviour
     [SerializeField] bool moved;
     bool selected;
     bool freezed;
+    bool endDragCooltime;
 
     public Image glacier;
     private Image freeze;
@@ -48,6 +49,7 @@ public class Pusher : MonoBehaviour
         cardUIR = cardUI[2];
         moved = false;
         selected = false;
+        endDragCooltime = false;
         freezed = false;
         opponentPlayerCardCode = -1;
     }
@@ -141,7 +143,7 @@ public class Pusher : MonoBehaviour
 
     public IEnumerator AfterSmallMove()
     {
-        while (!ExchangeComplete)
+        while (!ExchangeComplete || bm == null || bm.GetTurnStep() == 3 || bm.GetTurnStep() == 4 || bm.GetTurnStep() == 9)
         {
             yield return null;
         }
@@ -199,15 +201,20 @@ public class Pusher : MonoBehaviour
         float x = CardPosition.y;
 
         float t = Time.time;
-        /*
-        while ((Time.time - t) < ((2f / 3f) * (s * 3 / 2 - x) / (s * 11 / 16)))
+        if (!BattleManager.NO_DELAY)
         {
-            GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(CardPosition, det, (Time.time - t) / ((2f / 3f) * (s * 3 / 2 - x) / (s * 11 / 16)));
+            while ((Time.time - t) < ((2f / 3f) * (s * 3 / 2 - x) / (s * 11 / 16)))
+            {
+                GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(CardPosition, det, (Time.time - t) / ((2f / 3f) * (s * 3 / 2 - x) / (s * 11 / 16)));
+                yield return null;
+            }
+        }
+        else
+        {
             yield return null;
         }
-        */
-        yield return null;
         GameObject.FindGameObjectWithTag(LR).transform.position = det;
+        endDragCooltime = false;
     }
 
     public void MoveCardDown(Vector3 start, Vector3 dest, string LF)
@@ -219,14 +226,18 @@ public class Pusher : MonoBehaviour
     {
         float t = Time.time;
         changingCard = true;
-        /*
-        while (Time.time - t < 3f / 3f)
+        if (!BattleManager.NO_DELAY)
         {
-            GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(CardPosition, det, (Time.time - t) / (3f / 3f));
+            while (Time.time - t < 3f / 3f)
+            {
+                GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(CardPosition, det, (Time.time - t) / (3f / 3f));
+                yield return null;
+            }
+        }
+        else
+        {
             yield return null;
         }
-        */
-        yield return null;
         GameObject.FindGameObjectWithTag(LR).transform.position = det;
     }
 
@@ -250,28 +261,36 @@ public class Pusher : MonoBehaviour
         Vector3 DCardPosition = GameObject.FindGameObjectWithTag(RL).transform.position;
         Vector3 DCarddet = new Vector3(DCardPosition.x, Screen.height * 3 / 2);
 
-        /*
-        while (Time.time - t < 3f / 3f)
+        if (!BattleManager.NO_DELAY)
         {
-            GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(SelectedCardPosition, SelectedCarddet, (Time.time - t) / (3f / 3f));
-            GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCardPosition, DCarddet, (Time.time - t) / (3f / 3f));
+            while (Time.time - t < 3f / 3f)
+            {
+                GameObject.FindGameObjectWithTag(LR).transform.position = Vector3.Lerp(SelectedCardPosition, SelectedCarddet, (Time.time - t) / (3f / 3f));
+                GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCardPosition, DCarddet, (Time.time - t) / (3f / 3f));
+                yield return null;
+            }
+        }
+        else
+        {
             yield return null;
         }
-        */
-        yield return null;
         GameObject.FindGameObjectWithTag(LR).transform.position = SelectedCarddet;
         GameObject.FindGameObjectWithTag(RL).transform.position = DCarddet;
 
         t = Time.time;
         changingCard = true;
-        /*
-        while (Time.time - t < 3f / 3f)
+        if (!BattleManager.NO_DELAY)
         {
-            GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCarddet, DCardPosition, (Time.time - t) / (3f / 3f));
+            while (Time.time - t < 3f / 3f)
+            {
+                GameObject.FindGameObjectWithTag(RL).transform.position = Vector3.Lerp(DCarddet, DCardPosition, (Time.time - t) / (3f / 3f));
+                yield return null;
+            }
+        }
+        else
+        {
             yield return null;
         }
-        */
-        yield return null;
         GameObject.FindGameObjectWithTag(RL).transform.position = DCardPosition;
 
     }
@@ -305,5 +324,15 @@ public class Pusher : MonoBehaviour
         {
             opponentPlayerCardCode = TPCardCode;
         }
+    }
+
+    public bool GetEndDragCooltime()
+    {
+        return endDragCooltime;
+    }
+
+    public void SetStartEndDragCooltime()
+    {
+        endDragCooltime = true;
     }
 }

@@ -95,8 +95,9 @@ public class PushingCard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndD
     public void OnEndDrag(PointerEventData eventData)
     {
         localPlayer.SetCardDragging(false);
-        if (this.transform.position.y >= Screen.height * 8 / 16)
+        if (!pusher.GetEndDragCooltime() && this.transform.position.y >= Screen.height * 8 / 16)
         {
+            pusher.SetStartEndDragCooltime();
             if (CompareTag("Left"))
             {
                 pusher.MoveCardUp(cardx, new Vector3(cardOriginal.x, Screen.height * 3 / 2), tag);

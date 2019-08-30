@@ -12,7 +12,7 @@ import traceback
 # env._max_episode_steps = 10001
 
 # Constants defining our neural network
-input_size = 80  # env.observation_space.shape[0]
+input_size = 81  # env.observation_space.shape[0]
 output_size = 8  # env.action_space.n
 
 # Set Q-learning related parameters
@@ -143,14 +143,14 @@ def main():
                     state = list(map(float, input().split(' ')))  # secret5.state()
                     print("# state: " + str(state))
                     if np.random.rand(1) < e:
-                        action = [1, 1, 1, 1, 1, 1, 1, 1]  # env.action_space.sample()
+                        action = [[1, 1, 1, 1, 1, 1, 1, 1]]  # env.action_space.sample()
                     else:
                         action = mainDQN.predict(state).tolist() # np.argmax(mainDQN.predict(state))
 
-                    print("# action: " + str(action))
+                    print("# action: " + str(action[0]))
                     # Get new state and reward from environment
                     string_out = []
-                    for a in action:
+                    for a in action[0]:
                         string_out.append(str(a))
                     print(' '.join(string_out))
                     performed_action = list(map(int, input().split(' ')))  # secret5.step(action)

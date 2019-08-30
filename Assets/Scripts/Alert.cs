@@ -48,7 +48,10 @@ public class Alert : MonoBehaviour {
                 image.sprite = battleLoseSprite;
                 break;
         }
-        yield return null; // new WaitForSeconds(1.5f);
+        if (BattleManager.NO_DELAY)
+            yield return null;
+        else
+            yield return new WaitForSeconds(1.5f);
         alertPanel.gameObject.SetActive(false);
     }
 }

@@ -769,7 +769,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator AITurnDelay()
     {
-        Debug.Log("AITurnDelay");
+        //Debug.Log("AITurnDelay");
         if (BattleManager.NO_DELAY)
             yield return null;
         else
@@ -789,7 +789,7 @@ public class PlayerControl : NetworkBehaviour
 
     IEnumerator AIExchangeDelay()
     {
-        Debug.Log("AIExchangeDelay");
+        //Debug.Log("AIExchangeDelay");
         if (BattleManager.NO_DELAY)
             yield return null;
         else
@@ -871,7 +871,7 @@ public class PlayerControl : NetworkBehaviour
     /// <param name="opponent">교환을 요청해온 상대</param>
     private void AIThinkingRL(PlayerControl opponent)
     {
-        Debug.Log("AIThinkingRL");
+        //Debug.Log("AIThinkingRL");
         List<int> playerClass = AIObjectRelation();
 
         /* TODO 임시 코드 */
@@ -1914,7 +1914,7 @@ public class PlayerControl : NetworkBehaviour
             chosenAction = chosenAction.TrimEnd(' ');
             bm.SetIPCMessage(chosenAction);             // performed_action
             box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
-            Debug.Log("AI choose " + box[0] + " action in my turn.");
+            //Debug.Log("AI choose " + box[0] + " action in my turn.");
         }
         else
         {

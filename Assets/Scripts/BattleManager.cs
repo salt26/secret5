@@ -280,7 +280,7 @@ public class BattleManager : NetworkBehaviour
 
         if (turnStep == 1)
         {
-            Debug.Log("turnStep 1");
+            //Debug.Log("turnStep 1");
             // 빙결된 상태이면 교환을 할 수 없다.
             if (players[turnPlayer].HasFreezed())
             {
@@ -390,7 +390,7 @@ public class BattleManager : NetworkBehaviour
         }
         else if (turnStep == 7)
         {
-            Debug.Log("turnStep 7");
+            //Debug.Log("turnStep 7");
             bool isEnd = false;
             for (int i = 0; i < 5; i++)
             {
@@ -525,6 +525,7 @@ public class BattleManager : NetworkBehaviour
                 RpcPrintLog("Battle ends.");
                 */
                 LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "1", "End");    // 게임 종료 여부를 IPC로 전달
+                bm.SetIPCMessage("");
                 if (GetIsWin()[LobbyManager.s_Singleton.IPCs[0].playerIndex])
                 {
                     Debug.Log("Win!");
@@ -543,6 +544,7 @@ public class BattleManager : NetworkBehaviour
                 {
                     //Debug.Log("done: 0");
                     LobbyManager.s_Singleton.IPCs[0].SendRequest(IPCMessage + "0", "After");    // 게임 종료 여부를 IPC로 전달
+                    bm.SetIPCMessage("");
                 }
                 turnPlayer += 1;
                 if (turnPlayer >= 5) turnPlayer = 0;
@@ -598,7 +600,7 @@ public class BattleManager : NetworkBehaviour
 
     public void SetIPCMessage(string message)
     {
-        Debug.Log("SetIPCMessage: " + message);
+        //Debug.Log("SetIPCMessage: " + message);
         IPCMessage = message;
     }
 

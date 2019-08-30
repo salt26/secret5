@@ -177,7 +177,7 @@ def main():
                         break
                     """
 
-                print("# Episode: {}    steps: {}".format(episode, step_count))
+                print("# Episode: {}    steps: {}".format(episode + 1, step_count))
                 if step_count > 10000:
                     pass  # break
 

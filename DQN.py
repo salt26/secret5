@@ -241,7 +241,15 @@ def main():
                 elif done == 2:
                     win = False
 
-                log = "Episode: {}    steps: {}    reward sum: {}    win: {}".format(episode + 1, step_count, reward_sum, win)
+                judge = ""
+                if reward_sum >= 30:
+                    judge = "    Great!"
+                elif reward_sum <= -40:
+                    judge = "    Oops!"
+                elif reward_sum <= -20:
+                    judge = "    Bad!"
+
+                log = "Episode: {}    steps: {}    reward sum: {}    win: {}{}".format(episode + 1, step_count, reward_sum, win, judge)
                 print("# " + log)
                 log_record.append(log)
                 if step_count > 10000:

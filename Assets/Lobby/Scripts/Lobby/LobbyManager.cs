@@ -261,15 +261,10 @@ namespace Prototype.NetworkLobby
         {
             s_Singleton.ServerReturnToLobby();
             yield return new WaitForSeconds(0.1f);
-            /*
             while (s_Singleton.lobbyPanel.GetComponent<LobbyPlayerList>().Players.Count < 1)
             {
-                StopHostClbk();
-                yield return null;
-                StartHost();
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.1f);
             }
-            */
             foreach (LobbyPlayer p in s_Singleton.lobbyPanel.GetComponent<LobbyPlayerList>().Players)
             {
                 p.OnClientReady(true);

@@ -8,6 +8,7 @@ import sys
 import time
 import traceback
 from datetime import datetime
+import json
 
 # env = gym.make('CartPole-v0')
 # env._max_episode_steps = 10001
@@ -22,27 +23,36 @@ REPLAY_MEMORY = 50000
 
 
 class DQN:
-    def __init__(self, session, input_size, output_size, name="main"):
+    def __init__(self, session, input_size, output_size, name="main", load=False):
         self.session = session
         self.input_size = input_size
         self.output_size = output_size
         self.net_name = name
+        self._load = load
 
         self._build_network()
 
-    def _build_network(self, h_size=300, l_rate=1e-2):
+    def _build_network(self, h_size=300, l_rate=1e-3):
         with tf.variable_scope(self.net_name):
             self._X = tf.placeholder(
                 tf.float32, [None, self.input_size], name="input_x")
 
-            # First layer of weights
-            W1 = tf.get_variable("W1", shape=[self.input_size, h_size],
-                                 initializer=tf.contrib.layers.xavier_initializer())
+            if self._load:
+                # First layer of weights
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size])
+            else:
+                # First layer of weights
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size],
+                                     initializer=tf.contrib.layers.xavier_initializer())
             layer1 = tf.nn.tanh(tf.matmul(self._X, W1))
 
-            # Second layer of weights
-            W2 = tf.get_variable("W2", shape=[h_size, self.output_size],
-                                 initializer=tf.contrib.layers.xavier_initializer())
+            if self._load:
+                # Second layer of weights
+                W2 = tf.get_variable("W2", shape=[h_size, self.output_size])
+            else:
+                # Second layer of weights
+                W2 = tf.get_variable("W2", shape=[h_size, self.output_size],
+                                     initializer=tf.contrib.layers.xavier_initializer())
 
             # Q prediction
             self._Qpred = tf.matmul(layer1, W2)
@@ -56,6 +66,8 @@ class DQN:
         # Learning
         self._train = tf.train.AdamOptimizer(
             learning_rate=l_rate).minimize(self._loss)
+        # Saver
+        self.saver = tf.train.Saver()
 
     def predict(self, state):
         x = np.reshape(state, [1, self.input_size])
@@ -115,23 +127,44 @@ def bot_play(mainDQN):
 """
 
 def main():
+    load = False
+    if len(sys.argv) > 1:
+        load = True
+
     max_episodes = 2000
     # store the previous observations in replay memory
     replay_buffer = deque()
-
+    initial_episode = 0
     win_count = 0
+    if load:
+        with open("Trained/save.json", 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            # store the previous observations in replay memory
+            replay_buffer = deque(data["replay_buffer"])
+            initial_episode = data["episode"]
+            win_count = data["win_count"]
+
     log_record = []
     last_log_length = 0
 
     try:
-        file = open("record.txt", mode='w', encoding='utf-8')
-        file.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
-        file.close()
+        if load:
+            file = open("record.txt", mode='a', encoding='utf-8')
+            file.write("continue " + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
+            file.close()
+        else:
+            file = open("record.txt", mode='w', encoding='utf-8')
+            file.write("start " + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
+            file.close()
 
         with tf.Session() as sess:
-            mainDQN = DQN(sess, input_size, output_size, name="main")
-            targetDQN = DQN(sess, input_size, output_size, name="target")
-            tf.global_variables_initializer().run()
+            mainDQN = DQN(sess, input_size, output_size, name="main", load=load)
+            targetDQN = DQN(sess, input_size, output_size, name="target", load=load)
+            if load:
+                mainDQN.saver.restore(sess, "Trained/mainDQN.ckpt")
+                targetDQN.saver.restore(sess, "Trained/targetDQN.ckpt")
+            else:
+                tf.global_variables_initializer().run()
 
             # initial copy q_net -> target_net
             copy_ops = get_copy_var_ops(dest_scope_name="target", src_scope_name="main")
@@ -139,7 +172,7 @@ def main():
             sess.run(copy_ops)
             input()
 
-            for episode in range(max_episodes):
+            for episode in range(initial_episode, max_episodes):
                 e = 1. / ((episode / 10) + 1)
                 done = 0
                 step_count = 0
@@ -222,6 +255,15 @@ def main():
                     # Copy q_net -> target_net
                     sess.run(copy_ops)
 
+                    mainDQN.saver.save(sess, "Trained/mainDQN.ckpt")
+                    targetDQN.saver.save(sess, "Trained/targetDQN.ckpt")
+                    data = dict()
+                    data["episode"] = episode
+                    data["replay_buffer"] = list(replay_buffer)
+                    data["win_count"] = win_count
+                    with open("Trained/save.json", 'w', encoding='utf-8') as f:
+                        json.dump(data, f, ensure_ascii=False, indent=4)
+
             # bot_play(mainDQN)
     except Exception:
         traceback.print_exc()
@@ -230,7 +272,7 @@ def main():
     file = open("record.txt", mode='at', encoding='utf-8')
     file.write('\n'.join(log_record[last_log_length:]) + "\nwin rate: {} / {} = {}\n".format(win_count, max_episodes,
                                                                            (float(win_count)/max_episodes)))
-    file.write(datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
+    file.write("end " + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
     file.close()
 
 

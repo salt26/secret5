@@ -257,10 +257,13 @@ def main():
                     print("# " + log)
                     log_record.append(log)
 
-                if episode % 50 == 1:  # record every 50 episode
+                if episode % 30 == 1:  # record every 30 episode
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file.close()
+                    file2 = open("record" + str(int(episode / 30)) + ".txt", mode='at', encoding='utf-8')
+                    file2.write('\n'.join(log_record[last_log_length:]) + '\n')
+                    file2.close()
                     last_log_length = len(log_record)
 
                     # Copy q_net -> target_net

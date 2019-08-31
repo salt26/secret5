@@ -40,7 +40,7 @@ public class IPC
         // start python app with 3 arguments  
         // 1st arguments is pointer to itself,  
         // 2nd and 3rd are actual arguments we want to send 
-        myProcessStartInfo.Arguments = myPythonApp;
+        myProcessStartInfo.Arguments = myPythonApp + " 1";
 
         myProcess = new Process();
         // assign start information to the process 

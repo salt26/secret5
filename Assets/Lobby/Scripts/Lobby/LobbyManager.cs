@@ -60,6 +60,14 @@ namespace Prototype.NetworkLobby
         public List<IPC> IPCs = new List<IPC>();
         private int episode = 0;
 
+        public int Episode
+        {
+            set
+            {
+                episode = value;
+            }
+        }
+
         void Start()
         {
             s_Singleton = this;

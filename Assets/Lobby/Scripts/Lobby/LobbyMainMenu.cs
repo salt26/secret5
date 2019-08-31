@@ -43,6 +43,8 @@ namespace Prototype.NetworkLobby
             lobbyManager.networkAddress = "localhost"; //ipInput.text;
             lobbyManager.StartHost();
             lobbyManager.IPCs.Add(new IPC());
+            string ep = lobbyManager.IPCs[0].ReceiveRequest();
+            lobbyManager.Episode = int.Parse(ep);
         }
 
         public void OnClickJoin()

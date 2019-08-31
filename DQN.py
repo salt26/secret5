@@ -141,7 +141,7 @@ def main():
             data = json.load(f)
             # store the previous observations in replay memory
             replay_buffer = deque(data["replay_buffer"])
-            initial_episode = data["episode"]
+            initial_episode = data["episode"] + 1
             win_count = data["win_count"]
 
     log_record = []
@@ -171,6 +171,7 @@ def main():
 
             sess.run(copy_ops)
             input()
+            print(initial_episode)
 
             for episode in range(initial_episode, max_episodes):
                 e = 1. / ((episode / 10) + 1)
@@ -247,6 +248,7 @@ def main():
                     print("# " + log)
                     log_record.append(log)
 
+                if episode % 50 == 1:  # record every 50 episode
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file.close()
@@ -262,7 +264,7 @@ def main():
                     data["replay_buffer"] = list(replay_buffer)
                     data["win_count"] = win_count
                     with open("Trained/save.json", 'w', encoding='utf-8') as f:
-                        json.dump(data, f, ensure_ascii=False, indent=4)
+                        json.dump(data, f, ensure_ascii=False, indent=1)
 
             # bot_play(mainDQN)
     except Exception:

@@ -44,18 +44,27 @@ class DQN:
                 # First layer of weights
                 W1 = tf.get_variable("W1", shape=[self.input_size, h_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
-            layer1 = tf.nn.tanh(tf.matmul(self._X, W1))
+            layer1 = tf.nn.leaky_relu(tf.matmul(self._X, W1))
 
             if self._load:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size, self.output_size])
+                W2 = tf.get_variable("W2", shape=[h_size, h_size])
             else:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size, self.output_size],
+                W2 = tf.get_variable("W2", shape=[h_size, h_size],
+                                     initializer=tf.contrib.layers.xavier_initializer())
+            layer2 = tf.nn.leaky_relu(tf.matmul(layer1, W2))
+
+            if self._load:
+                # Second layer of weights
+                W3 = tf.get_variable("W3", shape=[h_size, self.output_size])
+            else:
+                # Second layer of weights
+                W3 = tf.get_variable("W3", shape=[h_size, self.output_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
 
             # Q prediction
-            self._Qpred = tf.matmul(layer1, W2)
+            self._Qpred = tf.matmul(layer2, W3)
 
         # We need to define the parts of the network needed for learning a
         # policy
@@ -131,7 +140,7 @@ def main():
     if len(sys.argv) > 1:
         load = True
 
-    max_episodes = 2000
+    max_episodes = 5000
     # store the previous observations in replay memory
     replay_buffer = deque()
     initial_episode = 0

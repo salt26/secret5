@@ -1923,7 +1923,7 @@ public class PlayerControl : NetworkBehaviour
 
         string actionScore = LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
         List<int> maxActionIndex = new List<int>();
-        float maxAction = Mathf.NegativeInfinity;
+        float maxAction = -100f;
         string[] s = actionScore.Split(' ');
 
         if (bm.GetTurnPlayer().Equals(this))
@@ -1934,6 +1934,7 @@ public class PlayerControl : NetworkBehaviour
                 score.Add(f);
                 if (f > maxAction)
                 {
+                    maxAction = f;
                     maxActionIndex = new List<int>();
                     maxActionIndex.Add(i);
                 }
@@ -1942,6 +1943,7 @@ public class PlayerControl : NetworkBehaviour
                     maxActionIndex.Add(i);
                 }
             }
+            //Debug.Log("max actionScore: " + maxAction + ", maxActionIndex: " + maxActionIndex.ToString());
             int chosenIndex = maxActionIndex[Random.Range(0, maxActionIndex.Count)];
             string chosenAction = "";
             for (int i = 0; i < 8; i++)
@@ -1972,6 +1974,7 @@ public class PlayerControl : NetworkBehaviour
 
                 if (f > maxAction)
                 {
+                    maxAction = f;
                     maxActionIndex = new List<int>();
                     maxActionIndex.Add(i);
                 }
@@ -1980,6 +1983,7 @@ public class PlayerControl : NetworkBehaviour
                     maxActionIndex.Add(i);
                 }
             }
+            //Debug.Log("max actionScore: " + maxAction + ", maxActionIndex: " + maxActionIndex.ToString());
             int chosenIndex = maxActionIndex[Random.Range(0, maxActionIndex.Count)];    // argmax with random
             string chosenAction = "";
             for (int i = 0; i < 8; i++)

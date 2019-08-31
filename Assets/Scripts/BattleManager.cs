@@ -272,7 +272,7 @@ public class BattleManager : NetworkBehaviour
 
         for (int i = 0; i < 5; i++)
         {
-            if (turnStep > 0 && players[i] == null) {
+            if (turnStep > 0 && players[i] == null && turnStep != 8 && turnStep != 12) {
                 // 중간에 클라이언트 한 명의 접속이 끊긴 경우 대전을 종료한다.
                 StartCoroutine(ReturnToLobby(5f));
                 turnStep = 12;
@@ -975,6 +975,7 @@ public class BattleManager : NetworkBehaviour
 
     IEnumerator ReturnToLobby(float timing)
     {
+        Debug.Log("ReturnToLobby");
         if (BattleManager.NO_DELAY)
             yield return null;
         else

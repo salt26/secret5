@@ -776,7 +776,7 @@ public class PlayerControl : NetworkBehaviour
             yield return new WaitForSeconds(Random.Range(1.5f, 3f));
         if (IsRL) AIThinkingRL(null);
         else AIThinking(null);   // 여기서 objectTarget과 playCardAI를 설정함.
-        yield return null;
+
         int i = bm.GetPlayers().IndexOf(objectTarget);
         bm.SetObjectPlayer(i);
         objectTarget = null;
@@ -818,7 +818,6 @@ public class PlayerControl : NetworkBehaviour
             yield return new WaitForSeconds(Random.Range(1.5f, 3f)); /* AUTO 시 주석처리 */
         if (IsRL) AIThinkingRL(bm.GetTurnPlayer());
         else AIThinking(bm.GetTurnPlayer());
-        yield return null;
 
         if (this.Equals(Pusher.localPlayer) && this.Equals(PushingCard.localPlayer))
         {

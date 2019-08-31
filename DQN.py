@@ -32,7 +32,7 @@ class DQN:
 
         self._build_network()
 
-    def _build_network(self, h_size=300, l_rate=1e-3):
+    def _build_network(self, h_size=300, l_rate=3e-4):
         with tf.variable_scope(self.net_name):
             self._X = tf.placeholder(
                 tf.float32, [None, self.input_size], name="input_x")
@@ -249,7 +249,7 @@ def main():
 
                 if episode % 10 == 1:  # train every 10 episode
                     # Get a random batch of experiences.
-                    for _ in range(50):
+                    for _ in range(100):
                         minibatch = random.sample(replay_buffer, 10)
                         loss, _ = replay_train(mainDQN, targetDQN, minibatch)
 
@@ -261,7 +261,7 @@ def main():
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file.close()
-                    file2 = open("record" + str(int(episode / 30)) + ".txt", mode='at', encoding='utf-8')
+                    file2 = open("record" + str(int(episode / 30)) + ".txt", mode='w', encoding='utf-8')
                     file2.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file2.close()
                     last_log_length = len(log_record)

@@ -277,7 +277,12 @@ def main():
                 elif reward_sum <= -25:
                     judge = "    @ Bad!"
 
-                log = "Episode: {}    steps: {}    reward sum: {}    win: {}{}".format(episode + 1, step_count, reward_sum, win, judge)
+                if win:
+                    win_str = "Win!"
+                else:
+                    win_str = "Lose!"
+
+                log = "Episode: {}    steps: {}    reward sum: {}    {}{}".format(episode + 1, step_count, reward_sum, win_str, judge)
                 print("# " + log)
                 log_record.append(log)
                 """

@@ -19,7 +19,7 @@ output_size = 8  # env.action_space.n
 
 # Set Q-learning related parameters
 dis = .99
-REPLAY_MEMORY = 50000
+REPLAY_MEMORY = 10000
 
 
 class DQN:
@@ -32,39 +32,48 @@ class DQN:
 
         self._build_network()
 
-    def _build_network(self, h_size=300, l_rate=3e-4):
+    def _build_network(self, h_size=128, l_rate=1e-3):
         with tf.variable_scope(self.net_name):
             self._X = tf.placeholder(
                 tf.float32, [None, self.input_size], name="input_x")
 
             if self._load:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size])
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 4])
             else:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size],
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 4],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer1 = tf.nn.leaky_relu(tf.matmul(self._X, W1))
 
             if self._load:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size, h_size])
+                W2 = tf.get_variable("W2", shape=[h_size * 4, h_size * 2])
             else:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size, h_size],
+                W2 = tf.get_variable("W2", shape=[h_size * 4, h_size * 2],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer2 = tf.nn.leaky_relu(tf.matmul(layer1, W2))
 
             if self._load:
-                # Second layer of weights
-                W3 = tf.get_variable("W3", shape=[h_size, self.output_size])
+                # Third layer of weights
+                W3 = tf.get_variable("W3", shape=[h_size * 2, h_size])
             else:
-                # Second layer of weights
-                W3 = tf.get_variable("W3", shape=[h_size, self.output_size],
+                # Third layer of weights
+                W3 = tf.get_variable("W3", shape=[h_size * 2, h_size],
+                                     initializer=tf.contrib.layers.xavier_initializer())
+            layer3 = tf.nn.leaky_relu(tf.matmul(layer2, W3))
+
+            if self._load:
+                # Fourth layer of weights
+                W4 = tf.get_variable("W4", shape=[h_size, self.output_size])
+            else:
+                # Fourth layer of weights
+                W4 = tf.get_variable("W4", shape=[h_size, self.output_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
 
             # Q prediction
-            self._Qpred = tf.matmul(layer2, W3)
+            self._Qpred = tf.matmul(layer3, W4)
 
         # We need to define the parts of the network needed for learning a
         # policy
@@ -100,8 +109,7 @@ def replay_train(mainDQN, targetDQN, train_batch):
             Q[0, action] = reward
         else:
             # get target from target DQN (Q')
-            Q[0, action] = reward + dis * np.max(
-                targetDQN.predict(next_state))
+            Q[0, action] = reward + dis * np.max(targetDQN.predict(next_state))
         y_stack = np.vstack([y_stack, Q])
         x_stack = np.vstack([x_stack, state])
 
@@ -157,6 +165,7 @@ def main():
 
     log_record = []
     last_log_length = 0
+    performed_action_record = []
 
     try:
         if load:
@@ -185,7 +194,7 @@ def main():
             print(initial_episode)
 
             for episode in range(initial_episode, max_episodes):
-                e = 1. / ((episode / 10) + 1)
+                e = 1. / ((episode / 30.) + 1)
                 done = 0
                 step_count = 0
                 reward_sum = 0
@@ -210,6 +219,11 @@ def main():
                     print(' '.join(string_out))
                     performed_action = list(map(int, input().split(' ')))  # secret5.step(action)
                     print("# performed_action: " + str(performed_action))
+                    try:
+                        ind = performed_action.index(1)
+                        performed_action_record.append(ind)
+                    except ValueError:
+                        pass
                     next_state = list(map(float, input().split(' ')))
                     print("# next_state: " + str(next_state))
                     reward = float(input())
@@ -277,6 +291,13 @@ def main():
                         log_record.append("recent win rate: {} / {} = {}".format(win_count - last_win_count,
                                                                                  record_period,
                                                                                  float(win_count - last_win_count) / record_period))
+                    log = "performed action index:\n>\t"
+                    for i in range(8):
+                        log = log + "{}\t".format(i)
+                    log = log + "\n>\t"
+                    for i in range(8):
+                        log = log + "{}\t".format(performed_action_record.count(i))
+                    log_record.append(log + "\n")
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file.close()
@@ -295,6 +316,7 @@ def main():
                     data["replay_buffer"] = list(replay_buffer)
                     data["win_count"] = win_count
                     last_win_count = win_count
+                    performed_action_record = []
                     with open("Trained/save.json", 'w', encoding='utf-8') as f:
                         json.dump(data, f, ensure_ascii=False, indent=1)
 

@@ -33,26 +33,26 @@ class DQN:
 
         self._build_network()
 
-    def _build_network(self, h_size=128, l_rate=1e-3):
+    def _build_network(self, h_size=256, l_rate=1e-3):
         with tf.variable_scope(self.net_name):
             self._X = tf.placeholder(
                 tf.float32, [None, self.input_size], name="input_x")
 
             if self._load:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 4])
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 2])
             else:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 4],
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 2],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer1 = tf.nn.leaky_relu(tf.matmul(self._X, W1))
 
             if self._load:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size * 4, h_size * 2])
+                W2 = tf.get_variable("W2", shape=[h_size * 2, h_size * 2])
             else:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size * 4, h_size * 2],
+                W2 = tf.get_variable("W2", shape=[h_size * 2, h_size * 2],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer2 = tf.nn.leaky_relu(tf.matmul(layer1, W2))
 
@@ -67,14 +67,23 @@ class DQN:
 
             if self._load:
                 # Fourth layer of weights
-                W4 = tf.get_variable("W4", shape=[h_size, self.output_size])
+                W4 = tf.get_variable("W4", shape=[h_size, h_size])
             else:
                 # Fourth layer of weights
-                W4 = tf.get_variable("W4", shape=[h_size, self.output_size],
+                W4 = tf.get_variable("W4", shape=[h_size, h_size],
+                                     initializer=tf.contrib.layers.xavier_initializer())
+            layer4 = tf.nn.leaky_relu(tf.matmul(layer3, W4))
+
+            if self._load:
+                # Fifth layer of weights
+                W5 = tf.get_variable("W5", shape=[h_size, self.output_size])
+            else:
+                # Fifth layer of weights
+                W5 = tf.get_variable("W5", shape=[h_size, self.output_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
 
             # Q prediction
-            self._Qpred = tf.matmul(layer3, W4)
+            self._Qpred = tf.matmul(layer4, W5)
 
         # We need to define the parts of the network needed for learning a
         # policy
@@ -195,7 +204,7 @@ def main():
             print(initial_episode)
 
             for episode in range(initial_episode, max_episodes):
-                e = 1. / ((episode / 30.) + 1)
+                e = 1. / ((episode / 45.) + 1)
                 done = 0
                 step_count = 0
                 reward_sum = 0
@@ -235,7 +244,7 @@ def main():
                     if done:  # penalty
                         reward = -100
                     """
-                    reward_sum += reward
+                    reward_sum = reward + dis * reward_sum
 
                     if done > 0:
                         done_record = True
@@ -259,13 +268,13 @@ def main():
                     win = False
 
                 judge = ""
-                if reward_sum >= 30:
+                if reward_sum >= 25:
                     judge = "    ** Great!"
-                elif reward_sum > 0:
+                elif reward_sum >= 5:
                     judge = "    * Good!"
-                elif reward_sum <= -60:
+                elif reward_sum <= -50:
                     judge = "    @@ Oops!"
-                elif reward_sum <= -30:
+                elif reward_sum <= -25:
                     judge = "    @ Bad!"
 
                 log = "Episode: {}    steps: {}    reward sum: {}    win: {}{}".format(episode + 1, step_count, reward_sum, win, judge)

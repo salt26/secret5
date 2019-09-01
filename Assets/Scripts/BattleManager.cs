@@ -431,7 +431,7 @@ public class BattleManager : NetworkBehaviour
                     reward += 3 * exchange.GetTurnPlayerHealthVariation();          // 본인의 체력 변화량 +1당 +3점
                     if (player.HasDead())
                     {
-                        reward -= 30;                                           // 본인 사망 시 -30점
+                        reward -= 60;                                           // 본인 사망 시 -60점
                     }
 
                     if (!exchange.GetIsFreezed())
@@ -442,7 +442,7 @@ public class BattleManager : NetworkBehaviour
                             reward -= 3 * exchange.GetObjectPlayerHealthVariation();    // 본인의 목표인 상대의 체력 변화량 +1당 -3점
                             if (!player.HasDead() && exchange.GetObjectPlayer().HasDead())
                             {
-                                reward += 45;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +45점
+                                reward += 60;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +60점
                             }
                         }
                         else
@@ -451,7 +451,7 @@ public class BattleManager : NetworkBehaviour
                             reward += 3 * exchange.GetObjectPlayerHealthVariation();    // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +3점
                             if (exchange.GetObjectPlayer().HasDead())
                             {
-                                reward -= 30;                                       // 본인의 목표가 아닌 상대 사망 시 -30점
+                                reward -= 60;                                       // 본인의 목표가 아닌 상대 사망 시 -60점
                             }
                         }
                     }
@@ -461,7 +461,7 @@ public class BattleManager : NetworkBehaviour
                     reward += 2 * exchange.GetObjectPlayerHealthVariation();        // 본인의 체력 변화량 +1당 +2점
                     if (player.HasDead())
                     {
-                        reward -= 20;                                           // 본인 사망 시 -20점
+                        reward -= 40;                                           // 본인 사망 시 -40점
                     }
 
                     if (GetTarget(LobbyManager.s_Singleton.IPCs[0].playerIndex).Contains(exchange.GetTurnPlayer().GetPlayerIndex()))
@@ -470,7 +470,7 @@ public class BattleManager : NetworkBehaviour
                         reward -= 2 * exchange.GetTurnPlayerHealthVariation();      // 본인의 목표인 상대의 체력 변화량 +1당 -2점
                         if (!player.HasDead() && exchange.GetTurnPlayer().HasDead())
                         {
-                            reward += 30;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +30점
+                            reward += 40;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +40점
                         }
                     }
                     else
@@ -479,7 +479,7 @@ public class BattleManager : NetworkBehaviour
                         reward += 2 * exchange.GetTurnPlayerHealthVariation();      // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +2점
                         if (exchange.GetTurnPlayer().HasDead())
                         {
-                            reward -= 20;                                       // 본인의 목표가 아닌 상대 사망 시 -20점
+                            reward -= 40;                                       // 본인의 목표가 아닌 상대 사망 시 -40점
                         }
                     }
                 }

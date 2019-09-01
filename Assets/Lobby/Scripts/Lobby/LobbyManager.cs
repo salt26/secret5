@@ -273,10 +273,14 @@ namespace Prototype.NetworkLobby
             {
                 yield return new WaitForSeconds(0.1f);
             }
-            foreach (LobbyPlayer p in s_Singleton.lobbyPanel.GetComponent<LobbyPlayerList>().Players)
+            while (SceneManager.GetActiveScene().name.Equals("Lobby"))
             {
-                p.OnClientReady(true);
-                p.OnReadyClicked();
+                foreach (LobbyPlayer p in s_Singleton.lobbyPanel.GetComponent<LobbyPlayerList>().Players)
+                {
+                    p.OnClientReady(true);
+                    p.OnReadyClicked();
+                }
+                yield return new WaitForSeconds(0.1f);
             }
         }
 

@@ -145,6 +145,7 @@ def main():
     replay_buffer = deque()
     initial_episode = 0
     win_count = 0
+    last_win_count = 0
     if load:
         with open("Trained/save.json", 'r', encoding='utf-8') as f:
             data = json.load(f)
@@ -152,6 +153,7 @@ def main():
             replay_buffer = deque(data["replay_buffer"])
             initial_episode = data["episode"] + 1
             win_count = data["win_count"]
+            last_win_count = win_count
 
     log_record = []
     last_log_length = 0
@@ -243,17 +245,21 @@ def main():
 
                 judge = ""
                 if reward_sum >= 30:
-                    judge = "    Great!"
-                elif reward_sum <= -40:
-                    judge = "    Oops!"
-                elif reward_sum <= -20:
-                    judge = "    Bad!"
+                    judge = "    ** Great!"
+                elif reward_sum > 0:
+                    judge = "    * Good!"
+                elif reward_sum <= -60:
+                    judge = "    @@ Oops!"
+                elif reward_sum <= -30:
+                    judge = "    @ Bad!"
 
                 log = "Episode: {}    steps: {}    reward sum: {}    win: {}{}".format(episode + 1, step_count, reward_sum, win, judge)
                 print("# " + log)
                 log_record.append(log)
+                """
                 if step_count > 10000:
                     pass  # break
+                """
 
                 if episode % 10 == 1:  # train every 10 episode
                     # Get a random batch of experiences.
@@ -265,7 +271,12 @@ def main():
                     print("# " + log)
                     log_record.append(log)
 
-                if episode % 30 == 1:  # record every 30 episode
+                record_period = 30
+                if episode % record_period == 1:  # record every 30 episode
+                    if episode > record_period:
+                        log_record.append("recent win rate: {} / {} = {}".format(win_count - last_win_count,
+                                                                                 record_period,
+                                                                                 float(win_count - last_win_count) / record_period))
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file.close()
@@ -283,6 +294,7 @@ def main():
                     data["episode"] = episode
                     data["replay_buffer"] = list(replay_buffer)
                     data["win_count"] = win_count
+                    last_win_count = win_count
                     with open("Trained/save.json", 'w', encoding='utf-8') as f:
                         json.dump(data, f, ensure_ascii=False, indent=1)
 
@@ -292,8 +304,8 @@ def main():
         time.sleep(8)
 
     file = open("record.txt", mode='at', encoding='utf-8')
-    file.write('\n'.join(log_record[last_log_length:]) + "\nwin rate: {} / {} = {}\n".format(win_count, max_episodes,
-                                                                           (float(win_count)/max_episodes)))
+    file.write('\n'.join(log_record[last_log_length:]) + "\nwin rate: {} / {} = {}\n".format(win_count, episode,
+                                                                           (float(win_count)/episode)))
     file.write("end " + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + "\n")
     file.close()
 

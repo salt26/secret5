@@ -268,13 +268,13 @@ def main():
                     win = False
 
                 judge = ""
-                if reward_sum >= 25:
+                if reward_sum >= 40:
                     judge = "    ** Great!"
-                elif reward_sum >= 5:
+                elif reward_sum >= 10:
                     judge = "    * Good!"
-                elif reward_sum <= -50:
+                elif reward_sum <= -80:
                     judge = "    @@ Oops!"
-                elif reward_sum <= -25:
+                elif reward_sum <= -30:
                     judge = "    @ Bad!"
 
                 if win:

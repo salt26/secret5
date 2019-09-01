@@ -9,6 +9,7 @@ import time
 import traceback
 from datetime import datetime
 import json
+from operator import add
 
 # env = gym.make('CartPole-v0')
 # env._max_episode_steps = 10001
@@ -219,11 +220,8 @@ def main():
                     print(' '.join(string_out))
                     performed_action = list(map(int, input().split(' ')))  # secret5.step(action)
                     print("# performed_action: " + str(performed_action))
-                    try:
-                        ind = performed_action.index(1)
-                        performed_action_record.append(ind)
-                    except ValueError:
-                        pass
+                    performed_action_record.append(performed_action)
+
                     next_state = list(map(float, input().split(' ')))
                     print("# next_state: " + str(next_state))
                     reward = float(input())
@@ -291,12 +289,14 @@ def main():
                         log_record.append("recent win rate: {} / {} = {}".format(win_count - last_win_count,
                                                                                  record_period,
                                                                                  float(win_count - last_win_count) / record_period))
-                    log = "performed action index:\n>\t"
-                    for i in range(8):
-                        log = log + "{}\t".format(i)
-                    log = log + "\n>\t"
-                    for i in range(8):
-                        log = log + "{}\t".format(performed_action_record.count(i))
+                    log = "performed actions:\n>    \tAttack\tHeal\tBomb\tDeceive\tAvoid\tFreeze"
+                    for i in range(4):
+                        log = log + "\n> {}: \t".format(i)
+                        count = [0, 0, 0, 0, 0, 0]
+                        for ac in performed_action_record:
+                            if ac[0] == i:
+                                count = list(map(add, count, ac[1:]))
+                        log = log + "\t".join(map(str, count))
                     log_record.append(log + "\n")
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')

@@ -1945,21 +1945,35 @@ public class PlayerControl : NetworkBehaviour
             }
             //Debug.Log("max actionScore: " + maxAction + ", maxActionIndex: " + maxActionIndex.ToString());
             int chosenIndex = maxActionIndex[Random.Range(0, maxActionIndex.Count)];
-            string chosenAction = "";
-            for (int i = 0; i < 8; i++)
+            int targetIndex = (GetPlayerIndex() + (chosenIndex / 2) + 1) % 5;
+            string chosenCard = hand[GetPlayerIndex() * 2 + (chosenIndex % 2)];
+            string chosenAction = objectRelation[targetIndex] + " ";
+            switch (chosenCard)
             {
-                if (i == chosenIndex)
-                {
-                    chosenAction += "1 ";
-                }
-                else
-                {
-                    chosenAction += "0 ";
-                }
+                case "Attack":
+                    chosenAction += "1 0 0 0 0 0";
+                    break;
+                case "Heal":
+                    chosenAction += "0 1 0 0 0 0";
+                    break;
+                case "Bomb":
+                    chosenAction += "0 0 1 0 0 0";
+                    break;
+                case "Deceive":
+                    chosenAction += "0 0 0 1 0 0";
+                    break;
+                case "Avoid":
+                    chosenAction += "0 0 0 0 1 0";
+                    break;
+                case "Freeze":
+                    chosenAction += "0 0 0 0 0 1";
+                    break;
+                default:
+                    chosenAction += "0 0 0 0 0 0";
+                    break;
             }
-            chosenAction = chosenAction.TrimEnd(' ');
             bm.SetIPCMessage(chosenAction);             // performed_action
-            box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
+            box.Add(targetIndex + chosenCard);
             //Debug.Log("AI choose " + box[0] + " action in my turn.");
         }
         else
@@ -1985,21 +1999,35 @@ public class PlayerControl : NetworkBehaviour
             }
             //Debug.Log("max actionScore: " + maxAction + ", maxActionIndex: " + maxActionIndex.ToString());
             int chosenIndex = maxActionIndex[Random.Range(0, maxActionIndex.Count)];    // argmax with random
-            string chosenAction = "";
-            for (int i = 0; i < 8; i++)
+            int targetIndex = (GetPlayerIndex() + (chosenIndex / 2) + 1) % 5;
+            string chosenCard = hand[GetPlayerIndex() * 2 + (chosenIndex % 2)];
+            string chosenAction = objectRelation[targetIndex] + " ";
+            switch (chosenCard)
             {
-                if (i == chosenIndex)
-                {
-                    chosenAction += "1 ";
-                }
-                else
-                {
-                    chosenAction += "0 ";
-                }
+                case "Attack":
+                    chosenAction += "1 0 0 0 0 0";
+                    break;
+                case "Heal":
+                    chosenAction += "0 1 0 0 0 0";
+                    break;
+                case "Bomb":
+                    chosenAction += "0 0 1 0 0 0";
+                    break;
+                case "Deceive":
+                    chosenAction += "0 0 0 1 0 0";
+                    break;
+                case "Avoid":
+                    chosenAction += "0 0 0 0 1 0";
+                    break;
+                case "Freeze":
+                    chosenAction += "0 0 0 0 0 1";
+                    break;
+                default:
+                    chosenAction += "0 0 0 0 0 0";
+                    break;
             }
-            chosenAction = chosenAction.TrimEnd(' ');
-            bm.SetIPCMessage(chosenAction);     // performed_action
-            box.Add((GetPlayerIndex() + (chosenIndex / 2) + 1) % 5 + hand[GetPlayerIndex() * 2 + (chosenIndex % 2)]);
+            bm.SetIPCMessage(chosenAction);             // performed_action
+            box.Add(targetIndex + chosenCard);
             //Debug.Log("AI choose " + box[0] + " action in other's turn.");
         }
     }

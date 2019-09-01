@@ -370,7 +370,7 @@ public class BattleManager : NetworkBehaviour
                 LobbyManager.s_Singleton.IPCs[0].SendRequest("0\n" + stateSpace, "Freezed");
                 LobbyManager.s_Singleton.IPCs[0].ReceiveRequest();
                 // 게임 종료 여부와 인공지능 플레이어가 바라본 현재 상태, 그리고 아무 행동도 수행하지 않았음을 IPC로 전달
-                bm.SetIPCMessage("0 0 0 0 0 0 0 0");
+                bm.SetIPCMessage("-1 0 0 0 0 0 0");
             }
 
             players[turnPlayer].Freeze();

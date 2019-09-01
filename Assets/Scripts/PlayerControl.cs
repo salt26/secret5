@@ -1972,7 +1972,7 @@ public class PlayerControl : NetworkBehaviour
                     chosenAction += "0 0 0 0 0 0";
                     break;
             }
-            bm.SetIPCMessage(chosenAction);             // performed_action
+            bm.SetIPCMessage(chosenAction + "\n" + chosenIndex);             // performed_action
             box.Add(targetIndex + chosenCard);
             //Debug.Log("AI choose " + box[0] + " action in my turn.");
         }
@@ -2026,7 +2026,7 @@ public class PlayerControl : NetworkBehaviour
                     chosenAction += "0 0 0 0 0 0";
                     break;
             }
-            bm.SetIPCMessage(chosenAction);             // performed_action
+            bm.SetIPCMessage(chosenAction + "\n" + chosenIndex);             // performed_action
             box.Add(targetIndex + chosenCard);
             //Debug.Log("AI choose " + box[0] + " action in other's turn.");
         }

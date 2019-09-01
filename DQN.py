@@ -16,7 +16,7 @@ from operator import add
 
 # Constants defining our neural network
 input_size = 81  # env.observation_space.shape[0]
-output_size = 8  # env.action_space.n
+output_size = 9  # env.action_space.n
 
 # Set Q-learning related parameters
 dis = .99
@@ -210,7 +210,7 @@ def main():
                     if np.random.rand(1) < e:
                         action = [[1, 1, 1, 1, 1, 1, 1, 1]]  # env.action_space.sample()
                     else:
-                        action = mainDQN.predict(state).tolist() # np.argmax(mainDQN.predict(state))
+                        action = mainDQN.predict(state).tolist()[:8] # np.argmax(mainDQN.predict(state))
 
                     print("# action: " + str(action[0]))
                     # Get new state and reward from environment
@@ -219,7 +219,10 @@ def main():
                         string_out.append(str(a))
                     print(' '.join(string_out))
                     performed_action = list(map(int, input().split(' ')))  # secret5.step(action)
-                    print("# performed_action: " + str(performed_action))
+                    performed_action_index = int(input())
+                    print("# performed_action: " + str(performed_action_index) + " / "
+                          + str(performed_action))
+                    performed_action.append(performed_action_index)
                     performed_action_record.append(performed_action)
 
                     next_state = list(map(float, input().split(' ')))
@@ -239,7 +242,7 @@ def main():
                     else:
                         done_record = False
                     # Save the experiance to our buffer
-                    replay_buffer.append((state, performed_action, reward, next_state, done_record))
+                    replay_buffer.append((state, performed_action_index, reward, next_state, done_record))
                     if len(replay_buffer) > REPLAY_MEMORY:
                         replay_buffer.popleft()
 
@@ -295,9 +298,19 @@ def main():
                         count = [0, 0, 0, 0, 0, 0]
                         for ac in performed_action_record:
                             if ac[0] == i:
-                                count = list(map(add, count, ac[1:]))
+                                count = list(map(add, count, ac[1:7]))
                         log = log + "\t".join(map(str, count))
+
+                    log = log + "\nperformed action indices:\n>\t"
+                    for i in range(9):
+                        log = log + "{}\t".format(i)
+                    log = log + "\n>\t"
+                    count = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+                    for ac in performed_action_record:
+                        count[ac[7]] += 1
+                    log = log + "\t".join(map(str, count))
                     log_record.append(log + "\n")
+
                     file = open("record.txt", mode='at', encoding='utf-8')
                     file.write('\n'.join(log_record[last_log_length:]) + '\n')
                     file.close()

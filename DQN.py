@@ -210,12 +210,12 @@ def main():
                     if np.random.rand(1) < e:
                         action = [[1, 1, 1, 1, 1, 1, 1, 1]]  # env.action_space.sample()
                     else:
-                        action = mainDQN.predict(state).tolist()[:8] # np.argmax(mainDQN.predict(state))
+                        action = mainDQN.predict(state).tolist() # np.argmax(mainDQN.predict(state))
 
                     print("# action: " + str(action[0]))
                     # Get new state and reward from environment
                     string_out = []
-                    for a in action[0]:
+                    for a in action[0][:8]:
                         string_out.append(str(a))
                     print(' '.join(string_out))
                     performed_action = list(map(int, input().split(' ')))  # secret5.step(action)

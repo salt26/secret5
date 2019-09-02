@@ -33,57 +33,48 @@ class DQN:
 
         self._build_network()
 
-    def _build_network(self, h_size=256, l_rate=1e-3):
+    def _build_network(self, h_size=128, l_rate=1e-3):
         with tf.variable_scope(self.net_name):
             self._X = tf.placeholder(
                 tf.float32, [None, self.input_size], name="input_x")
 
             if self._load:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size])
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 4])
             else:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size],
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 4],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer1 = tf.nn.leaky_relu(tf.matmul(self._X, W1))
 
             if self._load:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size, h_size])
+                W2 = tf.get_variable("W2", shape=[h_size * 4, h_size * 2])
             else:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size, h_size],
+                W2 = tf.get_variable("W2", shape=[h_size * 4, h_size * 2],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer2 = tf.nn.leaky_relu(tf.matmul(layer1, W2))
 
             if self._load:
                 # Third layer of weights
-                W3 = tf.get_variable("W3", shape=[h_size, h_size])
+                W3 = tf.get_variable("W3", shape=[h_size * 2, h_size])
             else:
                 # Third layer of weights
-                W3 = tf.get_variable("W3", shape=[h_size, h_size],
+                W3 = tf.get_variable("W3", shape=[h_size * 2, h_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer3 = tf.nn.leaky_relu(tf.matmul(layer2, W3))
 
             if self._load:
                 # Fourth layer of weights
-                W4 = tf.get_variable("W4", shape=[h_size, h_size])
+                W4 = tf.get_variable("W4", shape=[h_size, self.output_size])
             else:
                 # Fourth layer of weights
-                W4 = tf.get_variable("W4", shape=[h_size, h_size],
-                                     initializer=tf.contrib.layers.xavier_initializer())
-            layer4 = tf.nn.leaky_relu(tf.matmul(layer3, W4))
-
-            if self._load:
-                # Fifth layer of weights
-                W5 = tf.get_variable("W5", shape=[h_size, self.output_size])
-            else:
-                # Fifth layer of weights
-                W5 = tf.get_variable("W5", shape=[h_size, self.output_size],
+                W4 = tf.get_variable("W4", shape=[h_size, self.output_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
 
             # Q prediction
-            self._Qpred = tf.matmul(layer4, W5)
+            self._Qpred = tf.matmul(layer3, W4)
 
         # We need to define the parts of the network needed for learning a
         # policy

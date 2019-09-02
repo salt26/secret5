@@ -40,28 +40,28 @@ class DQN:
 
             if self._load:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 2])
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size])
             else:
                 # First layer of weights
-                W1 = tf.get_variable("W1", shape=[self.input_size, h_size * 2],
+                W1 = tf.get_variable("W1", shape=[self.input_size, h_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer1 = tf.nn.leaky_relu(tf.matmul(self._X, W1))
 
             if self._load:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size * 2, h_size * 2])
+                W2 = tf.get_variable("W2", shape=[h_size, h_size])
             else:
                 # Second layer of weights
-                W2 = tf.get_variable("W2", shape=[h_size * 2, h_size * 2],
+                W2 = tf.get_variable("W2", shape=[h_size, h_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer2 = tf.nn.leaky_relu(tf.matmul(layer1, W2))
 
             if self._load:
                 # Third layer of weights
-                W3 = tf.get_variable("W3", shape=[h_size * 2, h_size])
+                W3 = tf.get_variable("W3", shape=[h_size, h_size])
             else:
                 # Third layer of weights
-                W3 = tf.get_variable("W3", shape=[h_size * 2, h_size],
+                W3 = tf.get_variable("W3", shape=[h_size, h_size],
                                      initializer=tf.contrib.layers.xavier_initializer())
             layer3 = tf.nn.leaky_relu(tf.matmul(layer2, W3))
 
@@ -204,7 +204,7 @@ def main():
             print(initial_episode)
 
             for episode in range(initial_episode, max_episodes):
-                e = 1. / ((episode / 45.) + 1)
+                e = 1. / ((episode / 30.) + 1)
                 done = 0
                 step_count = 0
                 reward_sum = 0

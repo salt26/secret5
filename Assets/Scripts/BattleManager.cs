@@ -440,6 +440,8 @@ public class BattleManager : NetworkBehaviour
                         {
                             // 상대가 본인의 목표
                             reward -= 3 * exchange.GetObjectPlayerHealthVariation();    // 본인의 목표인 상대의 체력 변화량 +1당 -3점
+                            if (exchange.GetObjectPlayerHealthVariation() > 0)
+                                reward -= 2 * exchange.GetObjectPlayerHealthVariation();    // 본인의 목표인 상대가 치유받으면 체력 변화량 +1당 추가로 -2점
                             if (!player.HasDead() && exchange.GetObjectPlayer().HasDead())
                             {
                                 reward += 60;                                       // 본인이 사망하지 않았고 본인의 목표인 상대 사망 시 +60점
@@ -449,6 +451,8 @@ public class BattleManager : NetworkBehaviour
                         {
                             // 상대가 본인의 목표가 아님
                             reward += 3 * exchange.GetObjectPlayerHealthVariation();    // 본인의 목표가 아닌 상대의 체력 변화량 +1당 +3점
+                            if (exchange.GetObjectPlayerHealthVariation() < 0)
+                                reward += 2 * exchange.GetObjectPlayerHealthVariation();    // 본인의 목표가 아닌 상대가 공격받으면 체력 변화량 -1당 추가로 -2점
                             if (exchange.GetObjectPlayer().HasDead())
                             {
                                 reward -= 60;                                       // 본인의 목표가 아닌 상대 사망 시 -60점

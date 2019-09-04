@@ -149,7 +149,7 @@ def main():
     if len(sys.argv) > 1:
         load = True
 
-    max_episodes = 5000
+    max_episodes = 10000
     # store the previous observations in replay memory
     replay_buffer = deque()
     initial_episode = 0
@@ -160,7 +160,7 @@ def main():
             data = json.load(f)
             # store the previous observations in replay memory
             replay_buffer = deque(data["replay_buffer"])
-            initial_episode = data["episode"] + 1
+            initial_episode = data["episode"]
             win_count = data["win_count"]
             last_win_count = win_count
 
@@ -192,10 +192,10 @@ def main():
 
             sess.run(copy_ops)
             input()
-            print(initial_episode)
+            print(initial_episode + 1)
 
-            for episode in range(initial_episode, max_episodes):
-                e = 1. / ((episode / 30.) + 1)
+            for episode in range(initial_episode + 1, max_episodes):
+                e = 0  # 1. / ((episode / 30.) + 1)
                 done = 0
                 step_count = 0
                 reward_sum = 0
@@ -273,7 +273,7 @@ def main():
                 else:
                     win_str = "Lose!"
 
-                log = "Episode: {}    steps: {}    reward sum: {}    {}{}".format(episode + 1, step_count, reward_sum, win_str, judge)
+                log = "Episode: {}    steps: {}    reward sum: {}    {}{}".format(episode, step_count, reward_sum, win_str, judge)
                 print("# " + log)
                 log_record.append(log)
                 """
@@ -281,13 +281,13 @@ def main():
                     pass  # break
                 """
 
-                if episode % 10 == 1:  # train every 10 episode
+                if episode % 10 == 1 and episode > 10:  # train every 10 episode
                     # Get a random batch of experiences.
                     for _ in range(100):
                         minibatch = random.sample(replay_buffer, 10)
                         loss, _ = replay_train(mainDQN, targetDQN, minibatch)
 
-                    log = "Loss: {}    win rate: {} / {} = {}".format(loss, win_count, episode + 1, (float(win_count)/(episode + 1)))
+                    log = "Loss: {}    win rate: {} / {} = {}".format(loss, win_count, episode, (float(win_count)/episode))
                     print("# " + log)
                     log_record.append(log)
 
@@ -330,7 +330,7 @@ def main():
                     mainDQN.saver.save(sess, "Trained/mainDQN.ckpt")
                     targetDQN.saver.save(sess, "Trained/targetDQN.ckpt")
                     data = dict()
-                    data["episode"] = episode
+                    data["episode"] = episode + 1
                     data["replay_buffer"] = list(replay_buffer)
                     data["win_count"] = win_count
                     last_win_count = win_count

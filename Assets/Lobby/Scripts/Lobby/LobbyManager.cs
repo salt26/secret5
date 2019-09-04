@@ -249,9 +249,8 @@ namespace Prototype.NetworkLobby
 
         public void ServerReturnToLobbyAndRestart()
         {
-            episode++;
             Debug.Log("Episode " + episode + " is done.");
-            if (episode < 5000)
+            if (episode++ < 10000)
             {
                 StartCoroutine(Restart());
             }

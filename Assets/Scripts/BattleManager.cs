@@ -979,7 +979,7 @@ public class BattleManager : NetworkBehaviour
 
     IEnumerator ReturnToLobby(float timing)
     {
-        Debug.Log("ReturnToLobby");
+        //Debug.Log("ReturnToLobby");
         if (BattleManager.NO_DELAY)
             yield return null;
         else

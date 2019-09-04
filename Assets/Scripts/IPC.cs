@@ -64,7 +64,7 @@ public class IPC
         do
         {
             myString = myStreamReader.ReadLine();
-            UnityEngine.Debug.Log("< Raw: " + myString);
+            //UnityEngine.Debug.Log("< Raw: " + myString);
 
         } while (!myProcess.HasExited && (myString == null || myString.Length < 1 || myString.Substring(0, 1).Equals("#")));
 
@@ -80,7 +80,7 @@ public class IPC
 
     public void SendRequest(string message, string comment)
     {
-        UnityEngine.Debug.Log("> " + comment + ": " + message);
+        //UnityEngine.Debug.Log("> " + comment + ": " + message);
         myStreamWriter.WriteLine(message);
     }
 

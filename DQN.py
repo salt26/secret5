@@ -195,7 +195,7 @@ def main():
             print(initial_episode + 1)
 
             for episode in range(initial_episode + 1, max_episodes):
-                e = 0  # 1. / ((episode / 30.) + 1)
+                e = 1. / ((episode / 30.) + 1)
                 done = 0
                 step_count = 0
                 reward_sum = 0
